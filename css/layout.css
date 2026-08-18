@@ -410,7 +410,42 @@ html, body {
     width: 100%;
 }
 
+/* Responsive Hero Grid Container & Admin Logout Accessibility */
+.hero-grid-container {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    align-items: center;
+    gap: 40px;
+    width: 100%;
+}
+
+.admin-logout-btn {
+    display: inline-flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 10002 !important;
+    position: relative !important;
+}
+
 @media (max-width: 992px) {
+    .hero-grid-container {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        width: 100%;
+    }
+
+    .hero-content-col {
+        width: 100%;
+        order: 1;
+    }
+
+    .hero-estimator-col {
+        width: 100%;
+        order: 2;
+        margin-top: 10px;
+    }
+
     .contact-grid {
         display: flex;
         flex-direction: column;

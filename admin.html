@@ -36,7 +36,7 @@
 
         <div class="nav-actions">
             <span class="badge" style="background: rgba(224, 30, 90, 0.2); color: var(--winstar-pink);">ROLE: ADMINISTRATOR</span>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-admin-logout">
+            <button type="button" class="btn btn-gradient btn-sm admin-logout-btn" id="btn-admin-logout" style="display: inline-flex !important; position: relative; z-index: 10002;">
                 Logout Admin
             </button>
         </div>
@@ -50,6 +50,11 @@
             <div>
                 <h1 style="font-size: var(--text-3xl);">ADMINISTRATOR CONTROL CENTER</h1>
                 <p style="font-size: 0.9rem; color: var(--color-text-muted);" id="admin-welcome-text">Manage wholesale user approvals, monitor customer service requests & review stats.</p>
+            </div>
+            <div>
+                <button type="button" class="btn btn-outline btn-sm js-admin-logout" id="btn-admin-logout-hero" style="border-color: var(--winstar-red); color: var(--winstar-red); font-weight: 700;">
+                    LOGOUT ADMIN &rarr;
+                </button>
             </div>
         </div>
     </div>
@@ -233,10 +238,14 @@
         document.getElementById('filter-request-status').addEventListener('change', () => loadServiceRequests());
 
         // Admin Logout
-        document.getElementById('btn-admin-logout').addEventListener('click', () => {
+        const handleAdminLogout = () => {
             Auth.logout();
             window.location.href = 'admin-login.html';
-        });
+        };
+        const logoutBtn1 = document.getElementById('btn-admin-logout');
+        const logoutBtn2 = document.getElementById('btn-admin-logout-hero');
+        if (logoutBtn1) logoutBtn1.addEventListener('click', handleAdminLogout);
+        if (logoutBtn2) logoutBtn2.addEventListener('click', handleAdminLogout);
 
         // Rejection Modal Listeners
         document.getElementById('modal-reject-cancel').addEventListener('click', () => {

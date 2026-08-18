@@ -476,17 +476,41 @@
     border-color: var(--color-accent);
 }
 
+/* Responsive Order Workspace Grid (Step 1 -> Step 2 -> Step 3) */
+.qp-order-container {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    align-items: start;
+    gap: 40px;
+}
+
 /* Responsive */
-@media (max-width: 1024px) {
-    .qp-layout {
-        grid-template-columns: 1fr;
+@media (max-width: 992px) {
+    .qp-order-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
     }
 
-    .qp-summary {
-        position: static;
-        height: auto;
-        border-left: none;
-        border-top: 1px solid var(--color-border);
+    .qp-config-column {
+        width: 100%;
+        order: 1;
+    }
+
+    .qp-summary-column {
+        width: 100%;
+        order: 2;
+    }
+
+    .summary-sticky-card {
+        position: static !important;
+        max-height: none !important;
+        width: 100% !important;
+        margin-top: 10px;
+    }
+
+    .toggle-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -496,6 +520,6 @@
     }
 
     .binding-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
     }
 }

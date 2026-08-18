@@ -24,14 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Inject Mobile Drawer Actions if not existing
         if (!navMenu.querySelector('.mobile-menu-actions')) {
             const user = Auth.getUser();
-            const authText = user ? `👤 ${user.companyName || user.name}` : 'Login / Account';
+            const authText = user ? `${user.companyName || user.name}` : 'Login / Account';
             const authHref = user ? 'dashboard.html' : 'login.html';
 
             const mobileActions = document.createElement('div');
             mobileActions.className = 'mobile-menu-actions';
             mobileActions.innerHTML = `
                 <a href="cart.html" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center;">
-                    🛒 Wholesale Cart
+                    Wholesale Cart
                 </a>
                 <a href="${authHref}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; border-color: var(--winstar-yellow); color: var(--winstar-yellow);">
                     ${authText}
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (user) {
             navAuthContainer.innerHTML = `
                 <a href="dashboard.html" class="btn btn-outline btn-sm" style="border-color: var(--winstar-yellow); color: var(--winstar-yellow);">
-                    👤 ${user.companyName || user.name}
+                    ${user.companyName || user.name}
                 </a>
             `;
         } else {

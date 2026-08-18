@@ -34,6 +34,14 @@
             <li><a href="orders.html" class="nav-link">Order History</a></li>
             <li><a href="services.html" class="nav-link">Services</a></li>
             <li><a href="contact.html" class="nav-link">Support</a></li>
+            <li class="mobile-menu-actions">
+                <button type="button" class="btn btn-outline btn-sm" id="btn-logout-mobile" style="border-color: var(--color-error); color: var(--color-error); width: 100%; display: flex; justify-content: center; align-items: center; gap: 6px;">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Logout
+                </button>
+            </li>
         </ul>
 
         <div class="nav-actions">
@@ -48,6 +56,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                 </svg>
                 Logout
+            </button>
+            <button class="mobile-toggle" aria-label="Toggle Navigation Menu">
+                <span></span><span></span><span></span>
             </button>
         </div>
     </div>
@@ -202,9 +213,11 @@
             });
         }
 
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            Auth.logout();
-        });
+        const handleLogout = () => Auth.logout();
+        const btnLogout = document.getElementById('btn-logout');
+        const btnLogoutMobile = document.getElementById('btn-logout-mobile');
+        if (btnLogout) btnLogout.addEventListener('click', handleLogout);
+        if (btnLogoutMobile) btnLogoutMobile.addEventListener('click', handleLogout);
     });
 </script>
 

@@ -340,10 +340,17 @@ html, body {
 }
 
 @media (max-width: 768px) {
+    /* Stack generic grids vertically on mobile screens */
+    .grid-2, .grid-3, .grid-4 {
+        grid-template-columns: 1fr;
+    }
+
     /* Hide top header action buttons on mobile screens to prevent overlap with logo & title */
     .nav-actions > .btn,
     .nav-actions > .nav-auth,
-    .nav-actions > .cart-btn {
+    .nav-actions > .cart-btn,
+    .nav-actions > .badge,
+    .admin-logout-btn {
         display: none !important;
     }
 

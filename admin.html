@@ -34,10 +34,22 @@
             </div>
         </a>
 
+        <ul class="nav-menu">
+            <li class="mobile-menu-actions">
+                <span class="badge" style="background: rgba(224, 30, 90, 0.2); color: var(--winstar-pink); display: block; margin-bottom: 12px; text-align: center; width: 100%;">ROLE: ADMINISTRATOR</span>
+                <button type="button" class="btn btn-outline btn-sm js-admin-logout" style="border-color: var(--winstar-red); color: var(--winstar-red); font-weight: 700; width: 100%;">
+                    LOGOUT ADMIN &rarr;
+                </button>
+            </li>
+        </ul>
+
         <div class="nav-actions">
             <span class="badge" style="background: rgba(224, 30, 90, 0.2); color: var(--winstar-pink);">ROLE: ADMINISTRATOR</span>
-            <button type="button" class="btn btn-gradient btn-sm admin-logout-btn" id="btn-admin-logout" style="display: inline-flex !important; position: relative; z-index: 10002;">
+            <button type="button" class="btn btn-gradient btn-sm admin-logout-btn js-admin-logout" id="btn-admin-logout">
                 Logout Admin
+            </button>
+            <button class="mobile-toggle" aria-label="Toggle Navigation Menu">
+                <span></span><span></span><span></span>
             </button>
         </div>
     </div>
@@ -242,10 +254,8 @@
             Auth.logout();
             window.location.href = 'admin-login.html';
         };
-        const logoutBtn1 = document.getElementById('btn-admin-logout');
-        const logoutBtn2 = document.getElementById('btn-admin-logout-hero');
-        if (logoutBtn1) logoutBtn1.addEventListener('click', handleAdminLogout);
-        if (logoutBtn2) logoutBtn2.addEventListener('click', handleAdminLogout);
+        const logoutBtns = document.querySelectorAll('.js-admin-logout');
+        logoutBtns.forEach(btn => btn.addEventListener('click', handleAdminLogout));
 
         // Rejection Modal Listeners
         document.getElementById('modal-reject-cancel').addEventListener('click', () => {

@@ -58,14 +58,14 @@
 <!-- CONTACT DETAILS & FORM -->
 <section class="section-padding" style="background: var(--color-bg-surface);">
     <div class="container">
-        <div class="grid-2" style="gap: 50px;">
+        <div class="contact-grid">
             
             <!-- LEFT: DETAILS -->
-            <div>
+            <div class="contact-info-col">
                 <div class="section-label">GET IN TOUCH</div>
                 <h2 class="section-title">STORE & PHONE DETAILS</h2>
 
-                <div class="glass-card" style="padding: 30px; margin-bottom: 24px;">
+                <div class="glass-card contact-card">
                     <div style="display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px;">
                         <div style="color: var(--winstar-pink);">
                             <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -118,29 +118,31 @@
             </div>
 
             <!-- RIGHT: INQUIRY FORM -->
-            <div class="glass-card gradient-border-card" style="padding: 24px;">
-                <h3 style="font-size: 1.5rem; color: #FFF; margin-bottom: 20px;">SEND GENERAL INQUIRY</h3>
+            <div class="contact-form-col">
+                <div class="glass-card gradient-border-card contact-card">
+                    <h3 style="font-size: 1.5rem; color: #FFF; margin-bottom: 20px;">SEND GENERAL INQUIRY</h3>
 
-                <form id="contact-form">
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 6px;">YOUR NAME *</label>
-                        <input type="text" required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF;" placeholder="Name">
-                    </div>
+                    <form id="contact-form">
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 6px;">YOUR NAME *</label>
+                            <input type="text" required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF;" placeholder="">
+                        </div>
 
-                    <div style="margin-bottom: 16px;">
-                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 6px;">PHONE NUMBER *</label>
-                        <input type="tel" required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF;" placeholder="Mobile">
-                    </div>
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 6px;">PHONE NUMBER *</label>
+                            <input type="tel" required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF;" placeholder="">
+                        </div>
 
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 6px;">MESSAGE / INQUIRY *</label>
-                        <textarea required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF; min-height: 120px;" placeholder="Tell us what you need printed..."></textarea>
-                    </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 6px;">MESSAGE / INQUIRY *</label>
+                            <textarea required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF; min-height: 120px;" placeholder=""></textarea>
+                        </div>
 
-                    <button type="submit" class="btn btn-yellow btn-lg" style="width: 100%;">
-                        SUBMIT INQUIRY &rarr;
-                    </button>
-                </form>
+                        <button type="submit" class="btn btn-yellow btn-lg" style="width: 100%;">
+                            SUBMIT INQUIRY &rarr;
+                        </button>
+                    </form>
+                </div>
             </div>
 
         </div>

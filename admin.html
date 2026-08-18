@@ -11,146 +11,312 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/animations.css">
     <style>
-        .status-badge-pending { background: rgba(255, 195, 0, 0.2); color: #FFC300; border: 1px solid rgba(255, 195, 0, 0.4); padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; display: inline-block; }
-        .status-badge-approved { background: rgba(16, 185, 129, 0.2); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; display: inline-block; }
-        .status-badge-rejected { background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; display: inline-block; }
-        .status-select { background: rgba(255, 255, 255, 0.08); color: #FFF; border: 1px solid var(--color-border-dark); padding: 6px 12px; border-radius: var(--radius-sm); font-size: 0.85rem; }
+        body {
+            background-color: #0B0B0F;
+            color: #FFFFFF;
+            font-family: var(--font-body);
+        }
+
+        /* Dashboard Top Bar & Tab Pill Navigation */
+        .admin-wrapper {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        .admin-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .admin-brand-title {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.02em;
+        }
+
+        .admin-brand-title span {
+            font-weight: 300;
+            color: var(--color-text-muted);
+        }
+
+        .admin-logout-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #FFFFFF;
+            padding: 8px 24px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .admin-logout-btn:hover {
+            background: var(--winstar-pink);
+            color: #FFFFFF;
+            border-color: var(--winstar-pink);
+        }
+
+        /* Rounded Pill Tab Bar matching screenshot */
+        .admin-tab-bar {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9999px;
+            padding: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--color-text-muted);
+            padding: 8px 24px;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .admin-tab-btn:hover {
+            color: #FFFFFF;
+        }
+
+        .admin-tab-btn.active {
+            background: #FFFFFF;
+            color: #110E18;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Main Dashboard Card matching screenshot */
+        .admin-card {
+            background: var(--color-bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .admin-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 20px;
+        }
+
+        .admin-card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        /* Rounded Soft Status Badges matching screenshot */
+        .badge-role-admin {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .badge-role-customer {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60A5FA;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-badge-pending {
+            background: rgba(255, 195, 0, 0.15);
+            color: #FFC300;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-badge-approved {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-badge-rejected {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-select {
+            background: #181822 !important;
+            color: #FFF !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        /* Tab Content Views */
+        .tab-view {
+            display: none;
+        }
+
+        .tab-view.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
 
 <div class="texture-overlay"></div>
 
-<!-- HEADER NAVBAR -->
-<header class="navbar">
-    <div class="container navbar-container">
-        <a href="admin.html" class="logo-brand">
-            <div class="logo-badge">
-                <img src="assets/images/logo.png" alt="Winstar Digital Printing Logo">
-            </div>
-            <div class="logo-text">
-                <div class="logo-title">WINSTAR <span>ADMIN</span></div>
-                <div class="logo-sub">MANAGEMENT CONTROL PORTAL</div>
-            </div>
-        </a>
+<div class="admin-wrapper">
+    
+    <!-- TOP BRAND HEADER ROW -->
+    <div class="admin-header-row">
+        <div class="admin-brand-title">
+            WINSTAR <span>/ Dashboard</span>
+        </div>
+        <button type="button" class="admin-logout-btn" id="btn-admin-logout">
+            Logout
+        </button>
+    </div>
 
-        <div class="nav-actions">
-            <span class="badge" style="background: rgba(224, 30, 90, 0.2); color: var(--winstar-pink);">ROLE: ADMINISTRATOR</span>
-            <button type="button" class="btn btn-outline btn-sm" id="btn-admin-logout">
-                Logout Admin
-            </button>
+    <!-- ROUNDED PILL TAB NAVIGATION BAR -->
+    <div class="admin-tab-bar">
+        <button type="button" class="admin-tab-btn active" data-tab="overview">Overview</button>
+        <button type="button" class="admin-tab-btn" data-tab="users">Users</button>
+        <button type="button" class="admin-tab-btn" data-tab="requests">Orders</button>
+    </div>
+
+    <!-- VIEW 1: OVERVIEW STATS -->
+    <div class="tab-view active" id="view-overview">
+        <div class="grid-4" style="gap: 20px;">
+            <div class="admin-card">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; margin-bottom: 8px;">TOTAL REGISTERED USERS</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: #FFF;" id="stat-total-users">0</div>
+                <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 4px;">Business & Client Accounts</div>
+            </div>
+
+            <div class="admin-card" style="border-left: 4px solid var(--winstar-yellow);">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--winstar-yellow); text-transform: uppercase; margin-bottom: 8px;">PENDING APPROVALS</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--winstar-yellow);" id="stat-pending-users">0</div>
+                <div style="font-size: 0.8rem; color: var(--winstar-yellow); margin-top: 4px;">Requires Admin Verification</div>
+            </div>
+
+            <div class="admin-card" style="border-left: 4px solid #10B981;">
+                <div style="font-size: 0.8rem; font-weight: 700; color: #10B981; text-transform: uppercase; margin-bottom: 8px;">APPROVED CUSTOMERS</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: #10B981;" id="stat-approved-users">0</div>
+                <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 4px;">Active Wholesale Portals</div>
+            </div>
+
+            <div class="admin-card">
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--winstar-pink); text-transform: uppercase; margin-bottom: 8px;">PRINT SERVICE REQUESTS</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: #FFF;" id="stat-total-requests">0</div>
+                <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 4px;">Total Print Jobs Submitted</div>
+            </div>
         </div>
     </div>
-</header>
 
-<!-- HERO HEADER -->
-<section style="padding: calc(var(--nav-height) + 30px) 0 30px; background: var(--gradient-dark-plum); border-bottom: 1px solid var(--color-border-dark);">
-    <div class="container">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
-            <div>
-                <h1 style="font-size: var(--text-3xl);">ADMINISTRATOR CONTROL CENTER</h1>
-                <p style="font-size: 0.9rem; color: var(--color-text-muted);" id="admin-welcome-text">Manage wholesale user approvals, monitor customer service requests & review stats.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- MAIN DASHBOARD CONTENT -->
-<section class="section-padding" style="background: var(--color-bg-surface);">
-    <div class="container">
-        
-        <!-- OVERVIEW STATS CARDS -->
-        <div class="grid-4" style="margin-bottom: 40px;" id="stats-container">
-            <div class="glass-card" style="padding: 24px;">
-                <div style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; margin-bottom: 6px;">TOTAL USERS</div>
-                <div style="font-size: 2.25rem; font-weight: 800; color: #FFF;" id="stat-total-users">0</div>
-                <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px;">Registered Business Accounts</div>
-            </div>
-
-            <div class="glass-card" style="padding: 24px; border-left: 4px solid var(--winstar-yellow);">
-                <div style="font-size: 0.8rem; font-weight: 700; color: var(--winstar-yellow); text-transform: uppercase; margin-bottom: 6px;">PENDING APPROVAL</div>
-                <div style="font-size: 2.25rem; font-weight: 800; color: var(--winstar-yellow);" id="stat-pending-users">0</div>
-                <div style="font-size: 0.75rem; color: var(--winstar-yellow); margin-top: 4px;">Requires Admin Action</div>
-            </div>
-
-            <div class="glass-card" style="padding: 24px; border-left: 4px solid #10B981;">
-                <div style="font-size: 0.8rem; font-weight: 700; color: #10B981; text-transform: uppercase; margin-bottom: 6px;">APPROVED CUSTOMERS</div>
-                <div style="font-size: 2.25rem; font-weight: 800; color: #10B981;" id="stat-approved-users">0</div>
-                <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px;">Active Wholesale Accounts</div>
-            </div>
-
-            <div class="glass-card" style="padding: 24px;">
-                <div style="font-size: 0.8rem; font-weight: 700; color: var(--winstar-pink); text-transform: uppercase; margin-bottom: 6px;">PRINT SERVICE REQUESTS</div>
-                <div style="font-size: 2.25rem; font-weight: 800; color: #FFF;" id="stat-total-requests">0</div>
-                <div style="font-size: 0.75rem; color: var(--color-text-muted); margin-top: 4px;">Total Print Jobs</div>
-            </div>
-        </div>
-
-        <!-- SECTION 1: REGISTERED USERS MANAGEMENT -->
-        <div class="glass-card gradient-border-card" style="padding: 30px; margin-bottom: 40px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--color-border-dark); padding-bottom: 16px;">
+    <!-- VIEW 2: REGISTERED USERS TAB -->
+    <div class="tab-view" id="view-users">
+        <div class="admin-card">
+            <div class="admin-card-header">
                 <div>
-                    <h2 style="font-size: 1.3rem; color: #FFF;">REGISTERED COMPANY USERS MANAGEMENT</h2>
-                    <p style="font-size: 0.85rem; color: var(--color-text-muted);">Review new registrations and grant or reject wholesale portal access.</p>
+                    <div class="admin-card-title" id="users-count-header">Registered Users</div>
+                    <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 4px;">Review new business registrations and update access approvals.</div>
                 </div>
 
                 <!-- FILTER & SORT CONTROLS -->
                 <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                    <div>
-                        <label style="font-size: 0.75rem; color: var(--color-text-muted); display: block; margin-bottom: 4px;">FILTER STATUS:</label>
-                        <select id="filter-user-status" class="status-select">
-                            <option value="all">All Users</option>
-                            <option value="pending" selected>Pending Approval Only</option>
-                            <option value="approved">Approved Only</option>
-                            <option value="rejected">Rejected Only</option>
-                        </select>
-                    </div>
+                    <select id="filter-user-status" class="status-select">
+                        <option value="all">All Statuses</option>
+                        <option value="pending" selected>Pending Approval</option>
+                        <option value="approved">Approved Only</option>
+                        <option value="rejected">Rejected Only</option>
+                    </select>
 
-                    <div>
-                        <label style="font-size: 0.75rem; color: var(--color-text-muted); display: block; margin-bottom: 4px;">SORT BY:</label>
-                        <select id="sort-user-order" class="status-select">
-                            <option value="newest">Newest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="name_asc">Name (A - Z)</option>
-                            <option value="name_desc">Name (Z - A)</option>
-                        </select>
-                    </div>
+                    <select id="sort-user-order" class="status-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name_asc">Name (A - Z)</option>
+                        <option value="name_desc">Name (Z - A)</option>
+                    </select>
                 </div>
             </div>
 
             <!-- USERS TABLE -->
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; min-width: 640px;">
                     <thead>
-                        <tr style="border-bottom: 1px solid var(--color-border-dark); color: var(--color-text-muted);">
-                            <th style="padding: 12px;">NAME</th>
-                            <th style="padding: 12px;">COMPANY</th>
-                            <th style="padding: 12px;">CONTACT</th>
-                            <th style="padding: 12px;">REGISTRATION DATE</th>
-                            <th style="padding: 12px;">STATUS</th>
-                            <th style="padding: 12px; text-align: right;">ACTIONS</th>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--color-text-muted);">
+                            <th style="padding: 14px 16px;">NAME</th>
+                            <th style="padding: 14px 16px;">EMAIL</th>
+                            <th style="padding: 14px 16px;">ROLE / COMPANY</th>
+                            <th style="padding: 14px 16px;">JOINED</th>
+                            <th style="padding: 14px 16px; text-align: right;">ACTION</th>
                         </tr>
                     </thead>
                     <tbody id="users-table-body">
                         <tr>
-                            <td colspan="6" style="padding: 20px; text-align: center; color: var(--color-text-muted);">Loading registered users...</td>
+                            <td colspan="5" style="padding: 24px; text-align: center; color: var(--color-text-muted);">Loading registered users...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
+    </div>
 
-        <!-- SECTION 2: PRINT INSTANTLY SERVICE REQUESTS -->
-        <div class="glass-card gradient-border-card" style="padding: 30px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; border-bottom: 1px solid var(--color-border-dark); padding-bottom: 16px;">
+    <!-- VIEW 3: ORDERS / SERVICE REQUESTS TAB -->
+    <div class="tab-view" id="view-requests">
+        <div class="admin-card">
+            <div class="admin-card-header">
                 <div>
-                    <h2 style="font-size: 1.3rem; color: #FFF;">PRINT INSTANTLY SERVICE REQUESTS</h2>
-                    <p style="font-size: 0.85rem; color: var(--color-text-muted);">Manage customer print jobs and update job statuses.</p>
+                    <div class="admin-card-title" id="requests-count-header">All Orders & Requests</div>
+                    <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 4px;">Monitor customer print jobs, view documents, and update job status.</div>
                 </div>
 
                 <div>
                     <select id="filter-request-status" class="status-select">
-                        <option value="all">All Requests</option>
+                        <option value="all">All Orders</option>
                         <option value="pending">Pending</option>
                         <option value="processing">Processing</option>
                         <option value="completed">Completed</option>
@@ -159,84 +325,97 @@
                 </div>
             </div>
 
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; min-width: 720px;">
                     <thead>
-                        <tr style="border-bottom: 1px solid var(--color-border-dark); color: var(--color-text-muted);">
-                            <th style="padding: 12px;">REQUEST ID</th>
-                            <th style="padding: 12px;">CUSTOMER</th>
-                            <th style="padding: 12px;">SERVICE DETAILS</th>
-                            <th style="padding: 12px;">COPIES</th>
-                            <th style="padding: 12px;">EST. AMOUNT</th>
-                            <th style="padding: 12px;">DATE</th>
-                            <th style="padding: 12px;">UPDATE STATUS</th>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); color: var(--color-text-muted);">
+                            <th style="padding: 14px 16px;">ORDER ID</th>
+                            <th style="padding: 14px 16px;">CUSTOMER</th>
+                            <th style="padding: 14px 16px;">ITEMS & SERVICE</th>
+                            <th style="padding: 14px 16px;">TOTAL</th>
+                            <th style="padding: 14px 16px;">STATUS</th>
+                            <th style="padding: 14px 16px; text-align: right;">ACTION</th>
                         </tr>
                     </thead>
                     <tbody id="requests-table-body">
                         <tr>
-                            <td colspan="7" style="padding: 20px; text-align: center; color: var(--color-text-muted);">Loading service requests...</td>
+                            <td colspan="6" style="padding: 24px; text-align: center; color: var(--color-text-muted);">Loading print requests...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
-</section>
+
+</div>
 
 <!-- REJECTION REASON MODAL -->
 <div class="modal-overlay" id="rejection-modal">
-    <div class="modal-box" style="max-width: 460px;">
-        <h3 style="font-size: 1.4rem; color: #FFF; margin-bottom: 12px;">REJECT USER REGISTRATION</h3>
-        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 16px;">
-            Specify an optional rejection reason. This will be sent to the customer via email.
+    <div class="modal-box">
+        <h3 style="font-size: 1.5rem; color: #FFF; margin-bottom: 12px;">REJECT USER ACCOUNT</h3>
+        <p style="font-size: 0.85rem; color: var(--color-text-muted); margin-bottom: 20px;">
+            Specify a reason for rejecting this wholesale account application. An email notification will be sent to the applicant.
         </p>
-        
+
         <input type="hidden" id="modal-reject-user-id">
         
-        <div style="margin-bottom: 20px;">
-            <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #FFF; margin-bottom: 6px;">REJECTION REASON (OPTIONAL):</label>
-            <textarea id="modal-reject-reason" class="glass-card" style="width: 100%; padding: 10px 14px; color: #FFF; min-height: 80px;" placeholder="e.g. Incomplete business documentation or invalid GST number."></textarea>
+        <div style="margin-bottom: 24px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 6px;">REJECTION REASON</label>
+            <textarea id="modal-reject-reason" class="glass-card" style="width: 100%; padding: 12px; color: #FFF; min-height: 100px;" placeholder="e.g. Invalid GST document or business registration proof..."></textarea>
         </div>
 
         <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button type="button" class="btn btn-outline" id="modal-reject-cancel">Cancel</button>
-            <button type="button" class="btn btn-gradient" id="modal-reject-confirm" style="background: var(--winstar-red);">Confirm Rejection</button>
+            <button type="button" class="btn btn-outline btn-sm" id="modal-reject-cancel">Cancel</button>
+            <button type="button" class="btn btn-gradient btn-sm" id="modal-reject-confirm" style="background: var(--winstar-red);">Confirm Rejection</button>
         </div>
     </div>
 </div>
 
 <script type="module">
-    import { Auth } from './js/auth.js';
     import { API } from './js/api.js';
+    import { Auth } from './js/auth.js';
     import { showToast } from './js/app.js';
 
     document.addEventListener('DOMContentLoaded', async () => {
-        // Enforce Admin Auth
-        const currentUser = Auth.getUser();
-        if (!currentUser || currentUser.role !== 'admin') {
-            alert("Access Denied. Administrator authentication required.");
+        // Protect Admin Route
+        if (!Auth.isAdminLoggedIn()) {
             window.location.href = 'admin-login.html';
             return;
         }
 
-        document.getElementById('admin-welcome-text').textContent = `Logged in as Administrator (${currentUser.email})`;
-
-        // Load Dashboard Data
-        await loadDashboardStats();
-        await loadUsers();
-        await loadServiceRequests();
-
-        // Filter and Sort Event Listeners
-        document.getElementById('filter-user-status').addEventListener('change', () => loadUsers());
-        document.getElementById('sort-user-order').addEventListener('change', () => loadUsers());
-        document.getElementById('filter-request-status').addEventListener('change', () => loadServiceRequests());
-
-        // Admin Logout
+        // Admin Logout Handler
         document.getElementById('btn-admin-logout').addEventListener('click', () => {
             Auth.logout();
             window.location.href = 'admin-login.html';
         });
+
+        // Pill Tab Navigation Handler
+        const tabBtns = document.querySelectorAll('.admin-tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+                
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                document.querySelectorAll('.tab-view').forEach(view => {
+                    view.classList.remove('active');
+                });
+
+                const targetView = document.getElementById(`view-${targetTab}`);
+                if (targetView) targetView.classList.add('active');
+            });
+        });
+
+        // Load Admin Data
+        await loadDashboardStats();
+        await loadUsers();
+        await loadServiceRequests();
+
+        // Filters Listeners
+        document.getElementById('filter-user-status').addEventListener('change', loadUsers);
+        document.getElementById('sort-user-order').addEventListener('change', loadUsers);
+        document.getElementById('filter-request-status').addEventListener('change', loadServiceRequests);
 
         // Rejection Modal Listeners
         document.getElementById('modal-reject-cancel').addEventListener('click', () => {
@@ -278,7 +457,7 @@
 
     async function loadUsers() {
         const tbody = document.getElementById('users-table-body');
-        tbody.innerHTML = `<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--color-text-muted);">Fetching users...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--color-text-muted);">Fetching users...</td></tr>`;
 
         const status = document.getElementById('filter-user-status').value;
         const sort = document.getElementById('sort-user-order').value;
@@ -287,19 +466,25 @@
             const res = await API.get(`/admin/users?status=${status}&sort=${sort}`);
             const users = (res.data && res.data.users) ? res.data.users : [];
 
+            document.getElementById('users-count-header').textContent = `Registered Users (${users.length})`;
+
             if (users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--color-text-muted);">No users found matching selected filter.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--color-text-muted);">No users found matching selected filter.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             users.forEach(u => {
                 const tr = document.createElement('tr');
-                tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
 
                 const comp = (u.companies && u.companies.length > 0) ? u.companies[0] : null;
-                const companyName = comp ? comp.company_name : 'N/A';
-                const gst = comp ? (comp.gst_number || 'N/A') : 'N/A';
+                const companyInfo = comp ? `<span style="font-weight: 700; color: #FFF;">${comp.company_name}</span><br><span style="font-size: 0.75rem; color: var(--color-text-muted);">GST: ${comp.gst_number || 'N/A'}</span>` : '<span style="color: var(--color-text-muted);">Individual</span>';
+
+                let roleBadge = `<span class="badge-role-customer">CUSTOMER</span>`;
+                if (u.role === 'admin' || u.email.includes('admin')) {
+                    roleBadge = `<span class="badge-role-admin">ADMIN</span>`;
+                }
 
                 let statusBadge = `<span class="status-badge-pending">PENDING</span>`;
                 if (u.status === 'approved') statusBadge = `<span class="status-badge-approved">APPROVED</span>`;
@@ -308,22 +493,21 @@
                 let actionButtons = '';
                 if (u.status === 'pending') {
                     actionButtons = `
-                        <button class="btn btn-outline btn-sm btn-approve" data-id="${u.id}" style="color: #10B981; border-color: #10B981; margin-right: 6px;">Approve</button>
-                        <button class="btn btn-outline btn-sm btn-reject" data-id="${u.id}" style="color: #EF4444; border-color: #EF4444;">Reject</button>
+                        <button class="btn btn-outline btn-sm btn-approve" data-id="${u.id}" style="color: #10B981; border-color: #10B981; margin-right: 6px; padding: 4px 12px; border-radius: 9999px;">Approve</button>
+                        <button class="btn btn-outline btn-sm btn-reject" data-id="${u.id}" style="color: #EF4444; border-color: #EF4444; padding: 4px 12px; border-radius: 9999px;">Reject</button>
                     `;
                 } else if (u.status === 'approved') {
-                    actionButtons = `<button class="btn btn-outline btn-sm btn-reject" data-id="${u.id}" style="color: #EF4444; border-color: #EF4444; opacity: 0.8;">Revoke</button>`;
+                    actionButtons = `<button class="btn btn-outline btn-sm btn-reject" data-id="${u.id}" style="color: #EF4444; border-color: #EF4444; padding: 4px 12px; border-radius: 9999px;">Revoke</button>`;
                 } else {
-                    actionButtons = `<button class="btn btn-outline btn-sm btn-approve" data-id="${u.id}" style="color: #10B981; border-color: #10B981; opacity: 0.8;">Approve</button>`;
+                    actionButtons = `<button class="btn btn-outline btn-sm btn-approve" data-id="${u.id}" style="color: #10B981; border-color: #10B981; padding: 4px 12px; border-radius: 9999px;">Approve</button>`;
                 }
 
                 tr.innerHTML = `
-                    <td style="padding: 12px; font-weight: 700; color: #FFF;">${u.full_name}</td>
-                    <td style="padding: 12px;">${companyName}<br><span style="font-size: 0.75rem; color: var(--color-text-muted);">GST: ${gst}</span></td>
-                    <td style="padding: 12px; color: var(--color-text-muted);">${u.email}<br>${u.phone}</td>
-                    <td style="padding: 12px; color: var(--color-text-muted);">${new Date(u.created_at).toLocaleDateString()}</td>
-                    <td style="padding: 12px;">${statusBadge}</td>
-                    <td style="padding: 12px; text-align: right;">${actionButtons}</td>
+                    <td style="padding: 14px 16px; font-weight: 700; color: #FFF;">${u.full_name}</td>
+                    <td style="padding: 14px 16px; color: var(--color-text-muted);">${u.email}</td>
+                    <td style="padding: 14px 16px;">${companyInfo}</td>
+                    <td style="padding: 14px 16px; color: var(--color-text-muted);">${new Date(u.created_at).toLocaleDateString()}</td>
+                    <td style="padding: 14px 16px; text-align: right;">${roleBadge} ${statusBadge} ${actionButtons}</td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -357,13 +541,13 @@
 
         } catch (err) {
             console.error("Error loading users:", err);
-            tbody.innerHTML = `<tr><td colspan="6" style="padding: 20px; text-align: center; color: var(--winstar-red);">Failed to load users from backend.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="padding: 24px; text-align: center; color: var(--winstar-red);">Failed to load users from backend.</td></tr>`;
         }
     }
 
     async function loadServiceRequests() {
         const tbody = document.getElementById('requests-table-body');
-        tbody.innerHTML = `<tr><td colspan="7" style="padding: 20px; text-align: center; color: var(--color-text-muted);">Fetching requests...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--color-text-muted);">Fetching requests...</td></tr>`;
 
         const status = document.getElementById('filter-request-status').value;
 
@@ -371,19 +555,21 @@
             const res = await API.get(`/admin/service-requests?status=${status}`);
             const requests = (res.data && res.data.requests) ? res.data.requests : [];
 
+            document.getElementById('requests-count-header').textContent = `All Orders (${requests.length})`;
+
             if (requests.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="padding: 20px; text-align: center; color: var(--color-text-muted);">No service requests found.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--color-text-muted);">No service requests found.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             requests.forEach(r => {
                 const tr = document.createElement('tr');
-                tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
 
                 let fileInfo = '<span style="color: var(--color-text-muted); font-size: 0.75rem;">No file uploaded</span>';
                 if (r.file_url) {
-                    fileInfo = `<a href="${r.file_url}" target="_blank" download class="btn btn-outline btn-sm" style="padding: 4px 10px; font-size: 0.75rem; border-color: var(--winstar-pink); color: var(--winstar-pink); margin-top: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                    fileInfo = `<a href="${r.file_url}" target="_blank" download class="btn btn-outline btn-sm" style="padding: 4px 12px; font-size: 0.75rem; border-color: var(--winstar-pink); color: var(--winstar-pink); margin-top: 4px; display: inline-flex; align-items: center; gap: 4px; border-radius: 9999px;">
                         Download ${r.file_name || 'Client Document'}
                     </a>`;
                 } else if (r.file_name && (r.status === 'pending' || r.status === 'processing')) {
@@ -392,14 +578,18 @@
                     fileInfo = `<span style="color: var(--color-success); font-size: 0.75rem; font-weight: 600;">Finished / Cleaned Up (${r.status.toUpperCase()})</span>`;
                 }
 
+                let statusBadge = `<span class="status-badge-pending">${r.status.toUpperCase()}</span>`;
+                if (r.status === 'processing') statusBadge = `<span class="badge-role-customer">PROCESSING</span>`;
+                if (r.status === 'completed') statusBadge = `<span class="status-badge-approved">COMPLETED</span>`;
+                if (r.status === 'cancelled') statusBadge = `<span class="status-badge-rejected">CANCELLED</span>`;
+
                 tr.innerHTML = `
-                    <td style="padding: 12px; font-weight: 700; color: #FFF;">${r.request_number}</td>
-                    <td style="padding: 12px;">${r.customer_name}<br><span style="font-size: 0.75rem; color: var(--color-text-muted);">${r.customer_phone}</span></td>
-                    <td style="padding: 12px;">${r.service_type.toUpperCase()} - ${r.print_type.toUpperCase()} ${r.paper_size}<br>${fileInfo}</td>
-                    <td style="padding: 12px;">${r.print_count}</td>
-                    <td style="padding: 12px; font-weight: 700; color: var(--winstar-yellow);">₹${r.estimated_amount || '0.00'}</td>
-                    <td style="padding: 12px; color: var(--color-text-muted);">${new Date(r.created_at).toLocaleDateString()}</td>
-                    <td style="padding: 12px;">
+                    <td style="padding: 14px 16px; font-weight: 700; color: #FFF;">${r.request_number}</td>
+                    <td style="padding: 14px 16px;">${r.customer_name}<br><span style="font-size: 0.75rem; color: var(--color-text-muted);">${r.customer_phone}</span></td>
+                    <td style="padding: 14px 16px;">${r.service_type.toUpperCase()} - ${r.print_type.toUpperCase()} ${r.paper_size}<br>${fileInfo}</td>
+                    <td style="padding: 14px 16px; font-weight: 700; color: var(--winstar-yellow);">₹${r.estimated_amount || '0.00'}</td>
+                    <td style="padding: 14px 16px;">${statusBadge}</td>
+                    <td style="padding: 14px 16px; text-align: right;">
                         <select class="status-select req-status-change" data-id="${r.id}">
                             <option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option>
                             <option value="processing" ${r.status === 'processing' ? 'selected' : ''}>Processing</option>
@@ -429,7 +619,7 @@
 
         } catch (err) {
             console.error("Error loading service requests:", err);
-            tbody.innerHTML = `<tr><td colspan="7" style="padding: 20px; text-align: center; color: var(--winstar-red);">Failed to load requests from backend.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--winstar-red);">Failed to load requests from backend.</td></tr>`;
         }
     }
 </script>

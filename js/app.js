@@ -66,9 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const phoneElems = document.querySelectorAll('.js-phone-primary');
     phoneElems.forEach(el => el.textContent = WINSTAR_CONFIG.additionalPhone1);
 
-    // 7. Boot Scroll Animations & Custom Cursor
+    // 7. Boot Scroll Animations
     initScrollAnimations();
-    initCustomCursor();
     Cart.updateBadge();
 });
 

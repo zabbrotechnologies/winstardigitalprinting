@@ -281,15 +281,45 @@
     font-size: 0.8rem;
 }
 
+/* Dark Dropdown Select & Option Styling */
+select, select.glass-card, select.status-select {
+    background-color: #181822 !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    outline: none;
+}
+
+select option {
+    background-color: #181822 !important;
+    color: #FFFFFF !important;
+    padding: 10px 14px;
+}
+
+select option:hover, select option:focus, select option:checked {
+    background-color: var(--winstar-pink) !important;
+    color: #FFFFFF !important;
+}
+
 /* Sticky Live Order Summary */
 .summary-sticky-card {
     position: sticky;
     top: calc(var(--nav-height) + 20px);
+    max-height: calc(100vh - var(--nav-height) - 40px);
+    overflow-y: auto;
     background: var(--color-bg-card);
     border: 1px solid var(--color-border-dark);
     border-radius: var(--radius-xl);
     padding: var(--space-6);
     box-shadow: var(--shadow-lg);
+}
+
+@media (max-width: 992px) {
+    .summary-sticky-card {
+        position: static;
+        max-height: none;
+    }
 }
 
 .summary-row {
@@ -378,6 +408,8 @@
     border-radius: var(--radius-xl);
     width: 90%;
     max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
     padding: var(--space-8);
     position: relative;
     box-shadow: var(--shadow-lg), var(--glow-brand);

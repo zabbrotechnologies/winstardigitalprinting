@@ -23,47 +23,7 @@ export function initScrollAnimations() {
 }
 
 export function initCustomCursor() {
-    if (window.innerWidth < 1024) return; // Desktop only
-
-    const cursor = document.createElement('div');
-    cursor.className = 'custom-cursor';
-    const follower = document.createElement('div');
-    follower.className = 'custom-cursor-follower';
-
-    document.body.appendChild(cursor);
-    document.body.appendChild(follower);
-
-    let mouseX = 0, mouseY = 0;
-    let followerX = 0, followerY = 0;
-
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        cursor.style.left = mouseX + 'px';
-        cursor.style.top = mouseY + 'px';
-    });
-
-    function animateFollower() {
-        followerX += (mouseX - followerX) * 0.15;
-        followerY += (mouseY - followerY) * 0.15;
-        follower.style.left = followerX + 'px';
-        follower.style.top = followerY + 'px';
-        requestAnimationFrame(animateFollower);
-    }
-    animateFollower();
-
-    // Hover state over interactive elements
-    const clickables = document.querySelectorAll('a, button, .glass-card, .toggle-btn, .binding-card');
-    clickables.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursor.classList.add('cursor-active');
-            follower.style.transform = 'translate(-50%, -50%) scale(1.5)';
-        });
-        el.addEventListener('mouseleave', () => {
-            cursor.classList.remove('cursor-active');
-            follower.style.transform = 'translate(-50%, -50%) scale(1)';
-        });
-    });
+    // Custom cursor removed per user preference - default browser cursor restored
 }
 
 export function animateCounter(element, targetVal, duration = 600) {

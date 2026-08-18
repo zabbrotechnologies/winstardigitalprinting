@@ -17,48 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initCustomCursor() {
-    // Only on desktop
-    if (window.matchMedia("(max-width: 768px)").matches) return;
-
-    const cursor = document.createElement('div');
-    cursor.classList.add('custom-cursor');
-    document.body.appendChild(cursor);
-
-    // CSS for cursor added dynamically to avoid cluttering main css if it fails
-    Object.assign(cursor.style, {
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '12px',
-        height: '12px',
-        backgroundColor: 'var(--color-accent)',
-        borderRadius: '50%',
-        pointerEvents: 'none',
-        zIndex: '999999',
-        transform: 'translate(-50%, -50%)',
-        transition: 'width 0.2s, height 0.2s, background-color 0.2s',
-        mixBlendMode: 'difference'
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        cursor.style.left = e.clientX + 'px';
-        cursor.style.top = e.clientY + 'px';
-    });
-
-    // Interactive elements
-    const interactives = document.querySelectorAll('a, button, .upload-zone, .selector-item');
-    interactives.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursor.style.width = '24px';
-            cursor.style.height = '24px';
-            cursor.style.backgroundColor = 'var(--color-white)';
-        });
-        el.addEventListener('mouseleave', () => {
-            cursor.style.width = '12px';
-            cursor.style.height = '12px';
-            cursor.style.backgroundColor = 'var(--color-accent)';
-        });
-    });
+    // Custom cursor disabled per user preference
 }
 
 function initNavigation() {

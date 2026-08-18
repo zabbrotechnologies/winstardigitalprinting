@@ -381,7 +381,14 @@
                 const tr = document.createElement('tr');
                 tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
 
-                const fileInfo = r.file_name ? `<span style="color: var(--winstar-yellow); font-size: 0.75rem;">📁 ${r.file_name}</span>` : '<span style="color: var(--color-text-muted); font-size: 0.75rem;">No file uploaded</span>';
+                let fileInfo = '<span style="color: var(--color-text-muted); font-size: 0.75rem;">No file uploaded</span>';
+                if (r.file_url) {
+                    fileInfo = `<a href="${r.file_url}" target="_blank" download class="btn btn-outline btn-sm" style="padding: 4px 10px; font-size: 0.75rem; border-color: var(--winstar-pink); color: var(--winstar-pink); margin-top: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                        📥 Download ${r.file_name || 'Document'}
+                    </a>`;
+                } else if (r.status === 'completed' || r.status === 'cancelled') {
+                    fileInfo = `<span style="color: var(--color-success); font-size: 0.75rem; font-weight: 600;">✔️ File Auto-Deleted on ${r.status.toUpperCase()}</span>`;
+                }
 
                 tr.innerHTML = `
                     <td style="padding: 12px; font-weight: 700; color: #FFF;">${r.request_number}</td>
@@ -411,6 +418,7 @@
                         await API.patch(`/admin/service-requests/${reqId}/status`, { status: newStatus });
                         showToast(`Request ${reqId.substring(0,6)} updated to ${newStatus.toUpperCase()}`, "success");
                         await loadDashboardStats();
+                        await loadServiceRequests();
                     } catch (err) {
                         showToast("Failed to update status", "error");
                     }

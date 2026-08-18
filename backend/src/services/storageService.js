@@ -40,7 +40,7 @@ const validateFile = (file) => {
 };
 
 /**
- * Uploads a file buffer to Supabase Storage
+ * Uploads a file buffer to Supabase Storage bucket 'print-files'
  */
 const uploadToSupabaseStorage = async (fileBuffer, originalName, mimeType) => {
     try {
@@ -87,7 +87,44 @@ const uploadToSupabaseStorage = async (fileBuffer, originalName, mimeType) => {
     }
 };
 
+/**
+ * Deletes a file from Supabase Storage bucket 'print-files'
+ */
+const deleteFromSupabaseStorage = async (filePath) => {
+    try {
+        if (!filePath) return false;
+
+        const { data, error } = await supabaseAdmin.storage
+            .from(BUCKET_NAME)
+            .remove([filePath]);
+
+        if (error) {
+            logger.error(`Failed to delete file ${filePath} from Supabase storage:`, error);
+            return false;
+        }
+
+        logger.info(`Successfully deleted file ${filePath} from Supabase Storage bucket '${BUCKET_NAME}'`);
+        return true;
+    } catch (err) {
+        logger.error('Error in deleteFromSupabaseStorage:', err);
+        return false;
+    }
+};
+
+/**
+ * Get Public Download URL for a file
+ */
+const getPublicUrl = (filePath) => {
+    if (!filePath) return null;
+    const { data } = supabaseAdmin.storage
+        .from(BUCKET_NAME)
+        .getPublicUrl(filePath);
+    return data ? data.publicUrl : null;
+};
+
 module.exports = {
     validateFile,
-    uploadToSupabaseStorage
+    uploadToSupabaseStorage,
+    deleteFromSupabaseStorage,
+    getPublicUrl
 };

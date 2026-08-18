@@ -215,8 +215,10 @@ const rejectUser = async (req, res, next) => {
     }
 };
 
+const storageService = require('../services/storageService');
+
 /**
- * Get Service Requests List for Admin
+ * Get Service Requests List for Admin (with Public File Download URLs)
  */
 const getServiceRequests = async (req, res, next) => {
     try {
@@ -235,7 +237,16 @@ const getServiceRequests = async (req, res, next) => {
 
         if (error) throw error;
 
-        return ApiResponse.success(res, 'Service requests fetched.', { requests: requests || [] });
+        // Attach public download URL for files stored in Supabase Storage
+        const enrichedRequests = (requests || []).map(r => {
+            const fileUrl = r.file_path ? storageService.getPublicUrl(r.file_path) : null;
+            return {
+                ...r,
+                file_url: fileUrl
+            };
+        });
+
+        return ApiResponse.success(res, 'Service requests fetched.', { requests: enrichedRequests });
     } catch (err) {
         next(err);
     }
@@ -243,6 +254,7 @@ const getServiceRequests = async (req, res, next) => {
 
 /**
  * Update Service Request Status
+ * AUTO-DELETES document from Supabase Storage when status becomes 'completed' or 'cancelled'
  */
 const updateServiceRequestStatus = async (req, res, next) => {
     try {
@@ -254,10 +266,35 @@ const updateServiceRequestStatus = async (req, res, next) => {
             return ApiResponse.error(res, `Invalid status value. Must be one of: ${validStatuses.join(', ')}`, 400);
         }
 
+        // Fetch current service request to check for file_path
+        const { data: existingReq, error: fetchErr } = await supabaseAdmin
+            .from('service_requests')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (fetchErr || !existingReq) {
+            return ApiResponse.error(res, 'Service request not found.', 404);
+        }
+
+        let updatedFilePath = existingReq.file_path;
+        let fileDeletedNotice = '';
+
+        // Auto-delete file from Supabase Storage if status becomes completed or cancelled
+        if ((status === 'completed' || status === 'cancelled') && existingReq.file_path) {
+            const deleted = await storageService.deleteFromSupabaseStorage(existingReq.file_path);
+            if (deleted) {
+                updatedFilePath = null; // Clear file_path in DB to signify storage cleanup
+                fileDeletedNotice = ` [File auto-deleted from Storage on status ${status.toUpperCase()}]`;
+            }
+        }
+
         const { data: updatedReq, error } = await supabaseAdmin
             .from('service_requests')
             .update({
                 status,
+                file_path: updatedFilePath,
+                notes: existingReq.notes ? `${existingReq.notes}${fileDeletedNotice}` : (fileDeletedNotice ? fileDeletedNotice.trim() : null),
                 updated_at: new Date().toISOString()
             })
             .eq('id', id)
@@ -266,7 +303,9 @@ const updateServiceRequestStatus = async (req, res, next) => {
 
         if (error) throw error;
 
-        return ApiResponse.success(res, 'Service request status updated.', { request: updatedReq });
+        logger.info(`Service request ${updatedReq.request_number} status updated to ${status}. ${fileDeletedNotice}`);
+
+        return ApiResponse.success(res, `Service request updated to ${status.toUpperCase()}.${fileDeletedNotice ? ' Storage file cleaned up.' : ''}`, { request: updatedReq });
     } catch (err) {
         next(err);
     }

@@ -1,6 +1,12 @@
 /* css/layout.css - Header, Navigation & Grid Layouts */
 @import url('variables.css');
 
+html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden !important;
+}
+
 /* Header & Navbar */
 .navbar {
     position: fixed;

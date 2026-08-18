@@ -468,4 +468,20 @@ html, body {
     .contact-card {
         padding: 20px 16px !important;
     }
+
+    .visit-store-card {
+        text-align: center;
+    }
+    
+    .visit-store-card .section-label {
+        margin: 0 auto 12px;
+    }
+
+    .visit-store-card > .grid-2 > div:first-child > div[style*="display: flex; flex-direction: column"] {
+        align-items: center;
+    }
+    
+    .visit-store-card .btn {
+        margin: 0 auto;
+    }
 }

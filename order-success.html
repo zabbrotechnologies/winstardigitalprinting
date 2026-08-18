@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmed | WINSTAR DIGITAL PRINTING & XEROX</title>
+    <meta name="description" content="Track your active print job order status with Winstar Digital Printing Dindigul.">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+<div class="texture-overlay"></div>
+
+<!-- HEADER NAVBAR -->
+<header class="navbar">
+    <div class="container navbar-container">
+        <a href="index.html" class="logo-brand">
+            <div class="logo-badge">
+                <img src="assets/images/logo.png" alt="Winstar Digital Printing Logo">
+            </div>
+            <div class="logo-text">
+                <div class="logo-title">WINSTAR <span>DIGITAL</span></div>
+                <div class="logo-sub">PRINTING & XEROX</div>
+            </div>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+            <li><a href="orders.html" class="nav-link">Order History</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <a href="wholesale-order.html" class="btn btn-gradient btn-sm">+ New Order</a>
+        </div>
+    </div>
+</header>
+
+<section class="section-padding" style="padding-top: calc(var(--nav-height) + 40px); background: var(--color-bg-surface);">
+    <div class="container">
+        <div class="glass-card gradient-border-card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+            
+            <div class="text-center" style="margin-bottom: 36px;">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(16, 185, 129, 0.15); color: #10B981; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="badge badge-wholesale" style="margin-bottom: 12px;">ORDER CONFIRMED</div>
+                <h1 style="font-size: 2.25rem; color: #FFF; margin-bottom: 6px;" id="order-id-heading">ORDER #WS-ORD-102938</h1>
+                <p style="font-size: 0.95rem;">Payment confirmed. Your print files have been queued to our commercial presses.</p>
+            </div>
+
+            <!-- ORDER TRACKING TIMELINE STAGES -->
+            <div style="margin-bottom: 40px;">
+                <div style="font-weight: 700; font-size: 1.1rem; color: var(--winstar-yellow); margin-bottom: 20px; border-bottom: 1px solid var(--color-border-dark); padding-bottom: 8px;">
+                    LIVE PRINTING & DISPATCH TIMELINE
+                </div>
+
+                <div id="tracking-timeline-container" style="display: flex; flex-direction: column; gap: 16px;">
+                </div>
+            </div>
+
+            <!-- ORDER SUMMARY BREAKDOWN -->
+            <div style="background: rgba(0,0,0,0.3); padding: 24px; border-radius: var(--radius-md); margin-bottom: 30px;">
+                <div style="font-weight: 700; color: #FFF; margin-bottom: 12px;">ORDER DETAILS</div>
+                <div class="grid-2" style="gap: 10px; font-size: 0.9rem; color: var(--color-text-muted);">
+                    <div>Customer: <strong style="color: #FFF;" id="ord-customer">Guest</strong></div>
+                    <div>Payment Method: <strong style="color: var(--winstar-yellow);" id="ord-payment">UPI (Demo)</strong></div>
+                    <div>Delivery Address: <span style="color: #FFF;" id="ord-address">Store Pickup</span></div>
+                    <div>Total Amount Paid: <strong style="color: var(--winstar-pink);" id="ord-total">₹0.00</strong></div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                <a href="orders.html" class="btn btn-outline">VIEW ALL ORDERS</a>
+                <a href="dashboard.html" class="btn btn-gradient">RETURN TO DASHBOARD &rarr;</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom" style="border: none;">
+            <div>&copy; 2026 WINSTAR DIGITAL PRINTING & XEROX. Order Success.</div>
+        </div>
+    </div>
+</footer>
+
+<script type="module">
+    import { Orders } from './js/orders.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('id');
+
+        const order = Orders.getOrderById(orderId) || Orders.getUserOrders()[0];
+
+        if (order) {
+            document.getElementById('order-id-heading').textContent = `ORDER #${order.id}`;
+            document.getElementById('ord-customer').textContent = order.customerName;
+            document.getElementById('ord-payment').textContent = (order.paymentMethod || 'UPI').toUpperCase();
+            document.getElementById('ord-address').textContent = order.deliveryDetails ? order.deliveryDetails.address : 'Store Pickup';
+            document.getElementById('ord-total').textContent = '₹' + order.total;
+
+            const timelineContainer = document.getElementById('tracking-timeline-container');
+            timelineContainer.innerHTML = '';
+
+            order.statusTimeline.forEach((stage, idx) => {
+                const isCompleted = stage.completed;
+                const isActive = stage.active;
+
+                const div = document.createElement('div');
+                div.style.cssText = 'display: flex; align-items: center; gap: 16px;';
+                div.innerHTML = `
+                    <div style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; ${isCompleted ? 'background: var(--winstar-pink); color: #FFF;' : (isActive ? 'background: var(--winstar-yellow); color: #121218; box-shadow: var(--glow-yellow);' : 'background: rgba(255,255,255,0.1); color: var(--color-text-muted);')}">
+                        ${isCompleted ? '✓' : (idx + 1)}
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1rem; color: ${isCompleted || isActive ? '#FFF' : 'var(--color-text-muted)'};">${stage.label}</div>
+                        <div style="font-size: 0.75rem; color: ${isActive ? 'var(--winstar-yellow)' : 'var(--color-text-muted)'};">${stage.time || 'Pending'}</div>
+                    </div>
+                `;
+                timelineContainer.appendChild(div);
+            });
+        }
+    });
+</script>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

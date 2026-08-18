@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Printing Configurator | WINSTAR DIGITAL PRINTING & XEROX</title>
+    <meta name="description" content="Upload your files, configure paper size, GSM, sides, and binding, and order directly on WhatsApp with Winstar Digital Printing Dindigul.">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+<div class="texture-overlay"></div>
+
+<!-- HEADER NAVBAR -->
+<header class="navbar">
+    <div class="container navbar-container">
+        <a href="index.html" class="logo-brand">
+            <div class="logo-badge">
+                <img src="assets/images/logo.png" alt="Winstar Digital Printing Logo">
+            </div>
+            <div class="logo-text">
+                <div class="logo-title">WINSTAR <span>DIGITAL</span></div>
+                <div class="logo-sub">PRINTING & XEROX</div>
+            </div>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="services.html" class="nav-link">Services</a></li>
+            <li><a href="quick-print.html" class="nav-link active">Quick Print</a></li>
+            <li><a href="business.html" class="nav-link">Wholesale</a></li>
+            <li><a href="about.html" class="nav-link">About Us</a></li>
+            <li><a href="contact.html" class="nav-link">Contact</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <div class="nav-auth">
+                <a href="login.html" class="nav-link">Login</a>
+            </div>
+            <a href="quick-print.html" class="btn btn-gradient btn-sm">Print Now &rarr;</a>
+            <button class="mobile-toggle" aria-label="Toggle Navigation Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- PAGE HERO -->
+<section style="padding: calc(var(--nav-height) + 40px) 0 40px; background: var(--gradient-dark-plum); border-bottom: 1px solid var(--color-border-dark);">
+    <div class="container">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+            <div>
+                <div class="hero-pill" style="margin-bottom: 12px;">NO ACCOUNT REQUIRED &bull; INSTANT WHATSAPP ORDER</div>
+                <h1 style="font-size: var(--text-4xl); margin-bottom: 8px;">PRINT IT <span class="gradient-text">YOUR WAY.</span></h1>
+                <p style="font-size: var(--text-base);">Upload your document, choose your specifications and send your order directly to Winstar.</p>
+            </div>
+            <div class="badge badge-personal" style="padding: 10px 20px; font-size: 0.85rem;">
+                PERSONAL PRINTING MODE
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN CONFIGURATOR WORKSPACE -->
+<section class="section-padding" style="background: var(--color-bg-surface);">
+    <div class="container">
+        <div class="grid-2" style="grid-template-columns: 1.8fr 1fr; align-items: start; gap: 40px;">
+            
+            <!-- LEFT COLUMN: UPLOAD & CONFIGURATOR -->
+            <div>
+                
+                <!-- STEP 1: FILE UPLOAD ZONE -->
+                <div class="glass-card" style="padding: 30px; margin-bottom: 30px;">
+                    <div style="font-weight: 700; font-size: 1.1rem; color: #FFF; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between;">
+                        <span>STEP 1: UPLOAD DOCUMENTS</span>
+                        <span style="font-size: 0.8rem; color: var(--winstar-yellow);">PDF, DOC, PPT, JPG, PNG</span>
+                    </div>
+
+                    <div class="upload-zone-main" id="upload-drop-zone">
+                        <div class="upload-zone-icon">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                            </svg>
+                        </div>
+                        <div class="upload-zone-title">DROP YOUR FILE HERE</div>
+                        <div class="upload-zone-sub">or click to browse files from your device</div>
+                        <input type="file" id="file-upload-input" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png" style="display: none;">
+                    </div>
+
+                    <!-- Uploaded files container -->
+                    <div id="uploaded-files-list"></div>
+                </div>
+
+                <!-- STEP 2: PRINT CONFIGURATION -->
+                <div class="glass-card" style="padding: 30px;">
+                    <div style="font-weight: 700; font-size: 1.1rem; color: #FFF; margin-bottom: 24px;">
+                        STEP 2: CONFIGURE SPECIFICATIONS
+                    </div>
+
+                    <!-- Print Type -->
+                    <div class="config-group">
+                        <div class="config-label">PRINT TYPE</div>
+                        <div class="toggle-grid" id="group-printType">
+                            <div class="toggle-btn selected" data-val="bw">Black & White</div>
+                            <div class="toggle-btn" data-val="colour">Full Colour</div>
+                        </div>
+                    </div>
+
+                    <!-- Sides -->
+                    <div class="config-group">
+                        <div class="config-label">PRINT SIDES</div>
+                        <div class="toggle-grid" id="group-printSides">
+                            <div class="toggle-btn selected" data-val="single">Single Side</div>
+                            <div class="toggle-btn" data-val="double">Double Side</div>
+                        </div>
+                    </div>
+
+                    <!-- Paper Size -->
+                    <div class="config-group">
+                        <div class="config-label">PAPER SIZE</div>
+                        <div class="toggle-grid" id="group-paperSize">
+                            <div class="toggle-btn" data-val="A5">A5</div>
+                            <div class="toggle-btn selected" data-val="A4">A4 (Standard)</div>
+                            <div class="toggle-btn" data-val="A3">A3</div>
+                            <div class="toggle-btn" data-val="A2">A2</div>
+                            <div class="toggle-btn" data-val="A1">A1</div>
+                            <div class="toggle-btn" data-val="A0">A0 (Wide)</div>
+                        </div>
+                    </div>
+
+                    <!-- Paper Quality GSM -->
+                    <div class="config-group">
+                        <div class="config-label">PAPER WEIGHT (GSM)</div>
+                        <div class="toggle-grid" id="group-paperGsm">
+                            <div class="toggle-btn" data-val="70gsm">70 GSM</div>
+                            <div class="toggle-btn selected" data-val="80gsm">80 GSM (Standard)</div>
+                            <div class="toggle-btn" data-val="100gsm">100 GSM</div>
+                            <div class="toggle-btn" data-val="120gsm">120 GSM</div>
+                            <div class="toggle-btn" data-val="150gsm">150 GSM</div>
+                            <div class="toggle-btn" data-val="200gsm">200 GSM</div>
+                            <div class="toggle-btn" data-val="300gsm">300 GSM (Heavy)</div>
+                        </div>
+                    </div>
+
+                    <!-- Paper Type -->
+                    <div class="config-group">
+                        <div class="config-label">PAPER TYPE</div>
+                        <div class="toggle-grid" id="group-paperType">
+                            <div class="toggle-btn selected" data-val="copier">Copier Paper</div>
+                            <div class="toggle-btn" data-val="premium">Premium Paper</div>
+                            <div class="toggle-btn" data-val="matte">Matte Finish</div>
+                            <div class="toggle-btn" data-val="glossy">Glossy Finish</div>
+                            <div class="toggle-btn" data-val="art">Art Paper</div>
+                            <div class="toggle-btn" data-val="cardstock">Card Stock</div>
+                            <div class="toggle-btn" data-val="photo">Photo Paper</div>
+                        </div>
+                    </div>
+
+                    <!-- Orientation & Copies -->
+                    <div class="grid-2" style="gap: 20px;">
+                        <div class="config-group">
+                            <div class="config-label">ORIENTATION</div>
+                            <div class="toggle-grid" id="group-orientation">
+                                <div class="toggle-btn selected" data-val="portrait">Portrait</div>
+                                <div class="toggle-btn" data-val="landscape">Landscape</div>
+                            </div>
+                        </div>
+
+                        <div class="config-group">
+                            <div class="config-label">NUMBER OF COPIES</div>
+                            <div class="qty-control">
+                                <button type="button" class="qty-btn" id="btn-qty-minus">-</button>
+                                <span class="qty-value" id="val-copies">1</span>
+                                <button type="button" class="qty-btn" id="btn-qty-plus">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Page Range -->
+                    <div class="config-group">
+                        <div class="config-label">PAGE RANGE</div>
+                        <div style="display: flex; gap: 15px; margin-bottom: 10px;">
+                            <label style="color: #FFF; font-size: 0.9rem; cursor: pointer;">
+                                <input type="radio" name="range-radio" value="all" checked id="radio-range-all"> Entire Document
+                            </label>
+                            <label style="color: #FFF; font-size: 0.9rem; cursor: pointer;">
+                                <input type="radio" name="range-radio" value="custom" id="radio-range-custom"> Custom Range
+                            </label>
+                        </div>
+                        <input type="text" id="input-page-range" placeholder="e.g. 1-5 or 1,3,5,8-12" class="glass-card" style="width: 100%; padding: 10px 16px; color: #FFF; display: none;">
+                    </div>
+
+                    <!-- Visual Binding Selector -->
+                    <div class="config-group">
+                        <div class="config-label">FINISHING & BINDING OPTIONS</div>
+                        <div class="binding-grid" id="group-binding">
+                            <div class="binding-card selected" data-val="none">
+                                <div class="binding-card-icon">
+                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                    </svg>
+                                </div>
+                                <div class="binding-card-name">No Binding</div>
+                                <div class="binding-card-price">₹0</div>
+                            </div>
+                            <div class="binding-card" data-val="staple">
+                                <div class="binding-card-icon">
+                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                    </svg>
+                                </div>
+                                <div class="binding-card-name">Stapling</div>
+                                <div class="binding-card-price">+₹5</div>
+                            </div>
+                            <div class="binding-card" data-val="spiral">
+                                <div class="binding-card-icon">
+                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v16m4-16v16m4-16v16m4-16v16m4-16v16"/>
+                                    </svg>
+                                </div>
+                                <div class="binding-card-name">Spiral Binding</div>
+                                <div class="binding-card-price">+₹45</div>
+                            </div>
+                            <div class="binding-card" data-val="wiro">
+                                <div class="binding-card-icon">
+                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                                    </svg>
+                                </div>
+                                <div class="binding-card-name">Wiro Binding</div>
+                                <div class="binding-card-price">+₹60</div>
+                            </div>
+                            <div class="binding-card" data-val="soft">
+                                <div class="binding-card-icon">
+                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                </div>
+                                <div class="binding-card-name">Soft Binding</div>
+                                <div class="binding-card-price">+₹80</div>
+                            </div>
+                            <div class="binding-card" data-val="perfect">
+                                <div class="binding-card-icon">
+                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5z"/>
+                                    </svg>
+                                </div>
+                                <div class="binding-card-name">Perfect Glue</div>
+                                <div class="binding-card-price">+₹120</div>
+                            </div>
+                            <div class="binding-card" data-val="hard">
+                                <div class="binding-card-icon">
+                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                    </svg>
+                                </div>
+                                <div class="binding-card-name">Hardcover</div>
+                                <div class="binding-card-price">+₹200</div>
+                            </div>
+                            <div class="binding-card" data-val="rexin">
+                                <div class="binding-card-icon">
+                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                                    </svg>
+                                </div>
+                                <div class="binding-card-name">Rexin Hardcover</div>
+                                <div class="binding-card-price">+₹250</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Special Instructions -->
+                    <div class="config-group">
+                        <div class="config-label">SPECIAL INSTRUCTIONS</div>
+                        <textarea id="input-instructions" placeholder="e.g. Please bind separately, front cover black embossed text..." class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF; min-height: 80px;"></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN: STICKY LIVE ORDER SUMMARY -->
+            <div>
+                <div class="summary-sticky-card">
+                    <div style="font-size: 0.8rem; font-weight: 700; color: var(--winstar-yellow); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px;">
+                        LIVE ESTIMATE SUMMARY
+                    </div>
+
+                    <div id="summary-file-name" style="font-weight: 700; font-size: 1.1rem; color: #FFF; margin-bottom: 16px;">
+                        No File Selected
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Print Type</span>
+                        <strong id="sum-printType" style="color: #FFF;">Black & White</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Sides</span>
+                        <strong id="sum-printSides" style="color: #FFF;">Single Side</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Paper Size</span>
+                        <strong id="sum-paperSize" style="color: #FFF;">A4</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Paper Quality</span>
+                        <strong id="sum-paperGsm" style="color: #FFF;">80 GSM</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Copies</span>
+                        <strong id="sum-copies" style="color: #FFF;">1</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Binding</span>
+                        <strong id="sum-binding" style="color: #FFF;">None</strong>
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>ESTIMATED TOTAL</span>
+                        <span class="price-counter" id="sum-total-price">₹0.00</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--color-text-muted); text-align: right; margin-bottom: 24px;">Includes 18% GST</div>
+
+                    <button type="button" class="btn btn-gradient btn-lg" id="btn-send-whatsapp" style="width: 100%; margin-bottom: 12px;">
+                        SEND ORDER TO WINSTAR &rarr;
+                    </button>
+                    
+                    <button type="button" class="btn btn-outline btn-sm" id="btn-copy-order" style="width: 100%;">
+                        COPY ORDER DETAILS
+                    </button>
+
+                    <!-- Important File Attachment Instruction Box -->
+                    <div style="margin-top: 20px; padding: 14px; background: rgba(255, 195, 0, 0.1); border: 1px solid rgba(255, 195, 0, 0.3); border-radius: var(--radius-md); font-size: 0.8rem; color: var(--winstar-yellow); line-height: 1.5;">
+                        <strong>IMPORTANT NOTE:</strong><br>
+                        Your order details will be ready in WhatsApp. Please attach your selected file(s) directly to the WhatsApp chat after clicking Send Order.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- WHATSAPP SUCCESS MODAL -->
+<div class="modal-overlay" id="whatsapp-modal">
+    <div class="modal-box">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: rgba(37, 211, 102, 0.15); color: #25D366; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.81 9.81 0 0012.04 2z"/>
+            </svg>
+        </div>
+        <h3 style="font-size: 1.8rem; text-align: center; margin-bottom: 12px; color: #FFF;">ORDER DETAILS READY</h3>
+        <p style="text-align: center; margin-bottom: 20px; font-size: 0.95rem;">
+            Your formatted print order details have been prepared. Clicking below will open WhatsApp with your order message pre-filled.
+        </p>
+
+        <div style="background: rgba(0,0,0,0.4); padding: 16px; border-radius: var(--radius-md); font-family: monospace; font-size: 0.8rem; color: var(--winstar-yellow); margin-bottom: 24px; white-space: pre-wrap;" id="modal-order-preview"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="#" id="modal-wa-link" target="_blank" class="btn btn-gradient" style="width: 100%; text-align: center;">
+                CONTINUE TO WHATSAPP CHAT &rarr;
+            </a>
+            <button type="button" class="btn btn-outline" id="modal-close-btn" style="width: 100%;">
+                CLOSE WINDOW
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-bottom" style="border: none;">
+            <div>&copy; 2026 WINSTAR DIGITAL PRINTING & XEROX. Personal Printing Module.</div>
+        </div>
+    </div>
+</footer>
+
+<script type="module">
+    import { FileUploadHandler } from './js/upload.js';
+    import { calculatePrice } from './js/pricing.js';
+    import { WhatsAppOrder } from './js/whatsapp.js';
+    import { showToast } from './js/app.js';
+    import { WINSTAR_CONFIG } from './js/config.js';
+
+    const activeConfig = {
+        printType: 'bw',
+        printSides: 'single',
+        paperSize: 'A4',
+        paperGsm: '80gsm',
+        paperType: 'copier',
+        orientation: 'portrait',
+        copies: 1,
+        bindingType: 'none',
+        finishing: 'none',
+        pageRange: 'all',
+        pageCount: 1,
+        instructions: ''
+    };
+
+    let activeFiles = [];
+    let latestPricing = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const uploader = new FileUploadHandler({
+            dropZone: document.getElementById('upload-drop-zone'),
+            fileInput: document.getElementById('file-upload-input'),
+            fileListContainer: document.getElementById('uploaded-files-list'),
+            onFilesChanged: (files) => {
+                activeFiles = files;
+                if (files.length > 0) {
+                    const first = files[0];
+                    activeConfig.pageCount = first.pageCount;
+                    document.getElementById('summary-file-name').textContent = first.name;
+                } else {
+                    document.getElementById('summary-file-name').textContent = "No File Selected";
+                    activeConfig.pageCount = 1;
+                }
+                updatePricing();
+            }
+        });
+
+        const setupGroup = (groupId, configKey) => {
+            const container = document.getElementById(groupId);
+            if (!container) return;
+            container.querySelectorAll('[data-val]').forEach(item => {
+                item.addEventListener('click', () => {
+                    container.querySelectorAll('[data-val]').forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    activeConfig[configKey] = item.getAttribute('data-val');
+                    updatePricing();
+                });
+            });
+        };
+
+        setupGroup('group-printType', 'printType');
+        setupGroup('group-printSides', 'printSides');
+        setupGroup('group-paperSize', 'paperSize');
+        setupGroup('group-paperGsm', 'paperGsm');
+        setupGroup('group-paperType', 'paperType');
+        setupGroup('group-orientation', 'orientation');
+        setupGroup('group-binding', 'bindingType');
+
+        document.getElementById('btn-qty-minus').addEventListener('click', () => {
+            if (activeConfig.copies > 1) {
+                activeConfig.copies--;
+                document.getElementById('val-copies').textContent = activeConfig.copies;
+                updatePricing();
+            }
+        });
+
+        document.getElementById('btn-qty-plus').addEventListener('click', () => {
+            activeConfig.copies++;
+            document.getElementById('val-copies').textContent = activeConfig.copies;
+            updatePricing();
+        });
+
+        document.querySelectorAll('input[name="range-radio"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const rangeInput = document.getElementById('input-page-range');
+                if (e.target.value === 'custom') {
+                    rangeInput.style.display = 'block';
+                } else {
+                    rangeInput.style.display = 'none';
+                    activeConfig.pageRange = 'all';
+                    updatePricing();
+                }
+            });
+        });
+
+        document.getElementById('input-page-range').addEventListener('input', (e) => {
+            activeConfig.pageRange = e.target.value || 'all';
+        });
+
+        document.getElementById('input-instructions').addEventListener('input', (e) => {
+            activeConfig.instructions = e.target.value;
+        });
+
+        function updatePricing() {
+            latestPricing = calculatePrice(activeConfig, 'normal');
+            document.getElementById('sum-printType').textContent = activeConfig.printType === 'bw' ? 'Black & White' : 'Colour';
+            document.getElementById('sum-printSides').textContent = activeConfig.printSides === 'single' ? 'Single Side' : 'Double Side';
+            document.getElementById('sum-paperSize').textContent = activeConfig.paperSize;
+            document.getElementById('sum-paperGsm').textContent = activeConfig.paperGsm.toUpperCase();
+            document.getElementById('sum-copies').textContent = activeConfig.copies;
+            document.getElementById('sum-binding').textContent = activeConfig.bindingType.toUpperCase();
+            document.getElementById('sum-total-price').textContent = '₹' + latestPricing.total;
+        }
+
+        updatePricing();
+
+        const sendWaBtn = document.getElementById('btn-send-whatsapp');
+        sendWaBtn.addEventListener('click', async () => {
+            const currentFile = activeFiles.length > 0 ? activeFiles[0] : null;
+
+            sendWaBtn.disabled = true;
+            sendWaBtn.textContent = "SAVING REQUEST...";
+
+            // Collect customer info prompt if not logged in
+            const customerName = prompt("Please enter your Name for the print order:", "Guest Customer") || "Guest Customer";
+            const customerPhone = prompt("Please enter your Phone / WhatsApp Number:", "9876543210") || "9876543210";
+
+            try {
+                const formData = new FormData();
+                formData.append('customerName', customerName);
+                formData.append('customerPhone', customerPhone);
+                formData.append('serviceType', 'quick_print');
+                formData.append('printType', activeConfig.printType);
+                formData.append('printSides', activeConfig.printSides);
+                formData.append('paperSize', activeConfig.paperSize);
+                formData.append('paperGsm', activeConfig.paperGsm);
+                formData.append('paperType', activeConfig.paperType);
+                formData.append('orientation', activeConfig.orientation);
+                formData.append('printCount', activeConfig.copies);
+                formData.append('pageCount', activeConfig.pageCount || 1);
+                formData.append('pageRange', activeConfig.pageRange);
+                formData.append('bindingType', activeConfig.bindingType);
+                formData.append('finishing', activeConfig.finishing);
+                formData.append('estimatedAmount', latestPricing.total);
+                formData.append('notes', activeConfig.instructions);
+
+                if (currentFile && currentFile.file) {
+                    formData.append('file', currentFile.file);
+                } else if (currentFile) {
+                    formData.append('fileName', currentFile.name);
+                }
+
+                // Import API dynamically
+                const { API } = await import('./js/api.js');
+                const res = await API.post('/services/print-request', formData);
+
+                const modal = document.getElementById('whatsapp-modal');
+                document.getElementById('modal-order-preview').textContent = res.data.formattedMessage;
+                document.getElementById('modal-wa-link').setAttribute('href', res.data.whatsappUrl);
+                modal.classList.add('active');
+
+                showToast("Order saved to database! Opening WhatsApp...", "success");
+            } catch (err) {
+                console.error("Backend print-request failed, falling back to client link:", err);
+                
+                // Fallback client side WhatsApp link
+                const formattedMsg = WhatsAppOrder.formatMessage(currentFile, activeConfig, latestPricing, customerName);
+                const waUrl = WhatsAppOrder.getWhatsAppUrl(formattedMsg, WINSTAR_CONFIG.primaryWhatsapp);
+
+                const modal = document.getElementById('whatsapp-modal');
+                document.getElementById('modal-order-preview').textContent = formattedMsg;
+                document.getElementById('modal-wa-link').setAttribute('href', waUrl);
+                modal.classList.add('active');
+
+                showToast("Order details prepared! Open WhatsApp below.", "success");
+            } finally {
+                sendWaBtn.disabled = false;
+                sendWaBtn.innerHTML = "SEND ORDER TO WINSTAR &rarr;";
+            }
+        });
+
+        document.getElementById('btn-copy-order').addEventListener('click', async () => {
+            const currentFile = activeFiles.length > 0 ? activeFiles[0] : { name: "Document.pdf" };
+            const formattedMsg = WhatsAppOrder.formatMessage(currentFile, activeConfig, latestPricing);
+            await WhatsAppOrder.copyToClipboard(formattedMsg);
+            showToast("Order details copied to clipboard!", "success");
+        });
+
+        document.getElementById('modal-close-btn').addEventListener('click', () => {
+            document.getElementById('whatsapp-modal').classList.remove('active');
+        });
+    });
+</script>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

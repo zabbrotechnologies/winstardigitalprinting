@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Sign In | WINSTAR DIGITAL PRINTING & XEROX</title>
+    <meta name="description" content="Sign in to your Winstar Business & Wholesale account for discounted rates, order history, and express delivery.">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body style="background: var(--gradient-dark-plum); min-height: 100vh; display: flex; flex-direction: column;">
+
+<div class="texture-overlay"></div>
+
+<!-- HEADER NAVBAR -->
+<header class="navbar">
+    <div class="container navbar-container">
+        <a href="index.html" class="logo-brand">
+            <div class="logo-badge">
+                <img src="assets/images/logo.png" alt="Winstar Digital Printing Logo">
+            </div>
+            <div class="logo-text">
+                <div class="logo-title">WINSTAR <span>DIGITAL</span></div>
+                <div class="logo-sub">PRINTING & XEROX</div>
+            </div>
+        </a>
+        <div class="nav-actions">
+            <a href="signup.html" class="btn btn-outline btn-sm">Create Account</a>
+        </div>
+    </div>
+</header>
+
+<!-- LOGIN CENTERED BOX -->
+<main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 120px 20px 60px;">
+    <div class="glass-card gradient-border-card" style="width: 100%; max-width: 440px; padding: 40px;">
+        <div class="text-center" style="margin-bottom: 28px;">
+            <div class="badge badge-wholesale" style="margin-bottom: 12px;">WHOLESALE PORTAL</div>
+            <h1 style="font-size: 2rem; color: #FFF; margin-bottom: 6px;">WELCOME BACK</h1>
+            <p style="font-size: 0.9rem;">Access your business pricing & order history.</p>
+        </div>
+
+        <form id="login-form">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 8px;">EMAIL ADDRESS *</label>
+                <input type="email" id="login-email" required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF;" placeholder="name@company.com">
+            </div>
+
+            <div style="margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <label style="font-size: 0.85rem; font-weight: 700; color: #FFF;">PASSWORD *</label>
+                </div>
+                <input type="password" id="login-password" required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF;" placeholder="••••••••">
+            </div>
+
+            <button type="submit" class="btn btn-gradient btn-lg" style="width: 100%; margin-bottom: 20px;">
+                SIGN IN &rarr;
+            </button>
+        </form>
+
+        <div style="padding: 12px; background: rgba(255, 195, 0, 0.1); border: 1px dashed rgba(255, 195, 0, 0.3); border-radius: var(--radius-md); font-size: 0.8rem; color: var(--winstar-yellow); text-align: center; margin-bottom: 20px;" id="login-notice-box">
+            <strong>BUSINESS PORTAL:</strong><br>
+            Sign in with your approved company credentials. Awaiting approval? Your account will be unlocked upon administrator verification.
+        </div>
+
+        <div class="text-center" style="font-size: 0.9rem; margin-bottom: 12px;">
+            Don't have a business account? <a href="signup.html" style="color: var(--winstar-yellow); font-weight: 700;">CREATE ACCOUNT</a>
+        </div>
+
+        <div class="text-center" style="font-size: 0.8rem;">
+            Staff / Business Owner? <a href="admin-login.html" style="color: var(--winstar-pink); font-weight: 700;">ADMIN PORTAL SIGN IN &rarr;</a>
+        </div>
+    </div>
+</main>
+
+<script type="module">
+    import { Auth } from './js/auth.js';
+    import { showToast } from './js/app.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('login-form');
+        const submitBtn = form.querySelector('button[type="submit"]');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'VERIFYING CREDENTIALS...';
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            const res = await Auth.login(email, password);
+            if (res.success) {
+                showToast("Login successful! Redirecting...", "success");
+                setTimeout(() => {
+                    if (res.user && res.user.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                }, 800);
+            } else {
+                showToast(res.message, "error");
+                
+                const noticeBox = document.getElementById('login-notice-box');
+                if (res.status === 'pending') {
+                    noticeBox.style.background = 'rgba(255, 195, 0, 0.2)';
+                    noticeBox.style.color = '#FFC300';
+                    noticeBox.innerHTML = '<strong>AWAITING APPROVAL:</strong><br>Your account is currently awaiting administrator approval. You will receive an email once approved.';
+                } else if (res.status === 'rejected') {
+                    noticeBox.style.background = 'rgba(239, 68, 68, 0.2)';
+                    noticeBox.style.color = '#EF4444';
+                    noticeBox.innerHTML = '<strong>REGISTRATION NOT APPROVED:</strong><br>Your registration request was not approved. Please contact the administrator at contact@winstardigital.com';
+                }
+
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'SIGN IN &rarr;';
+            }
+        });
+    });
+</script>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

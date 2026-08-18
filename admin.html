@@ -384,10 +384,12 @@
                 let fileInfo = '<span style="color: var(--color-text-muted); font-size: 0.75rem;">No file uploaded</span>';
                 if (r.file_url) {
                     fileInfo = `<a href="${r.file_url}" target="_blank" download class="btn btn-outline btn-sm" style="padding: 4px 10px; font-size: 0.75rem; border-color: var(--winstar-pink); color: var(--winstar-pink); margin-top: 6px; display: inline-flex; align-items: center; gap: 4px;">
-                        📥 Download ${r.file_name || 'Document'}
+                        📥 Download ${r.file_name || 'Client Document'}
                     </a>`;
+                } else if (r.file_name && (r.status === 'pending' || r.status === 'processing')) {
+                    fileInfo = `<span style="color: var(--winstar-yellow); font-size: 0.75rem; font-weight: 600;">⚡ Instant Walk-in: ${r.file_name}</span>`;
                 } else if (r.status === 'completed' || r.status === 'cancelled') {
-                    fileInfo = `<span style="color: var(--color-success); font-size: 0.75rem; font-weight: 600;">✔️ File Auto-Deleted on ${r.status.toUpperCase()}</span>`;
+                    fileInfo = `<span style="color: var(--color-success); font-size: 0.75rem; font-weight: 600;">✔️ Finished / Cleaned Up (${r.status.toUpperCase()})</span>`;
                 }
 
                 tr.innerHTML = `

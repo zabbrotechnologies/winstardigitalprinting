@@ -37,8 +37,10 @@ const createPrintRequest = async (req, res, next) => {
         let fileType = null;
         let fileSize = null;
 
-        // Check if file was uploaded via multer
-        if (req.file) {
+        // Store physical file in Supabase Storage ONLY for Client Services / B2B Client requests, NOT for instant quick printers
+        const isClientService = serviceType === 'client_service' || serviceType === 'wholesale' || serviceType === 'b2b' || !!req.user;
+
+        if (req.file && isClientService) {
             const validation = storageService.validateFile(req.file);
             if (!validation.valid) {
                 return ApiResponse.error(res, validation.message, 400);
@@ -53,6 +55,11 @@ const createPrintRequest = async (req, res, next) => {
             filePath = uploaded.filePath;
             fileName = uploaded.fileName;
             fileType = uploaded.fileType;
+            fileSize = req.file.size;
+        } else if (req.file) {
+            // Instant Print: store metadata without consuming Supabase Storage
+            fileName = req.file.originalname;
+            fileType = req.file.mimetype;
             fileSize = req.file.size;
         }
 

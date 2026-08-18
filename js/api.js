@@ -1,6 +1,7 @@
-/* js/api.js - Winstar Central REST API Client */
+/* js/api.js - Winstar Central REST API Client (Vercel & Local Dynamic Detection) */
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = isLocal ? 'http://localhost:5000/api' : '/api';
 
 export const API = {
     getToken() {

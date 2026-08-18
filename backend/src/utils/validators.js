@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 const registerValidator = [
     body('name').trim().notEmpty().withMessage('Full name is required'),
     body('email').trim().isEmail().withMessage('Valid email is required'),
-    body('phone').trim().notEmpty().withMessage('Phone number is required'),
+    body('phone').trim().matches(/^[0-9+\s-]{10,15}$/).withMessage('Valid phone number (at least 10 digits) is required'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
     body('companyName').trim().notEmpty().withMessage('Company name is required'),
     body('address.line1').trim().notEmpty().withMessage('Address Line 1 is required'),
@@ -19,8 +19,9 @@ const loginValidator = [
 
 const printRequestValidator = [
     body('customerName').trim().notEmpty().withMessage('Customer name is required'),
-    body('customerPhone').trim().notEmpty().withMessage('Customer phone is required'),
-    body('printCount').isInt({ min: 1 }).withMessage('Print count must be at least 1')
+    body('customerPhone').trim().matches(/^[0-9+\s-]{10,15}$/).withMessage('Valid 10-digit customer phone number is required'),
+    body('printCount').isInt({ min: 1 }).withMessage('Print count must be at least 1'),
+    body('estimatedAmount').optional().isFloat({ min: 0 }).withMessage('Estimated amount must be a positive number')
 ];
 
 module.exports = {

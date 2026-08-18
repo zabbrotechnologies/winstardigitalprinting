@@ -5,6 +5,8 @@ const serviceController = require('../controllers/serviceController');
 const { printRequestValidator } = require('../utils/validators');
 const validate = require('../middleware/validationMiddleware');
 
+const authMiddleware = require('../middleware/authMiddleware');
+
 // Configure Multer Memory Storage (files processed in memory then sent to Supabase storage)
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -20,6 +22,6 @@ router.post(
     serviceController.createPrintRequest
 );
 
-router.get('/requests/:id', serviceController.getRequestById);
+router.get('/requests/:id', authMiddleware, serviceController.getRequestById);
 
 module.exports = router;

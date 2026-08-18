@@ -137,6 +137,14 @@ const getRequestById = async (req, res, next) => {
             return ApiResponse.error(res, 'Service request not found.', 404);
         }
 
+        // Authorization check: User must own the request or be an admin
+        const isOwner = req.user && req.user.id === request.user_id;
+        const isAdmin = req.profile && req.profile.role === 'admin';
+
+        if (!isOwner && !isAdmin) {
+            return ApiResponse.error(res, 'Access denied. You do not have permission to view this request.', 403);
+        }
+
         return ApiResponse.success(res, 'Service request retrieved.', { request });
     } catch (err) {
         next(err);

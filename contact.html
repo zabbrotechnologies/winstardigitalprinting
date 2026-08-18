@@ -161,10 +161,19 @@
 <script type="module">
     import { showToast } from './js/app.js';
     document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById('contact-form').addEventListener('submit', (e) => {
+        const form = document.getElementById('contact-form');
+        const submitBtn = form.querySelector('button[type="submit"]');
+        form.addEventListener('submit', (e) => {
             e.preventDefault();
+            if (submitBtn.disabled) return;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'SUBMITTING...';
             showToast("Inquiry sent! Our store team will call you shortly.", "success");
-            e.target.reset();
+            form.reset();
+            setTimeout(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'SUBMIT INQUIRY &rarr;';
+            }, 1200);
         });
     });
 </script>

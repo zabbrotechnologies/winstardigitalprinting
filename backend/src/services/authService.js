@@ -79,6 +79,10 @@ const registerUser = async (userData) => {
 
     if (companyErr) {
         logger.error('Database company insertion error:', companyErr);
+        // Rollback: Clean up created profile and auth user
+        await supabaseAdmin.from('profiles').delete().eq('id', userId);
+        await supabaseAdmin.auth.admin.deleteUser(userId);
+        throw new Error('Failed to initialize company record in database.');
     }
 
     // 5. Send Registration Confirmation Email

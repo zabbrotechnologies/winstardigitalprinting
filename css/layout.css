@@ -167,6 +167,11 @@
     box-shadow: var(--shadow-sm);
 }
 
+/* Mobile Menu Actions - Hidden by default on Desktop */
+.mobile-menu-actions {
+    display: none !important;
+}
+
 /* Mobile Toggle */
 .mobile-toggle {
     display: none;
@@ -368,9 +373,9 @@
         pointer-events: all;
     }
 
-    /* Mobile Menu Actions (Cart, Login, Print Now) */
+    /* Mobile Menu Actions (Cart, Login, Print Now) - Visible ONLY in Mobile Drawer */
     .mobile-menu-actions {
-        display: flex;
+        display: flex !important;
         flex-direction: column;
         gap: var(--space-3);
         margin-top: var(--space-4);

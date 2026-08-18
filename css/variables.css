@@ -1,13 +1,13 @@
-/* css/variables.css - Winstar Digital Printing & Xerox Design Tokens */
+/* css/variables.css - Winstar Digital Printing & Xerox Ultra-Rich Design Tokens */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-    /* Brand Primary Palette: Red + Pink + Yellow */
-    --winstar-red: #D90429;
-    --winstar-red-deep: #A0001C;
-    --winstar-pink: #E01E5A;
+    /* Brand Primary Palette: Crimson Red + Vibrant Neon Pink + Amber Gold */
+    --winstar-red: #E60039;
+    --winstar-red-deep: #990026;
+    --winstar-pink: #FF007F;
     --winstar-pink-hot: #FF1493;
-    --winstar-yellow: #FFC300;
+    --winstar-yellow: #FFB703;
     --winstar-yellow-gold: #FFD166;
 
     /* Theme Mappings */
@@ -15,27 +15,27 @@
     --color-secondary: var(--winstar-pink);
     --color-accent: var(--winstar-yellow);
 
-    /* Rich Gradients */
-    --gradient-red-pink: linear-gradient(135deg, #D90429 0%, #E01E5A 100%);
-    --gradient-pink-yellow: linear-gradient(135deg, #E01E5A 0%, #FFC300 100%);
-    --gradient-red-yellow: linear-gradient(135deg, #D90429 0%, #FFC300 100%);
-    --gradient-winstar-full: linear-gradient(135deg, #D90429 0%, #E01E5A 50%, #FFC300 100%);
-    --gradient-winstar-glow: linear-gradient(135deg, rgba(217, 4, 41, 0.4) 0%, rgba(224, 30, 90, 0.3) 50%, rgba(255, 195, 0, 0.4) 100%);
-    --gradient-dark-plum: linear-gradient(180deg, #0A0A0E 0%, #170417 50%, #0A0A0E 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    /* Ultra-Rich Gradients */
+    --gradient-red-pink: linear-gradient(135deg, #E60039 0%, #FF007F 100%);
+    --gradient-pink-yellow: linear-gradient(135deg, #FF007F 0%, #FFB703 100%);
+    --gradient-red-yellow: linear-gradient(135deg, #E60039 0%, #FFB703 100%);
+    --gradient-winstar-full: linear-gradient(135deg, #E60039 0%, #FF007F 50%, #FFB703 100%);
+    --gradient-winstar-glow: linear-gradient(135deg, rgba(230, 0, 57, 0.45) 0%, rgba(255, 0, 127, 0.4) 50%, rgba(255, 183, 3, 0.45) 100%);
+    --gradient-dark-plum: radial-gradient(ellipse at 50% 0%, rgba(255, 0, 127, 0.22) 0%, rgba(17, 14, 24, 0.98) 75%), linear-gradient(180deg, #07070A 0%, #110E18 50%, #07070A 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%);
 
-    /* Dark Premium Surfaces */
-    --color-bg-dark: #0A0A0D;
-    --color-bg-surface: #121218;
-    --color-bg-card: #181822;
-    --color-bg-card-hover: #222230;
+    /* Dark Premium Velvet Surfaces */
+    --color-bg-dark: #07070A;
+    --color-bg-surface: #110E18;
+    --color-bg-card: #181424;
+    --color-bg-card-hover: #221D32;
     --color-surface-light: #F8F9FC;
 
     /* Text & Accents */
     --color-text-main: #FFFFFF;
-    --color-text-muted: #A0A0B8;
-    --color-text-dark: #121218;
-    --color-border-dark: rgba(255, 255, 255, 0.12);
+    --color-text-muted: #B4B4CC;
+    --color-text-dark: #110E18;
+    --color-border-dark: rgba(255, 255, 255, 0.14);
     --color-border-gradient: var(--gradient-winstar-full);
 
     /* State Colors */
@@ -79,12 +79,12 @@
 
     /* Shadows & Glows */
     --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.3);
-    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.4);
-    --glow-red: 0 0 30px rgba(217, 4, 41, 0.35);
-    --glow-pink: 0 0 30px rgba(224, 30, 90, 0.35);
-    --glow-yellow: 0 0 30px rgba(255, 195, 0, 0.35);
-    --glow-brand: 0 10px 30px -5px rgba(224, 30, 90, 0.4);
+    --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.5);
+    --glow-red: 0 0 35px rgba(230, 0, 57, 0.4);
+    --glow-pink: 0 0 35px rgba(255, 0, 127, 0.4);
+    --glow-yellow: 0 0 35px rgba(255, 183, 3, 0.4);
+    --glow-brand: 0 10px 35px -5px rgba(255, 0, 127, 0.45);
 
     /* Layout Constraints */
     --max-width: 1320px;

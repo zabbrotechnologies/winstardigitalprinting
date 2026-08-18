@@ -17,10 +17,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 2. Mobile Menu Toggle
+    // 2. Mobile Menu Toggle & Dynamic Mobile Drawer Actions
     const mobileToggle = document.querySelector('.mobile-toggle');
     const navMenu = document.querySelector('.nav-menu');
     if (mobileToggle && navMenu) {
+        // Inject Mobile Drawer Actions if not existing
+        if (!navMenu.querySelector('.mobile-menu-actions')) {
+            const user = Auth.getUser();
+            const authText = user ? `👤 ${user.companyName || user.name}` : 'Login / Account';
+            const authHref = user ? 'dashboard.html' : 'login.html';
+
+            const mobileActions = document.createElement('div');
+            mobileActions.className = 'mobile-menu-actions';
+            mobileActions.innerHTML = `
+                <a href="cart.html" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center;">
+                    🛒 Wholesale Cart
+                </a>
+                <a href="${authHref}" class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; border-color: var(--winstar-yellow); color: var(--winstar-yellow);">
+                    ${authText}
+                </a>
+                <a href="quick-print.html" class="btn btn-gradient btn-sm" style="width: 100%; justify-content: center;">
+                    Print Now &rarr;
+                </a>
+            `;
+            navMenu.appendChild(mobileActions);
+        }
+
         mobileToggle.addEventListener('click', () => {
             navMenu.classList.toggle('open');
             mobileToggle.classList.toggle('active');

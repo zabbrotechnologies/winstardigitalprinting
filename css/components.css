@@ -23,31 +23,18 @@
     z-index: 1;
 }
 
-/* Winstar Full Gradient Button */
+/* Winstar Primary Action Button (Solid Pink & Red Hover) */
 .btn-gradient {
-    background: var(--gradient-winstar-full);
+    background: var(--winstar-pink);
     color: #FFFFFF;
-    box-shadow: 0 10px 25px -5px rgba(224, 30, 90, 0.5);
-}
-
-.btn-gradient::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, #FFC300 0%, #E01E5A 50%, #D90429 100%);
-    opacity: 0;
-    transition: opacity var(--transition-base);
-    z-index: -1;
+    box-shadow: 0 8px 22px rgba(255, 0, 127, 0.45);
 }
 
 .btn-gradient:hover {
+    background: var(--winstar-red);
     transform: translateY(-3px);
-    box-shadow: 0 16px 35px -5px rgba(255, 195, 0, 0.5);
+    box-shadow: 0 12px 30px rgba(217, 4, 41, 0.55);
     color: #FFFFFF;
-}
-
-.btn-gradient:hover::before {
-    opacity: 1;
 }
 
 /* Outline Gradient Border Button */
@@ -59,7 +46,7 @@
 
 .btn-outline:hover {
     border-color: var(--winstar-pink);
-    background: rgba(224, 30, 90, 0.1);
+    background: rgba(255, 0, 127, 0.12);
     color: var(--winstar-yellow);
     transform: translateY(-2px);
 }
@@ -108,7 +95,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--gradient-winstar-full);
+    background: var(--winstar-pink);
     animation: pulseGlow 2s infinite;
 }
 
@@ -160,10 +147,10 @@
 }
 
 .toggle-btn.selected {
-    background: linear-gradient(135deg, rgba(230, 0, 57, 0.25) 0%, rgba(255, 0, 127, 0.2) 100%);
+    background: rgba(255, 0, 127, 0.22);
     border-color: var(--winstar-pink);
     color: var(--winstar-yellow-gold);
-    box-shadow: 0 0 20px rgba(255, 0, 127, 0.35), 0 0 10px rgba(255, 183, 3, 0.2);
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.35);
     font-weight: 700;
 }
 
@@ -192,7 +179,7 @@
 
 .binding-card.selected {
     border-color: var(--winstar-yellow);
-    background: linear-gradient(135deg, rgba(255, 183, 3, 0.16) 0%, rgba(255, 0, 127, 0.12) 100%);
+    background: rgba(255, 195, 0, 0.2);
     box-shadow: 0 0 25px rgba(255, 183, 3, 0.35);
 }
 

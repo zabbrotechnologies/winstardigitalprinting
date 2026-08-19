@@ -77,9 +77,7 @@ html, body {
 }
 
 .logo-title span {
-    background: var(--gradient-pink-yellow);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--winstar-pink);
 }
 
 .logo-sub {
@@ -120,7 +118,7 @@ html, body {
     left: 0;
     width: 0;
     height: 2px;
-    background: var(--gradient-winstar-full);
+    background: var(--winstar-pink);
     border-radius: var(--radius-full);
     transition: width var(--transition-base);
 }
@@ -163,7 +161,7 @@ html, body {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    background: var(--gradient-winstar-full);
+    background: var(--winstar-pink);
     color: #FFFFFF;
     font-size: 0.65rem;
     font-weight: 700;
@@ -243,7 +241,7 @@ html, body {
     transform: translateX(-50%);
     width: 60%;
     height: 1px;
-    background: var(--gradient-winstar-full);
+    background: var(--winstar-pink);
     opacity: 0.4;
 }
 

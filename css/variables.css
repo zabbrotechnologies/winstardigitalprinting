@@ -11,22 +11,22 @@
     --winstar-yellow-gold: #FFD166;
 
     /* Theme Mappings */
-    --color-primary: var(--winstar-red);
-    --color-secondary: var(--winstar-pink);
+    --color-primary: var(--winstar-pink);
+    --color-secondary: var(--winstar-red);
     --color-accent: var(--winstar-yellow);
 
-    /* Ultra-Rich Gradients */
-    --gradient-red-pink: linear-gradient(135deg, #E60039 0%, #FF007F 100%);
-    --gradient-pink-yellow: linear-gradient(135deg, #FF007F 0%, #FFB703 100%);
-    --gradient-red-yellow: linear-gradient(135deg, #E60039 0%, #FFB703 100%);
-    --gradient-winstar-full: linear-gradient(135deg, #E60039 0%, #FF007F 50%, #FFB703 100%);
-    --gradient-winstar-glow: linear-gradient(135deg, rgba(230, 0, 57, 0.45) 0%, rgba(255, 0, 127, 0.4) 50%, rgba(255, 183, 3, 0.45) 100%);
-    --gradient-dark-plum: radial-gradient(ellipse at 50% 0%, rgba(255, 0, 127, 0.22) 0%, rgba(17, 14, 24, 0.98) 75%), linear-gradient(180deg, #07070A 0%, #110E18 50%, #07070A 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%);
+    /* Solid Brand Colors (No Gradients) */
+    --gradient-red-pink: var(--winstar-pink);
+    --gradient-pink-yellow: var(--winstar-yellow);
+    --gradient-red-yellow: var(--winstar-red);
+    --gradient-winstar-full: var(--winstar-pink);
+    --gradient-winstar-glow: var(--winstar-red);
+    --gradient-dark-plum: #0F0D18;
+    --gradient-glass: #181424;
 
     /* Dark Premium Velvet Surfaces */
     --color-bg-dark: #07070A;
-    --color-bg-surface: #110E18;
+    --color-bg-surface: #0F0D18;
     --color-bg-card: #181424;
     --color-bg-card-hover: #221D32;
     --color-surface-light: #F8F9FC;
@@ -36,7 +36,7 @@
     --color-text-muted: #B4B4CC;
     --color-text-dark: #110E18;
     --color-border-dark: rgba(255, 255, 255, 0.14);
-    --color-border-gradient: var(--gradient-winstar-full);
+    --color-border-gradient: var(--winstar-pink);
 
     /* State Colors */
     --color-success: #10B981;

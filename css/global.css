@@ -33,7 +33,7 @@ body {
     background: var(--color-bg-dark);
 }
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, var(--winstar-red), var(--winstar-pink));
+    background: var(--winstar-pink);
     border-radius: var(--radius-full);
 }
 
@@ -67,35 +67,24 @@ button, input, select, textarea {
     font-size: inherit;
 }
 
-/* Gradient Utilities */
+/* Solid Text Accent Utilities (No Gradients) */
 .gradient-text {
-    background: var(--gradient-winstar-full);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--winstar-pink);
     display: inline-block;
 }
 
 .gradient-text-yellow {
-    background: var(--gradient-pink-yellow);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--winstar-yellow);
     display: inline-block;
 }
 
 .gradient-bg {
-    background: var(--gradient-winstar-full);
-}
-
-.gradient-text-yellow {
-    background: var(--gradient-pink-yellow);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    display: inline-block;
+    background: var(--winstar-pink);
 }
 
 /* Glassmorphism Surface */
 .glass-card {
-    background: rgba(24, 20, 36, 0.75);
+    background: rgba(24, 20, 36, 0.85);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border: 1px solid rgba(255, 255, 255, 0.16);
@@ -106,31 +95,18 @@ button, input, select, textarea {
 }
 
 .glass-card:hover {
-    border-color: rgba(255, 0, 127, 0.5);
-    box-shadow: 0 12px 35px -5px rgba(255, 0, 127, 0.35), 0 0 20px rgba(255, 183, 3, 0.2);
+    border-color: var(--winstar-pink);
+    box-shadow: 0 12px 35px -5px rgba(255, 0, 127, 0.35);
     transform: translateY(-4px);
 }
 
-/* Gradient Border Card */
+/* Solid Border Accent Card */
 .gradient-border-card {
     position: relative;
     border-radius: var(--radius-lg);
     background: var(--color-bg-card);
-    padding: 1px;
+    border: 1px solid var(--winstar-pink);
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
-}
-
-.gradient-border-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: var(--radius-lg);
-    padding: 1px;
-    background: var(--gradient-winstar-full);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
 }
 
 /* Subtle Film Grain Noise Texture */

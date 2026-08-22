@@ -150,14 +150,16 @@ export default function Auth() {
 
               {/* LOGIN FORM */}
               {tab === 'login' && (
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 18 }} className="animate-fade-in">
+                <form onSubmit={handleLogin} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 18 }} className="animate-fade-in">
                   <div className="form-group">
                     <label className="label" htmlFor="login-email">Email Address</label>
                     <input
                       id="login-email"
+                      name="user_login_email"
                       type="email"
                       className="input"
                       placeholder="name@example.com"
+                      autoComplete="off"
                       required
                       value={loginData.email}
                       onChange={e => setLoginData(d => ({ ...d, email: e.target.value }))}
@@ -167,9 +169,11 @@ export default function Auth() {
                     <label className="label" htmlFor="login-password">Password</label>
                     <input
                       id="login-password"
+                      name="user_login_secret"
                       type="password"
                       className="input"
                       placeholder="••••••••••••"
+                      autoComplete="new-password"
                       required
                       value={loginData.password}
                       onChange={e => setLoginData(d => ({ ...d, password: e.target.value }))}

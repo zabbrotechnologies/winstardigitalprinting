@@ -118,7 +118,7 @@ export default function RegisterWholesale() {
               </div>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+            <form onSubmit={handleSubmit} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* Section 1: Personal Info */}
               <div>
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--primary-container)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -128,28 +128,28 @@ export default function RegisterWholesale() {
                   <div className="form-group">
                     <label className="label">Full Name *</label>
                     <input
-                      type="text" className="input" placeholder="e.g. Rahul Sharma" required
+                      type="text" className="input" placeholder="e.g. Rahul Sharma" required autoComplete="off"
                       value={formData.full_name} onChange={e => setFormData(d => ({ ...d, full_name: e.target.value }))}
                     />
                   </div>
                   <div className="form-group">
                     <label className="label">Mobile Number *</label>
                     <input
-                      type="tel" className="input" placeholder="e.g. 9876543210" required
+                      type="tel" className="input" placeholder="e.g. 9876543210" required autoComplete="off"
                       value={formData.mobile} onChange={e => setFormData(d => ({ ...d, mobile: e.target.value }))}
                     />
                   </div>
                   <div className="form-group">
                     <label className="label">Business Email *</label>
                     <input
-                      type="email" className="input" placeholder="e.g. contact@agency.com" required
+                      type="email" className="input" placeholder="e.g. contact@agency.com" required autoComplete="off"
                       value={formData.email} onChange={e => setFormData(d => ({ ...d, email: e.target.value }))}
                     />
                   </div>
                   <div className="form-group">
                     <label className="label">Password *</label>
                     <input
-                      type="password" className="input" placeholder="Create a secure password" required
+                      type="password" className="input" placeholder="Create a secure password" required autoComplete="new-password"
                       value={formData.password} onChange={e => setFormData(d => ({ ...d, password: e.target.value }))}
                     />
                   </div>

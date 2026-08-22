@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Navbar() {
   const { user, signOut, profile } = useAuth();
@@ -8,6 +8,12 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  // Close menus on route change
+  useEffect(() => {
+    setMobileOpen(false);
+    setUserMenuOpen(false);
+  }, [location.pathname]);
 
   const navLinks = [
     { to: '/', label: 'Home' },
@@ -29,11 +35,11 @@ export default function Navbar() {
         {/* Brand */}
         <Link to="/" className="navbar-brand">
           <span className="material-symbols-outlined icon-fill" style={{ color: 'var(--primary-container)', fontSize: 28 }}>print</span>
-          Xerox Digital Pro
+          <span>Xerox Digital Pro</span>
         </Link>
 
         {/* Desktop Nav */}
-        <nav>
+        <nav className="desktop-nav">
           <ul className="navbar-nav">
             {navLinks.map(link => (
               <li key={link.to}>
@@ -54,11 +60,11 @@ export default function Navbar() {
             <div style={{ position: 'relative' }}>
               <button
                 className="btn btn-outline btn-pill"
-                style={{ gap: 8 }}
+                style={{ gap: 6, padding: '6px 14px', fontSize: 13 }}
                 onClick={() => setUserMenuOpen(!userMenuOpen)}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>account_circle</span>
-                {profile?.full_name?.split(' ')[0] || 'Account'}
+                <span className="hide-on-compact">{profile?.full_name?.split(' ')[0] || 'Account'}</span>
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>expand_more</span>
               </button>
               {userMenuOpen && (
@@ -70,7 +76,7 @@ export default function Navbar() {
                   border: '1px solid var(--outline-variant)',
                   borderRadius: 'var(--radius-md)',
                   boxShadow: 'var(--shadow-modal)',
-                  minWidth: 180,
+                  minWidth: 190,
                   zIndex: 200,
                   overflow: 'hidden',
                 }}>
@@ -101,60 +107,85 @@ export default function Navbar() {
               )}
             </div>
           ) : (
-            <>
-              <Link to="/auth" className="btn btn-outline btn-pill">
-                Client Login
+            <div className="desktop-actions" style={{ display: 'flex', gap: 8 }}>
+              <Link to="/auth" className="btn btn-outline btn-pill" style={{ padding: '8px 16px', fontSize: 13 }}>
+                Login
               </Link>
-              <Link to="/#quick-print" className="btn btn-primary btn-pill">
+              <Link to="/#quick-print" className="btn btn-primary btn-pill" style={{ padding: '8px 16px', fontSize: 13 }}>
                 Start Project
               </Link>
-            </>
+            </div>
           )}
 
-          {/* Mobile menu button */}
+          {/* Mobile hamburger menu button */}
           <button
-            className="btn btn-ghost"
-            style={{ display: 'none', padding: '8px', minWidth: 0 }}
-            id="mobile-menu-btn"
+            className="btn btn-ghost mobile-toggle-btn"
+            aria-label="Toggle navigation menu"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
-            <span className="material-symbols-outlined">{mobileOpen ? 'close' : 'menu'}</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 26 }}>{mobileOpen ? 'close' : 'menu'}</span>
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Dropdown Menu */}
       {mobileOpen && (
-        <div style={{
-          position: 'absolute',
-          top: 72,
-          left: 0,
-          right: 0,
-          background: 'var(--surface-container-lowest)',
-          borderBottom: '1px solid var(--outline-variant)',
-          padding: '16px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-          zIndex: 99,
-        }}>
+        <div className="mobile-menu-drawer animate-fade-in">
           {navLinks.map(link => (
             <Link
               key={link.to}
               to={link.to}
-              style={{ padding: '10px 16px', borderRadius: 'var(--radius)', fontSize: 14, fontWeight: 600, color: 'var(--on-surface)' }}
+              className={`mobile-nav-link ${isActive(link.to) ? 'active' : ''}`}
               onClick={() => setMobileOpen(false)}
             >
               {link.label}
             </Link>
           ))}
-          {!user && (
-            <Link to="/auth" className="btn btn-primary" onClick={() => setMobileOpen(false)} style={{ marginTop: 8 }}>
-              Client Login / Register
-            </Link>
+
+          <hr style={{ borderColor: 'var(--surface-container)', margin: '4px 0' }} />
+
+          {user ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Link
+                to="/dashboard"
+                className="mobile-nav-link"
+                style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                onClick={() => setMobileOpen(false)}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>dashboard</span>
+                Dashboard
+              </Link>
+              <Link
+                to="/admin"
+                className="mobile-nav-link"
+                style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary-container)', fontWeight: 700 }}
+                onClick={() => setMobileOpen(false)}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>admin_panel_settings</span>
+                Admin Panel
+              </Link>
+              <button
+                onClick={() => { setMobileOpen(false); handleSignOut(); }}
+                className="btn btn-outline"
+                style={{ color: 'var(--error)', borderColor: 'var(--error-container)', marginTop: 4, width: '100%', justifyContent: 'center' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>logout</span>
+                Sign Out ({profile?.full_name || 'Account'})
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+              <Link to="/auth" className="btn btn-outline" onClick={() => setMobileOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
+                Client Login / Register
+              </Link>
+              <Link to="/#quick-print" className="btn btn-primary" onClick={() => setMobileOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
+                Start Print Job
+              </Link>
+            </div>
           )}
         </div>
       )}
     </header>
   );
 }
+

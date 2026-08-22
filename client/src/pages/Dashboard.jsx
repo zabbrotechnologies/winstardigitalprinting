@@ -78,7 +78,7 @@ export default function Dashboard() {
         <Sidebar activeView={view} onViewChange={setView} />
 
         {/* Main content */}
-        <main style={{
+        <main className="dashboard-main" style={{
           flex: 1,
           marginLeft: 256,
           padding: 'var(--margin-desktop)',

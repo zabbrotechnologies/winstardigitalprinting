@@ -27,8 +27,8 @@ export default function Dashboard() {
   async function loadDashboardData() {
     setOrdersLoading(true);
     try {
-      const token = await getAccessToken();
-      const userOrders = await fetchUserOrders(user.$id, token);
+      const currentUserId = user?.id || user?.$id;
+      const userOrders = await fetchUserOrders(currentUserId);
       setOrders(userOrders);
 
       // Compute stats

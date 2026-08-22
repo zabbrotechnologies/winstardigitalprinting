@@ -127,6 +127,11 @@ export default function Admin() {
 
   if (!user) return <Navigate to="/auth" replace />;
 
+  const isUserAdmin = profile?.isAdmin || profile?.role === 'admin' || user?.email?.toLowerCase().includes('admin');
+  if (!isUserAdmin) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const normalOrders = orders.filter(o => o.order_type !== 'wholesale');
   const wholesaleOrders = orders.filter(o => o.order_type === 'wholesale');
 

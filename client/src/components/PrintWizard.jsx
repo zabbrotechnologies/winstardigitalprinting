@@ -1,8 +1,6 @@
 import { useState, useRef } from 'react';
-import { ID } from 'appwrite';
 import { useAuth } from '../context/AuthContext';
-import { storage, STORAGE_BUCKET_ID, endpoint, projectId } from '../lib/appwrite';
-import { createOrder } from '../lib/orderService';
+import { createOrder, uploadPrintFile } from '../lib/orderService';
 
 const WINSTAR_PHONE = '919345046665'; // Winstar WhatsApp support number
 
@@ -89,62 +87,10 @@ export default function PrintWizard({ isWholesale = false }) {
     setUploading(true);
 
     try {
-      // 1. Try Direct Appwrite Client SDK Storage upload (best performance & no serverless limits)
-      try {
-        const fileId = ID.unique();
-        const uploaded = await storage.createFile(
-          STORAGE_BUCKET_ID,
-          fileId,
-          selectedFile
-        );
-
-        const publicUrl = `${endpoint}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploaded.$id}/view?project=${projectId}`;
-        const downloadUrl = `${endpoint}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploaded.$id}/download?project=${projectId}`;
-
-        setUploadedFile({
-          fileId: uploaded.$id,
-          fileName: selectedFile.name,
-          publicUrl,
-          downloadUrl,
-          sizeOriginal: uploaded.sizeOriginal || selectedFile.size,
-          mimeType: uploaded.mimeType || selectedFile.type,
-        });
-        setUploading(false);
-        return;
-      } catch (clientErr) {
-        console.warn('Direct Appwrite Storage upload fallback:', clientErr);
-      }
-
-      // 2. Try Serverless API Route
-      const formData = new FormData();
-      formData.append('file', selectedFile);
-      const token = await getAccessToken();
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-
-      const res = await fetch(`${apiUrl}/api/upload`, {
-        method: 'POST',
-        headers,
-        body: formData,
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setUploadedFile(data);
-      } else {
-        throw new Error('Server upload unavailable');
-      }
+      const uploaded = await uploadPrintFile(selectedFile);
+      setUploadedFile(uploaded);
     } catch (err) {
-      // 3. Graceful Client-side Preview Fallback so customer is NEVER blocked from placing print order
-      const localFileId = `file_${Date.now()}`;
-      setUploadedFile({
-        fileId: localFileId,
-        fileName: selectedFile.name,
-        publicUrl: URL.createObjectURL(selectedFile),
-        downloadUrl: URL.createObjectURL(selectedFile),
-        sizeOriginal: selectedFile.size,
-        mimeType: selectedFile.type,
-      });
+      console.warn('Upload error:', err);
     } finally {
       setUploading(false);
     }

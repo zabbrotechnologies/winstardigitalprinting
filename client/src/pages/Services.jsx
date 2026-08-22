@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ServiceCard from '../components/ServiceCard';
-import { databases, DATABASE_ID, ORDERS_COLLECTION_ID } from '../lib/appwrite';
-import { Query } from 'appwrite';
+import { supabase } from '../lib/supabase';
 import { getLocalOrders } from '../lib/orderService';
 
 const ALL_SERVICES = [
@@ -47,41 +46,24 @@ export default function Services() {
     setTrackResult(null);
 
     try {
-      // 1. Try Direct Appwrite DB query
+      // 1. Try Supabase Orders query
       try {
-        let doc = null;
-        try {
-          doc = await databases.getDocument(DATABASE_ID, ORDERS_COLLECTION_ID, query);
-        } catch {
-          const list = await databases.listDocuments(DATABASE_ID, ORDERS_COLLECTION_ID, [
-            Query.equal('request_id', query.toUpperCase()),
-          ]);
-          if (list.documents && list.documents.length > 0) {
-            doc = list.documents[0];
-          }
-        }
-        if (doc) {
-          setTrackResult({ id: doc.$id, ...doc });
+        const { data: matchedDoc } = await supabase
+          .from('orders')
+          .select('*')
+          .or(`request_id.eq.${query.toUpperCase()},request_id.eq.${query}`)
+          .maybeSingle();
+
+        if (matchedDoc) {
+          setTrackResult(matchedDoc);
           setTrackLoading(false);
           return;
         }
       } catch (dbErr) {
-        console.warn('Appwrite direct track lookup notice:', dbErr);
+        console.warn('Supabase tracking lookup notice:', dbErr);
       }
 
-      // 2. Try Serverless API
-      try {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const res = await fetch(`${apiUrl}/api/orders/track/${query}`);
-        if (res.ok) {
-          const data = await res.json();
-          setTrackResult(data);
-          setTrackLoading(false);
-          return;
-        }
-      } catch {}
-
-      // 3. Try Local Storage Orders
+      // 2. Try Local Storage Orders
       const localOrders = getLocalOrders();
       const matched = localOrders.find(
         o => o.id === query || o.request_id?.toUpperCase() === query.toUpperCase()

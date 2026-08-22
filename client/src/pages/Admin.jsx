@@ -3,10 +3,8 @@ import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatCard';
-
 import { fetchAllAdminOrders } from '../lib/orderService';
-import { databases, DATABASE_ID, ORDERS_COLLECTION_ID, USERS_COLLECTION_ID } from '../lib/appwrite';
-import { Query } from 'appwrite';
+import { supabase } from '../lib/supabase';
 
 const STATUSES = ['Pending', 'Confirmed', 'Printing', 'Processing', 'Ready for Pickup', 'Delivered', 'Completed', 'Cancelled'];
 
@@ -34,23 +32,19 @@ export default function Admin() {
   async function fetchAdminData() {
     setLoading(true);
     try {
-      const token = await getAccessToken();
-      const allOrders = await fetchAllAdminOrders(token);
+      const allOrders = await fetchAllAdminOrders();
       setOrders(allOrders);
 
-      // Load agencies
+      // Load agencies from Supabase profiles
       try {
-        const agenciesRes = await databases.listDocuments(
-          DATABASE_ID,
-          USERS_COLLECTION_ID,
-          [Query.equal('account_type', 'wholesale'), Query.limit(100)]
-        );
-        setAgencies(agenciesRes.documents.map(d => ({ id: d.$id, ...d })));
-      } catch {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const res = await fetch(`${apiUrl}/api/auth/agencies`, { headers }).catch(() => ({ ok: false }));
-        if (res.ok) setAgencies(await res.json());
+        const { data: agencyList } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('account_type', 'wholesale');
+
+        if (agencyList) setAgencies(agencyList);
+      } catch (err) {
+        console.warn('Agencies load notice:', err);
       }
 
       // Compute admin stats
@@ -91,26 +85,10 @@ export default function Admin() {
   async function handleStatusChange(orderId, newStatus) {
     setUpdatingId(orderId);
     try {
-      // 1. Try Direct Appwrite DB
-      try {
-        await databases.updateDocument(
-          DATABASE_ID,
-          ORDERS_COLLECTION_ID,
-          orderId,
-          { status: newStatus, updated_at: new Date().toISOString() }
-        );
-      } catch {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const token = await getAccessToken();
-        await fetch(`${apiUrl}/api/orders/admin/${orderId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ status: newStatus }),
-        });
-      }
+      await supabase
+        .from('orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', orderId);
 
       setOrders(prev => prev.map(o => (o.id === orderId ? { ...o, status: newStatus } : o)));
       if (selectedOrder?.id === orderId) {
@@ -126,25 +104,10 @@ export default function Admin() {
   async function handleAgencyVerify(agencyId, newStatus) {
     setUpdatingId(agencyId);
     try {
-      try {
-        await databases.updateDocument(
-          DATABASE_ID,
-          USERS_COLLECTION_ID,
-          agencyId,
-          { status: newStatus, verified_at: new Date().toISOString() }
-        );
-      } catch {
-        const apiUrl = import.meta.env.VITE_API_URL || '';
-        const token = await getAccessToken();
-        await fetch(`${apiUrl}/api/auth/agencies/${agencyId}/verify`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({ status: newStatus }),
-        });
-      }
+      await supabase
+        .from('profiles')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', agencyId);
 
       setAgencies(prev => prev.map(a => (a.id === agencyId ? { ...a, status: newStatus } : a)));
     } catch (err) {

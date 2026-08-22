@@ -1,11 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { ID, Query } from 'appwrite';
-import {
-  account,
-  databases,
-  DATABASE_ID,
-  USERS_COLLECTION_ID,
-} from '../lib/appwrite';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
@@ -14,138 +8,145 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_URL = import.meta.env.VITE_API_URL || '';
-
   useEffect(() => {
-    checkCurrentUser();
+    // 1. Initial Session Check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id, session.user);
+      } else {
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+      }
+    });
+
+    // 2. Listen to Auth State Changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id, session.user);
+      } else {
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  async function checkCurrentUser() {
+  async function fetchProfile(userId, currentUser = null) {
     try {
-      const currentAccount = await account.get();
-      setUser(currentAccount);
-      await fetchProfile(currentAccount.$id, currentAccount);
+      const { data: doc } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      const u = currentUser || user;
+      const email = u?.email || doc?.email || '';
+      const isAdmin = (doc?.role === 'admin') || email.toLowerCase().includes('admin');
+      const isWholesale = doc?.role === 'wholesale' || doc?.account_type === 'wholesale';
+      const isApproved = doc?.status === 'approved';
+
+      const mergedProfile = {
+        id: userId,
+        full_name: doc?.full_name || u?.user_metadata?.full_name || email.split('@')[0] || 'User',
+        email,
+        isAdmin,
+        isWholesale,
+        isApproved,
+        ...doc,
+      };
+
+      setProfile(mergedProfile);
     } catch {
-      setUser(null);
-      setProfile(null);
+      const u = currentUser || user;
+      const email = u?.email || '';
+      setProfile({
+        id: userId,
+        full_name: u?.user_metadata?.full_name || email.split('@')[0] || 'User',
+        email,
+        isAdmin: email.toLowerCase().includes('admin'),
+        isWholesale: false,
+        isApproved: true,
+      });
     } finally {
       setLoading(false);
     }
   }
 
-  async function fetchProfile(userId, currentUser = null) {
-    try {
-      const doc = await databases.getDocument(DATABASE_ID, USERS_COLLECTION_ID, userId);
-      const u = currentUser || user;
-      const isAdmin = (doc?.role === 'admin') || (doc?.email?.toLowerCase().includes('admin')) || (u?.email?.toLowerCase().includes('admin')) || (u?.labels?.includes('admin'));
-      const isWholesale = doc?.role === 'wholesale' || doc?.account_type === 'wholesale';
-      const isApproved = doc?.status === 'approved';
-      setProfile({ id: doc.$id, isAdmin, isWholesale, isApproved, ...doc });
-    } catch {
-      try {
-        const response = await databases.listDocuments(DATABASE_ID, USERS_COLLECTION_ID, [
-          Query.equal('userId', userId),
-        ]);
-        if (response.documents && response.documents.length > 0) {
-          const doc = response.documents[0];
-          const u = currentUser || user;
-          const isAdmin = (doc?.role === 'admin') || (doc?.email?.toLowerCase().includes('admin')) || (u?.email?.toLowerCase().includes('admin')) || (u?.labels?.includes('admin'));
-          const isWholesale = doc?.role === 'wholesale' || doc?.account_type === 'wholesale';
-          const isApproved = doc?.status === 'approved';
-          setProfile({ id: doc.$id, isAdmin, isWholesale, isApproved, ...doc });
-          return;
-        }
-      } catch {}
-
-      const u = currentUser || user;
-      const isAdmin = (u?.email?.toLowerCase().includes('admin')) || (u?.labels?.includes('admin'));
-      const basicProfile = {
-        id: userId,
-        userId: userId,
-        full_name: u?.name || u?.email?.split('@')[0] || 'User',
-        email: u?.email,
-        isAdmin,
-        isWholesale: false,
-        isApproved: true,
-      };
-      setProfile(basicProfile);
-    }
-  }
-
   async function signIn(email, password) {
-    try {
-      await account.deleteSession('current').catch(() => {});
-    } catch {}
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    await account.createEmailPasswordSession(email, password);
-    const currentAccount = await account.get();
-    setUser(currentAccount);
-    await fetchProfile(currentAccount.$id, currentAccount);
-    return currentAccount;
+    if (error) throw error;
+    setUser(data.user);
+    await fetchProfile(data.user.id, data.user);
+    return data.user;
   }
 
-  async function signUp(email, password, metadata) {
-    const userId = ID.unique();
-    await account.create(userId, email, password, metadata.full_name || 'User');
-    
-    await account.createEmailPasswordSession(email, password);
-    const currentAccount = await account.get();
-    setUser(currentAccount);
-
-    const isWholesale = metadata.account_type === 'wholesale';
-    const profilePayload = {
-      userId: currentAccount.$id,
+  async function signUp(email, password, metadata = {}) {
+    const { data, error } = await supabase.auth.signUp({
       email,
-      full_name: metadata.full_name,
-      company_name: metadata.company_name || null,
-      gst_number: metadata.gst_number || null,
-      business_address: metadata.business_address || null,
-      mobile: metadata.mobile || null,
-      business_details: metadata.business_details || null,
-      visiting_card_url: metadata.visiting_card_url || null,
-      business_proof_url: metadata.business_proof_url || null,
-      role: metadata.role || (isWholesale ? 'wholesale' : 'client'),
-      account_type: metadata.account_type || 'client',
-      status: isWholesale ? 'pending' : 'approved',
-      created_at: new Date().toISOString(),
-    };
+      password,
+      options: {
+        data: {
+          full_name: metadata.full_name || 'User',
+          mobile: metadata.mobile || '',
+        },
+      },
+    });
 
-    try {
-      await databases.createDocument(
-        DATABASE_ID,
-        USERS_COLLECTION_ID,
-        currentAccount.$id,
-        profilePayload
-      );
-    } catch {
+    if (error) throw error;
+    const signedUser = data.user;
+
+    // Create / Upsert Profile in profiles table
+    if (signedUser) {
+      const isWholesale = metadata.account_type === 'wholesale';
+      const profilePayload = {
+        id: signedUser.id,
+        email,
+        full_name: metadata.full_name || 'User',
+        company_name: metadata.company_name || null,
+        gst_number: metadata.gst_number || null,
+        business_address: metadata.business_address || null,
+        mobile: metadata.mobile || null,
+        business_details: metadata.business_details || null,
+        visiting_card_url: metadata.visiting_card_url || null,
+        business_proof_url: metadata.business_proof_url || null,
+        role: metadata.role || (isWholesale ? 'wholesale' : 'client'),
+        account_type: metadata.account_type || 'client',
+        status: isWholesale ? 'pending' : 'approved',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
       try {
-        await fetch(`${API_URL}/api/auth/register`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ uid: currentAccount.$id, ...profilePayload }),
-        });
-      } catch {}
+        await supabase.from('profiles').upsert([profilePayload]);
+      } catch (err) {
+        console.warn('Profile save notice:', err);
+      }
+
+      setUser(signedUser);
+      setProfile({ id: signedUser.id, ...profilePayload });
     }
 
-    setProfile({ id: currentAccount.$id, ...profilePayload });
-    return currentAccount;
+    return signedUser;
   }
 
   async function signOut() {
-    try {
-      await account.deleteSession('current');
-    } catch {}
+    await supabase.auth.signOut().catch(() => {});
     setUser(null);
     setProfile(null);
   }
 
   async function getAccessToken() {
-    try {
-      const jwtResponse = await account.createJWT();
-      return jwtResponse.jwt;
-    } catch {
-      return null;
-    }
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token || null;
   }
 
   return (
@@ -158,7 +159,7 @@ export function AuthProvider({ children }) {
         signUp,
         signOut,
         getAccessToken,
-        refreshProfile: () => user && fetchProfile(user.$id, user),
+        refreshProfile: () => user && fetchProfile(user.id, user),
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 -- ============================================================
--- Xerox Digital Pro — Supabase Schema
+-- Winstar / Xerox Digital Pro — Comprehensive Supabase Schema
 -- Run this in: Supabase Dashboard → SQL Editor
 -- ============================================================
 
@@ -7,105 +7,105 @@
 create extension if not exists "uuid-ossp";
 
 -- ============================================================
--- profiles table (extends auth.users)
+-- 1. profiles table (extends auth.users with wholesale & admin support)
 -- ============================================================
 create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
-  full_name text not null,
+  email text,
+  full_name text not null default 'User',
   company_name text,
+  gst_number text,
+  business_address text,
   mobile text,
   business_details text,
-  created_at timestamptz default now() not null
+  visiting_card_url text,
+  business_proof_url text,
+  role text not null default 'client', -- 'admin', 'wholesale', 'client'
+  account_type text not null default 'client', -- 'wholesale', 'client'
+  status text not null default 'approved', -- 'pending', 'approved', 'rejected'
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
 );
 
 -- Enable Row Level Security
 alter table public.profiles enable row level security;
 
--- Users can only read/update their own profile
-create policy "Users can view own profile"
+-- Policies for profiles
+create policy "Allow public read of profiles"
   on public.profiles for select
-  using (auth.uid() = id);
+  using (true);
 
-create policy "Users can update own profile"
-  on public.profiles for update
-  using (auth.uid() = id);
-
--- Allow insert during registration (service role bypasses this)
-create policy "Allow profile insert on signup"
+create policy "Allow insert on signup"
   on public.profiles for insert
-  with check (auth.uid() = id);
+  with check (true);
+
+create policy "Allow update by owner or admin"
+  on public.profiles for update
+  using (auth.uid() = id or exists (
+    select 1 from public.profiles where id = auth.uid() and (role = 'admin' or email ilike '%admin%')
+  ));
 
 -- ============================================================
--- orders table
+-- 2. orders table (supports both guest quick prints, wholesale & user orders)
 -- ============================================================
 create table if not exists public.orders (
   id uuid default gen_random_uuid() primary key,
-  user_id uuid references public.profiles(id) on delete cascade,
-  file_name text not null default 'untitled',
+  request_id text not null unique,
+  user_id text default 'guest',
+  customer_name text not null,
+  customer_phone text not null,
+  service_name text default 'Print Service',
+  file_name text not null default 'print-file.pdf',
   file_url text,
-  print_type text not null check (print_type in ('bw', 'color', 'photo', 'xerox', 'document', 'lamination', 'binding', 'scanning')),
-  copies integer not null default 1 check (copies > 0),
+  file_id text,
+  print_type text not null default 'bw',
+  copies integer not null default 1,
   paper_size text not null default 'A4',
+  paper_gsm text not null default '80 GSM',
   binding text not null default 'none',
-  status text not null default 'Pending' check (status in ('Pending', 'Processing', 'Printed', 'Delivered')),
+  delivery_type text not null default 'pickup',
+  delivery_address text default '',
+  order_type text not null default 'normal', -- 'normal', 'wholesale'
   total_price numeric(10, 2) not null default 0.00,
-  created_at timestamptz default now() not null
+  status text not null default 'Pending',
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
 );
 
 -- Enable Row Level Security
 alter table public.orders enable row level security;
 
--- Users can only see their own orders
-create policy "Users can view own orders"
-  on public.orders for select
-  using (auth.uid() = user_id);
-
--- Users can insert their own orders
-create policy "Users can create orders"
+-- Allow anyone to create an order (Quick Print guests & logged-in users)
+create policy "Allow public insert on orders"
   on public.orders for insert
-  with check (auth.uid() = user_id);
+  with check (true);
 
--- Users can update their own orders
-create policy "Users can update own orders"
+-- Allow anyone to read orders for tracking or dashboard
+create policy "Allow public select on orders"
+  on public.orders for select
+  using (true);
+
+-- Allow updates (for admin status changes)
+create policy "Allow public update on orders"
   on public.orders for update
-  using (auth.uid() = user_id);
+  using (true);
 
 -- ============================================================
--- Trigger: auto-create profile on user signup
--- ============================================================
-create or replace function public.handle_new_user()
-returns trigger as $$
-begin
-  insert into public.profiles (id, full_name)
-  values (
-    new.id,
-    coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1))
-  )
-  on conflict (id) do nothing;
-  return new;
-end;
-$$ language plpgsql security definer;
-
--- Drop trigger if exists, then recreate
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_user();
-
--- ============================================================
--- Storage: Create bucket for print files
--- (Run this after enabling Storage in your Supabase project)
+-- 3. Storage Bucket: print-files
 -- ============================================================
 insert into storage.buckets (id, name, public)
 values ('print-files', 'print-files', true)
-on conflict (id) do nothing;
+on conflict (id) do update set public = true;
 
--- Storage policy: authenticated users can upload to their folder
-create policy "Users can upload own files"
+-- Storage policies: allow public uploads and reading
+create policy "Allow public uploads to print-files"
   on storage.objects for insert
-  with check (bucket_id = 'print-files' and auth.uid()::text = (storage.foldername(name))[1]);
+  with check (bucket_id = 'print-files');
 
--- Storage policy: anyone can read files (for order tracking)
-create policy "Public read access for print files"
+create policy "Allow public read on print-files"
   on storage.objects for select
+  using (bucket_id = 'print-files');
+
+create policy "Allow public update on print-files"
+  on storage.objects for update
   using (bucket_id = 'print-files');

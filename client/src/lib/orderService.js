@@ -1,10 +1,4 @@
-import { ID, Query, Permission, Role } from 'appwrite';
-import {
-  databases,
-  DATABASE_ID,
-  ORDERS_COLLECTION_ID,
-  USERS_COLLECTION_ID,
-} from './appwrite';
+import { supabase } from './supabase';
 
 /**
  * Generate standard Winstar Request Tracking ID (WSR-XXXXXX)
@@ -36,20 +30,62 @@ export function saveLocalOrder(order) {
 }
 
 /**
- * Create Order with triple-redundant resilience:
- * 1. Direct Appwrite Database createDocument (works client-side with no backend needed)
- * 2. Express Serverless API fallback (/api/orders)
- * 3. LocalStorage persistence (instant WhatsApp order generation with guaranteed completion)
+ * Upload file directly to Supabase Storage ('print-files' bucket)
  */
-export async function createOrder(orderPayload, currentUser = null, token = null) {
+export async function uploadPrintFile(file) {
+  if (!file) return null;
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+  const filePath = `uploads/${fileName}`;
+
+  try {
+    const { data, error } = await supabase.storage
+      .from('print-files')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true,
+      });
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('print-files')
+      .getPublicUrl(filePath);
+
+    return {
+      fileId: filePath,
+      fileName: file.name,
+      publicUrl,
+      downloadUrl: publicUrl,
+      sizeOriginal: file.size,
+      mimeType: file.type,
+    };
+  } catch (err) {
+    console.warn('Supabase storage upload fallback:', err);
+    const objectUrl = URL.createObjectURL(file);
+    return {
+      fileId: `local_${Date.now()}`,
+      fileName: file.name,
+      publicUrl: objectUrl,
+      downloadUrl: objectUrl,
+      sizeOriginal: file.size,
+      mimeType: file.type,
+    };
+  }
+}
+
+/**
+ * Create Order with Supabase & local persistence
+ */
+export async function createOrder(orderPayload, currentUser = null) {
   const requestId = generateRequestId();
   const now = new Date().toISOString();
-  const userId = currentUser?.$id || 'guest';
+  const userId = currentUser?.id || currentUser?.$id || 'guest';
 
   const orderData = {
     request_id: requestId,
     user_id: userId,
-    customer_name: orderPayload.customer_name || currentUser?.name || 'Customer',
+    customer_name: orderPayload.customer_name || currentUser?.user_metadata?.full_name || 'Customer',
     customer_phone: orderPayload.customer_phone || '',
     service_name: orderPayload.service_name || 'Print Service',
     file_name: orderPayload.file_name || 'print-file.pdf',
@@ -69,50 +105,23 @@ export async function createOrder(orderPayload, currentUser = null, token = null
     updated_at: now,
   };
 
-  // 1. Try Direct Appwrite Database Creation
+  // 1. Save in Supabase
   try {
-    const docId = ID.unique();
-    const doc = await databases.createDocument(
-      DATABASE_ID,
-      ORDERS_COLLECTION_ID,
-      docId,
-      orderData,
-      [
-        Permission.read(Role.any()),
-        Permission.update(Role.any()),
-        Permission.delete(Role.any()),
-      ]
-    );
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([orderData])
+      .select()
+      .single();
 
-    const created = { id: doc.$id, request_id: requestId, ...doc };
-    saveLocalOrder(created);
-    return created;
-  } catch (appwriteErr) {
-    console.warn('Direct Appwrite order creation notice (trying serverless fallback):', appwriteErr);
-  }
-
-  // 2. Try Serverless API Route
-  try {
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    const res = await fetch(`${apiUrl}/api/orders`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(orderData),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
+    if (!error && data) {
       saveLocalOrder(data);
       return data;
     }
-  } catch (apiErr) {
-    console.warn('Serverless API order creation notice:', apiErr);
+  } catch (supabaseErr) {
+    console.warn('Supabase order insert notice:', supabaseErr);
   }
 
-  // 3. Guaranteed Local Order Fallback
+  // 2. Fallback to Local Storage
   const fallbackOrder = {
     id: `ord_${Date.now()}`,
     ...orderData,
@@ -122,35 +131,21 @@ export async function createOrder(orderPayload, currentUser = null, token = null
 }
 
 /**
- * Fetch orders for user or admin with resilient fallbacks
+ * Fetch orders for user
  */
-export async function fetchUserOrders(userId, token = null) {
+export async function fetchUserOrders(userId) {
   let remoteOrders = [];
 
-  // 1. Try Direct Appwrite
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      ORDERS_COLLECTION_ID,
-      [
-        Query.equal('user_id', userId),
-        Query.limit(50),
-      ]
-    );
-    remoteOrders = response.documents.map(d => ({ id: d.$id, ...d }));
-  } catch {
-    // 2. Try Serverless API
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(`${apiUrl}/api/orders`, { headers });
-      if (res.ok) {
-        remoteOrders = await res.json();
-      }
-    } catch {}
-  }
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
 
-  // Merge with local orders
+    if (!error && data) remoteOrders = data;
+  } catch {}
+
   const localOrders = getLocalOrders().filter(o => o.user_id === userId || o.user_id === 'guest');
   const seen = new Set();
   const merged = [];
@@ -169,24 +164,17 @@ export async function fetchUserOrders(userId, token = null) {
 /**
  * Fetch all orders for Admin
  */
-export async function fetchAllAdminOrders(token = null) {
+export async function fetchAllAdminOrders() {
   let remoteOrders = [];
 
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      ORDERS_COLLECTION_ID,
-      [Query.limit(100)]
-    );
-    remoteOrders = response.documents.map(d => ({ id: d.$id, ...d }));
-  } catch {
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(`${apiUrl}/api/orders/admin/all`, { headers });
-      if (res.ok) remoteOrders = await res.json();
-    } catch {}
-  }
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) remoteOrders = data;
+  } catch {}
 
   const localOrders = getLocalOrders();
   const seen = new Set();

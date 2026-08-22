@@ -136,7 +136,7 @@ export default function Services() {
           <p style={{ color: 'var(--surface-variant)', fontSize: 16, marginBottom: 40 }}>
             No hidden fees. Pay only for what you print.
           </p>
-          <div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div className="pricing-grid" style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
             {[
               { label: 'B&W Print', price: '₹2/page', sub: 'A4 size' },
               { label: 'Color Print', price: '₹10/page', sub: 'A4 size' },

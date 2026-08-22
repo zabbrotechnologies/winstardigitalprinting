@@ -181,7 +181,7 @@ export default function Admin() {
 
       <main style={{ paddingTop: 96, paddingBottom: 64, maxWidth: 1440, margin: '0 auto', paddingLeft: 24, paddingRight: 24 }}>
         {/* Top Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
+        <div className="admin-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fee2e2', color: '#991b1b', padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 700, marginBottom: 8, letterSpacing: '0.04em' }}>
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>admin_panel_settings</span>
@@ -256,7 +256,7 @@ export default function Admin() {
             </div>
           )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 320 }}>
+          <div className="admin-search-box" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span className="material-symbols-outlined" style={{ color: 'var(--on-surface-variant)', fontSize: 20 }}>search</span>
             <input
               type="text" className="input" style={{ height: 38, fontSize: 13 }}

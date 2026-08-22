@@ -139,7 +139,7 @@ export default function RegisterWholesale() {
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>domain</span>
             WHOLESALE AGENCY & CORPORATE PORTAL
           </div>
-          <h1 className="headline-lg" style={{ fontSize: 32, marginBottom: 8 }}>
+          <h1 className="headline-lg wholesale-title" style={{ marginBottom: 8 }}>
             Apply for Wholesale Agency Rates
           </h1>
           <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: 540, margin: '0 auto' }}>

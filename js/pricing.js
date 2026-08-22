@@ -1,17 +1,17 @@
 /* js/pricing.js - Centralized Pricing Engine for Personal & Wholesale Customers */
-import { WINSTAR_CONFIG } from './config.js';
 
 export const BASE_PRICING = {
     // Base print rates per page
     printType: {
-        bw: { normal: 2.00, wholesale: 1.70 },
-        colour: { normal: 10.00, wholesale: 8.50 }
+        bw: { normal: 2.00, wholesale: 1.50 },
+        colour: { normal: 10.00, wholesale: 7.50 },
+        goldAccent: { normal: 25.00, wholesale: 18.00 }
     },
     
     // Sides multipliers
     printSides: {
         single: 1.0,
-        double: 1.8 // Double-side discount factor
+        double: 1.8
     },
 
     // Size multipliers relative to A4
@@ -21,7 +21,13 @@ export const BASE_PRICING = {
         A3: 2.0,
         A2: 4.0,
         A1: 8.0,
-        A0: 12.0
+        A0: 12.0,
+        "4x6": 0.5,
+        "5x7": 0.7,
+        "8x10": 1.0,
+        "2x2": 0.15,
+        "3x3": 0.25,
+        "4x4": 0.4
     },
 
     // GSM Multipliers
@@ -29,99 +35,96 @@ export const BASE_PRICING = {
         '70gsm': 1.0,
         '80gsm': 1.1,
         '100gsm': 1.3,
-        '120gsm': 1.5,
-        '150gsm': 1.8,
-        '200gsm': 2.2,
-        '300gsm': 2.8
-    },
-
-    // Paper Types
-    paperType: {
-        copier: 0.00,
-        premium: 2.00,
-        matte: 3.50,
-        glossy: 4.00,
-        art: 5.00,
-        cardstock: 6.00,
-        photo: 8.00
+        '130gsm': 1.4,
+        '150gsm': 1.6,
+        '170gsm': 1.8,
+        '200gsm': 2.0,
+        '250gsm': 2.4,
+        '300gsm': 2.8,
+        '350gsm': 3.2,
+        '400gsm': 3.8
     },
 
     // Binding Base Prices per book
     binding: {
         none: { normal: 0, wholesale: 0 },
         staple: { normal: 5, wholesale: 3 },
-        spiral: { normal: 45, wholesale: 35 },
-        wiro: { normal: 60, wholesale: 48 },
-        soft: { normal: 80, wholesale: 65 },
-        perfect: { normal: 120, wholesale: 95 },
-        hard: { normal: 200, wholesale: 160 },
-        rexin: { normal: 250, wholesale: 200 }
+        spiral: { normal: 45, wholesale: 30 },
+        wiro: { normal: 60, wholesale: 45 },
+        soft: { normal: 80, wholesale: 60 },
+        perfect: { normal: 120, wholesale: 90 },
+        hard: { normal: 200, wholesale: 150 },
+        rexin: { normal: 250, wholesale: 180 }
     },
 
-    // Lamination & Extra Finishing
-    finishing: {
-        none: 0,
-        glossLamination: 15,
-        matteLamination: 18,
-        thermalLamination: 25,
-        shapeCutting: 30
+    // Service-specific unit prices
+    unitServiceRates: {
+        "business-cards": { normal: 2.50, wholesale: 1.80 },
+        "stickers": { normal: 4.00, wholesale: 2.80 },
+        "brochures": { normal: 12.00, wholesale: 8.50 },
+        "certificates": { normal: 35.00, wholesale: 25.00 },
+        "photo-print": { normal: 15.00, wholesale: 10.00 },
+        "lamination": { normal: 20.00, wholesale: 14.00 },
+        "binding": { normal: 45.00, wholesale: 30.00 }
     }
 };
 
 /**
  * Calculates price for a given print job configuration
- * @param {Object} config - { printType, paperSize, printSides, paperGsm, paperType, bindingType, finishing, pageCount, copies }
+ * @param {Object} config - Order configuration fields
+ * @param {string} serviceId - Service ID or 'quick-print'
  * @param {string} customerType - 'normal' | 'wholesale'
  */
-export function calculatePrice(config, customerType = 'normal') {
+export function calculatePrice(config, serviceId = 'quick-print', customerType = 'normal') {
     const isWholesale = customerType === 'wholesale';
+    const rateType = isWholesale ? 'wholesale' : 'normal';
+    const quantity = Math.max(1, parseInt(config.quantity || config.copies || 1, 10));
+    const pageCount = Math.max(1, parseInt(config.pageCount || 1, 10));
 
-    const pageCount = parseInt(config.pageCount || 1, 10);
-    const copies = parseInt(config.copies || 1, 10);
-    const printTypeKey = config.printType || 'bw';
+    let subtotal = 0;
 
-    // Base price per page based on customer type
-    let baseRate = BASE_PRICING.printType[printTypeKey][isWholesale ? 'wholesale' : 'normal'];
+    if (serviceId === 'quick-print' || !BASE_PRICING.unitServiceRates[serviceId]) {
+        // General Document Print Calculation
+        const printTypeKey = config.printType || 'bw';
+        const baseRate = BASE_PRICING.printType[printTypeKey] 
+            ? (BASE_PRICING.printType[printTypeKey][rateType] || 2.0)
+            : 2.0;
 
-    // Multipliers
-    const sizeMultiplier = BASE_PRICING.paperSize[config.paperSize || 'A4'] || 1.0;
-    const sidesMultiplier = BASE_PRICING.printSides[config.printSides || 'single'] || 1.0;
-    const gsmMultiplier = BASE_PRICING.paperGsm[config.paperGsm || '80gsm'] || 1.0;
-    const paperAddon = BASE_PRICING.paperType[config.paperType || 'copier'] || 0;
+        const sizeMult = BASE_PRICING.paperSize[config.paperSize || 'A4'] || 1.0;
+        const sidesMult = BASE_PRICING.printSides[config.printSides || 'single'] || 1.0;
+        const gsmMult = BASE_PRICING.paperGsm[config.paperGsm || '80gsm'] || 1.0;
 
-    // Per page print cost
-    const pageCost = (baseRate * sizeMultiplier * sidesMultiplier * gsmMultiplier) + paperAddon;
+        const perPageRate = baseRate * sizeMult * sidesMult * gsmMult;
+        const printCost = perPageRate * pageCount * quantity;
 
-    // Total printing cost for all pages and copies
-    const totalPrintCost = pageCost * pageCount * copies;
+        const bindingKey = config.bindingType || 'none';
+        const bindingRate = BASE_PRICING.binding[bindingKey]
+            ? (BASE_PRICING.binding[bindingKey][rateType] || 0)
+            : 0;
+        const bindingCost = bindingRate * quantity;
 
-    // Binding Cost
-    const bindingKey = config.bindingType || 'none';
-    const bindingPricePerCopy = BASE_PRICING.binding[bindingKey] 
-        ? BASE_PRICING.binding[bindingKey][isWholesale ? 'wholesale' : 'normal'] 
-        : 0;
-    const totalBindingCost = bindingPricePerCopy * copies;
+        subtotal = printCost + bindingCost;
+    } else {
+        // Specific Service Calculation (e.g. Business Cards, Stickers, Certificates)
+        const rateObj = BASE_PRICING.unitServiceRates[serviceId] || { normal: 5.0, wholesale: 3.5 };
+        const unitRate = rateObj[rateType] || rateObj.normal || 5.0;
 
-    // Extra Finishing Cost
-    const finishingKey = config.finishing || 'none';
-    const finishingPrice = BASE_PRICING.finishing[finishingKey] || 0;
-    const totalFinishingCost = finishingPrice * copies;
+        const gsmMult = BASE_PRICING.paperGsm[config.paperGsm || '300gsm'] || 1.0;
+        const sidesMult = BASE_PRICING.printSides[config.printSides || 'single'] || 1.0;
 
-    // Subtotal
-    const subtotal = totalPrintCost + totalBindingCost + totalFinishingCost;
+        const unitCost = unitRate * gsmMult * sidesMult;
+        subtotal = unitCost * quantity;
+    }
 
-    // GST calculation (18% included in display or itemized)
+    if (isNaN(subtotal) || subtotal < 0) subtotal = 0;
+
     const gstAmount = subtotal * 0.18;
-    const grandTotal = subtotal + gstAmount;
+    const total = Math.round(subtotal + gstAmount);
 
     return {
-        unitPageCost: pageCost.toFixed(2),
-        totalPrintCost: totalPrintCost.toFixed(2),
-        totalBindingCost: totalBindingCost.toFixed(2),
-        totalFinishingCost: totalFinishingCost.toFixed(2),
         subtotal: subtotal.toFixed(2),
         gst: gstAmount.toFixed(2),
-        total: Math.round(grandTotal).toFixed(2),
+        total: total.toFixed(2),
         isWholesale
     };
 }

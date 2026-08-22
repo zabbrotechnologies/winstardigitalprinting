@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Order | Winstar Digital Printing & Xerox</title>
+    <meta name="description" content="Configure your printing options, upload your print file, calculate live price, and submit order via Winstar Digital Printing.">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages/order.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="container navbar-container">
+        <a href="index.html" class="logo-brand">
+            <div class="logo-badge">
+                <img src="assets/images/logo.png" alt="Winstar Logo">
+            </div>
+            <div class="logo-text">
+                <div class="logo-title">WINSTAR <span>DIGITAL</span></div>
+                <div class="logo-sub">PRINTING & XEROX</div>
+            </div>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="services.html" class="nav-link active">Services</a></li>
+            <li><a href="quick-print.html" class="nav-link">Quick Print</a></li>
+            <li><a href="bulk-order.html" class="nav-link">Bulk Order</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <div class="nav-auth">
+                <a href="login.html" class="nav-link">Login</a>
+            </div>
+            <a href="quick-print.html" class="btn btn-gradient btn-sm">Print Now &rarr;</a>
+            <button class="mobile-toggle" aria-label="Toggle Navigation Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </div>
+</header>
+
+<section class="order-page-section">
+    <div class="container">
+        <form id="serviceOrderForm" class="order-layout-grid">
+            
+            <!-- LEFT COLUMN: SERVICE HEADER, FILE UPLOAD & DYNAMIC OPTIONS -->
+            <div class="order-config-card">
+                <div class="service-header-banner">
+                    <div class="service-header-icon" id="serviceHeaderIcon">📄</div>
+                    <div class="service-header-details">
+                        <h1 id="serviceHeaderTitle">Configure Service</h1>
+                        <p id="serviceHeaderDesc">Customize paper, finish, and quantities for your order.</p>
+                    </div>
+                </div>
+
+                <!-- FILE UPLOAD DROPZONE -->
+                <div class="options-section-title">1. UPLOAD PRINT FILE</div>
+                <div class="upload-dropzone" id="uploadDropzone">
+                    <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.psd,.ai,.docx" style="display: none;">
+                    <div class="upload-dropzone-icon">📁</div>
+                    <div class="upload-dropzone-title">Click or Drag & Drop File Here</div>
+                    <div class="upload-dropzone-sub">Supports PDF, PNG, JPG, PSD, AI (Max size 50MB)</div>
+                </div>
+                <div id="filePreviewContainer"></div>
+
+                <!-- DYNAMIC SERVICE-SPECIFIC OPTIONS -->
+                <div class="options-section-title">2. PRINT SPECIFICATIONS</div>
+                <div class="options-grid-2col" id="dynamicFieldsContainer">
+                    <!-- Dynamically rendered by js/service-order.js -->
+                </div>
+
+                <!-- CUSTOMER DETAILS -->
+                <div class="options-section-title">3. CUSTOMER INFORMATION</div>
+                <div class="options-grid-2col">
+                    <div class="form-group">
+                        <label class="form-label" for="customerName">Your Full Name <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="customerName" placeholder="e.g. Master Administrator" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="customerPhone">Mobile Number (WhatsApp) <span class="required">*</span></label>
+                        <input type="tel" class="form-input" id="customerPhone" placeholder="e.g. 9345046665" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 0.5rem;">
+                    <label class="form-label" for="orderNotes">Special Instructions / Remarks</label>
+                    <textarea class="form-textarea" id="orderNotes" rows="3" placeholder="Add any specific color, margin, or cutting preferences..."></textarea>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: ORDER SUMMARY & SUBMIT CTA -->
+            <div>
+                <div class="order-summary-box">
+                    <div class="order-summary-header">
+                        <span>ORDER SUMMARY</span>
+                        <span class="badge badge-yellow" id="summaryWholesaleBadge" style="display: none;">WHOLESALE RATE</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Base Subtotal</span>
+                        <strong id="summarySubtotal">₹0.00</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>GST (18% Included)</span>
+                        <strong id="summaryGst">₹0.00</strong>
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Estimated Total</span>
+                        <span class="price-tag" id="summaryTotal">₹0.00</span>
+                    </div>
+
+                    <div style="margin-top: 1.75rem;">
+                        <button type="submit" class="btn btn-gradient btn-lg" id="submitOrderBtn" style="width: 100%; justify-content: center;">
+                            SUBMIT PRINT ORDER & OPEN WHATSAPP &rarr;
+                        </button>
+                    </div>
+
+                    <div style="margin-top: 1.25rem; font-size: 0.8rem; color: var(--color-text-muted); text-align: center; line-height: 1.4;">
+                        🔒 Your file is uploaded to secure server storage. A unique Request ID will be generated for instant store processing.
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</section>
+
+<!-- ORDER CONFIRMATION MODAL -->
+<div class="modal-overlay" id="orderModal">
+    <div class="modal-container">
+        <button class="modal-close-btn" onclick="document.getElementById('orderModal').classList.remove('active')">&times;</button>
+        <div id="orderModalBody">
+            <!-- Populated by JS -->
+        </div>
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <a href="#" class="btn btn-gradient btn-lg" id="modalWhatsAppBtn" style="width: 100%; justify-content: center;">
+                CONTINUE TO WHATSAPP &rarr;
+            </a>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+<script type="module" src="js/service-order.js"></script>
+</body>
+</html>

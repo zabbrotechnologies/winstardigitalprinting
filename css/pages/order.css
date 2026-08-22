@@ -1,0 +1,81 @@
+/* css/pages/order.css - Dynamic Service Configurator Page Styling */
+.order-page-section {
+    padding: calc(var(--nav-height) + 40px) 0 80px;
+    background: #080808;
+    min-height: 90vh;
+}
+
+.order-layout-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.order-config-card {
+    background: var(--color-dark-card);
+    border: 1px solid var(--color-border-dark);
+    border-radius: var(--radius-xl);
+    padding: 2.25rem;
+}
+
+.service-header-banner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 2rem;
+}
+
+.service-header-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFF;
+    font-size: 1.75rem;
+    box-shadow: var(--glow-red);
+    flex-shrink: 0;
+}
+
+.service-header-details h1 {
+    font-size: 2rem;
+    color: #FFF;
+    margin-bottom: 0.25rem;
+}
+
+.service-header-details p {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+.options-section-title {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--winstar-yellow);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 1.75rem 0 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.options-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+@media (max-width: 992px) {
+    .order-layout-grid {
+        grid-template-columns: 1fr;
+    }
+    .options-grid-2col {
+        grid-template-columns: 1fr;
+    }
+}

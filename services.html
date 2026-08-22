@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Services Catalogue | WINSTAR DIGITAL PRINTING & XEROX</title>
-    <meta name="description" content="Explore digital printing, Xerox, scanning, photo prints, stickers, visiting cards, invitation cards, brochures, magazines, wide format A0 printing, and binding services at Winstar Dindigul.">
+    <title>Services Catalog | Winstar Digital Printing & Xerox</title>
+    <meta name="description" content="Explore all digital printing, Xerox, business card, brochure, sticker, photo printing, lamination, and binding services from Winstar Digital Printing.">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages/services.css">
 </head>
 <body>
 
-<div class="texture-overlay"></div>
-
-<!-- HEADER NAVBAR -->
 <header class="navbar">
     <div class="container navbar-container">
         <a href="index.html" class="logo-brand">
             <div class="logo-badge">
-                <img src="assets/images/logo.png" alt="Winstar Digital Printing Logo">
+                <img src="assets/images/logo.png" alt="Winstar Logo">
             </div>
             <div class="logo-text">
                 <div class="logo-title">WINSTAR <span>DIGITAL</span></div>
@@ -32,21 +29,13 @@
             <li><a href="index.html" class="nav-link">Home</a></li>
             <li><a href="services.html" class="nav-link active">Services</a></li>
             <li><a href="quick-print.html" class="nav-link">Quick Print</a></li>
-            <li><a href="business.html" class="nav-link">Wholesale</a></li>
-            <li><a href="about.html" class="nav-link">About Us</a></li>
-            <li><a href="contact.html" class="nav-link">Contact</a></li>
+            <li><a href="bulk-order.html" class="nav-link">Bulk Order</a></li>
         </ul>
 
         <div class="nav-actions">
             <div class="nav-auth">
                 <a href="login.html" class="nav-link">Login</a>
             </div>
-            <a href="cart.html" class="cart-btn" title="Wholesale Cart">
-                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                </svg>
-                <span class="cart-badge" style="display: none;">0</span>
-            </a>
             <a href="quick-print.html" class="btn btn-gradient btn-sm">Print Now &rarr;</a>
             <button class="mobile-toggle" aria-label="Toggle Navigation Menu">
                 <span></span><span></span><span></span>
@@ -55,194 +44,42 @@
     </div>
 </header>
 
-<!-- PAGE HERO -->
-<section style="padding: calc(var(--nav-height) + 60px) 0 60px; background: var(--gradient-dark-plum); border-bottom: 1px solid var(--color-border-dark);">
-    <div class="container text-center">
-        <div class="hero-pill">ONE STOP SHOP FOR ALL PRINTING & ADVERTISING NEEDS</div>
-        <h1 style="font-size: var(--text-hero); margin-bottom: 16px;">SERVICES <span class="gradient-text">CATALOGUE</span></h1>
-        <p style="font-size: var(--text-lg); max-width: 640px; margin: 0 auto;">Crafted with high-speed precision equipment at Suganya Lodge Complex, Dindigul.</p>
+<section class="services-hero-banner">
+    <div class="yellow-rays-bg"></div>
+    <div class="halftone-overlay"></div>
+    <div class="container" style="position: relative; z-index: 2;">
+        <span class="badge badge-yellow" style="margin-bottom: 1rem;">ONLINE PRINT CATALOG</span>
+        <h1 style="font-size: 3rem; color: #FFF; margin-bottom: 0.75rem;">All Printing Services</h1>
+        <p style="color: var(--color-text-muted); font-size: 1.15rem; max-width: 640px; margin: 0 auto;">
+            Select any service below to configure custom dimensions, GSM paper quality, finishes, and upload your file online.
+        </p>
     </div>
 </section>
 
-<!-- SERVICES LIST -->
-<section class="section-padding" style="background: var(--color-bg-surface);">
+<section class="services-catalog-section">
     <div class="container">
-        
-        <!-- SECTION 01: DIGITAL PRINT & COPY -->
-        <div style="margin-bottom: 60px;" class="reveal">
-            <div class="section-label">SERVICE 01 &bull; DOCUMENT REPLICATION</div>
-            <div class="grid-2" style="align-items: center;">
-                <div>
-                    <h2 style="font-size: var(--text-4xl); margin-bottom: 16px; color: #FFF;">DIGITAL PRINT, COPY & SCAN</h2>
-                    <p style="font-size: 1.05rem; margin-bottom: 24px; color: var(--color-text-muted);">
-                        Black & White and vibrant full-colour printing services for documents, flyers, brochures, thesis, and official materials. High-speed copying with options for single/double-sided copies and secure scanning.
-                    </p>
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px;">
-                        <span class="badge badge-wholesale">A5 to A0 Sizes</span>
-                        <span class="badge badge-personal">70 - 300 GSM</span>
-                        <span class="badge badge-wholesale">High-Speed Copy</span>
-                    </div>
-                    <a href="quick-print.html" class="btn btn-gradient">ORDER THIS SERVICE &rarr;</a>
-                </div>
-                <div class="glass-card" style="padding: 40px; text-align: center; color: var(--winstar-yellow);">
-                    <svg width="72" height="72" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                    </svg>
-                    <div style="font-weight: 700; color: #FFF;">COMMERCIAL PRECISION PRESSES</div>
-                </div>
-            </div>
+        <div class="services-grid" id="fullServicesGrid" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- Populated by JS -->
         </div>
-
-        <!-- SECTION 02: STICKERS & PRODUCT LABELS -->
-        <div style="margin-bottom: 60px;" class="reveal">
-            <div class="section-label">SERVICE 02 &bull; PACKAGING & LABELS</div>
-            <div class="grid-2" style="align-items: center;">
-                <div class="glass-card" style="padding: 40px; text-align: center; color: var(--winstar-pink);">
-                    <svg width="72" height="72" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                    </svg>
-                    <div style="font-weight: 700; color: #FFF;">CUSTOM DIE-CUT STICKERS</div>
-                </div>
-                <div>
-                    <h2 style="font-size: var(--text-4xl); margin-bottom: 16px; color: #FFF;">STICKERS & PRODUCT LABELS</h2>
-                    <p style="font-size: 1.05rem; margin-bottom: 24px; color: var(--color-text-muted);">
-                        PVC Stickers known for weather resistance, Glossy & Semi-Glossy stickers for vibrant product packaging, Art & Badge stickers, and Metallic Gold/Silver foil stickers for luxury branding.
-                    </p>
-                    <a href="quick-print.html" class="btn btn-yellow">ORDER STICKERS &rarr;</a>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 03: WIDE FORMAT PRINTING -->
-        <div style="margin-bottom: 60px;" class="reveal">
-            <div class="section-label">SERVICE 03 &bull; ARCHITECTURAL & PLOTTER</div>
-            <div class="grid-2" style="align-items: center;">
-                <div>
-                    <h2 style="font-size: var(--text-4xl); margin-bottom: 16px; color: #FFF;">WIDE FORMAT PRINTING & SCANNING</h2>
-                    <p style="font-size: 1.05rem; margin-bottom: 24px; color: var(--color-text-muted);">
-                        Prints and scans up to 36 inches (A0) wide in full colour or black & white. Suitable for architectural blueprints, engineering CAD drawings, technical charts, posters, and event banners.
-                    </p>
-                    <a href="quick-print.html" class="btn btn-gradient">ORDER WIDE FORMAT &rarr;</a>
-                </div>
-                <div class="glass-card" style="padding: 40px; text-align: center; color: var(--winstar-red);">
-                    <svg width="72" height="72" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                    </svg>
-                    <div style="font-weight: 700; color: #FFF;">UP TO 36 INCHES (A0) PLOTTER</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 04: BUSINESS & COMMERCIAL CARDS -->
-        <div style="margin-bottom: 20px;" class="reveal">
-            <div class="section-label">SERVICE 04 &bull; BRAND IDENTITY & MARKETING</div>
-            <div class="grid-3">
-                <div class="glass-card" style="padding: 30px;">
-                    <div style="color: var(--winstar-yellow); margin-bottom: 12px;">
-                        <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <h3 style="font-size: 1.3rem; color: #FFF; margin-bottom: 8px;">VISITING & BUSINESS CARDS</h3>
-                    <p style="font-size: 0.9rem; color: var(--color-text-muted);">Matte, glossy, textured, UV spot coating, rounded corners, embossing or metallic foil stamping.</p>
-                </div>
-                <div class="glass-card" style="padding: 30px;">
-                    <div style="color: var(--winstar-pink); margin-bottom: 12px;">
-                        <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 012-2h2a2 2 0 012 2v1m-4 0h4"/>
-                        </svg>
-                    </div>
-                    <h3 style="font-size: 1.3rem; color: #FFF; margin-bottom: 8px;">CERTIFICATES & ID CARDS</h3>
-                    <p style="font-size: 0.9rem; color: var(--color-text-muted);">Official certificates for schools, awards, and events. Durable laminated plastic ID cards with barcode.</p>
-                </div>
-                <div class="glass-card" style="padding: 30px;">
-                    <div style="color: var(--winstar-red); margin-bottom: 12px;">
-                        <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <h3 style="font-size: 1.3rem; color: #FFF; margin-bottom: 8px;">INVITATIONS & BROCHURES</h3>
-                    <p style="font-size: 0.9rem; color: var(--color-text-muted);">Custom wedding, birthday, and event invitations with envelopes. Bi-fold and tri-fold brochures.</p>
-                </div>
-            </div>
-        </div>
-
     </div>
 </section>
 
-<!-- FOOTER -->
 <footer class="footer">
+    <div class="footer-gradient-line"></div>
     <div class="container">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div class="logo-badge" style="width: 36px; height: 36px;">
-                        <img src="assets/images/logo.png" alt="Winstar Digital Printing Logo">
-                    </div>
-                    <div class="logo-title" style="font-size: 1.4rem;">WINSTAR <span>DIGITAL</span></div>
-                </div>
-                <div class="logo-sub" style="margin-bottom: 16px;">PRINTING & XEROX</div>
-                <p>Suganya Lodge Complex, Near Bus Stand, Dindigul - 624001. Complete digital printing, copying, and finishing solutions since 2010.</p>
-            </div>
-            <div>
-                <div class="footer-title">NAVIGATION</div>
-                <ul class="footer-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="services.html">Services Catalogue</a></li>
-                    <li><a href="quick-print.html">Personal Printing</a></li>
-                    <li><a href="business.html">Wholesale Portal</a></li>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="contact.html">Contact Us</a></li>
-                </ul>
-            </div>
-            <div>
-                <div class="footer-title">SERVICES</div>
-                <ul class="footer-links">
-                    <li><a href="services.html">Digital Printing</a></li>
-                    <li><a href="services.html">Stickers & Labels</a></li>
-                    <li><a href="services.html">Book Binding</a></li>
-                    <li><a href="services.html">Lamination</a></li>
-                    <li><a href="services.html">Wide Format</a></li>
-                </ul>
-            </div>
-            <div>
-                <div class="footer-title">BUSINESS</div>
-                <ul class="footer-links">
-                    <li><a href="login.html">Agency Login</a></li>
-                    <li><a href="signup.html">Create Account</a></li>
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="orders.html">Order History</a></li>
-                </ul>
-            </div>
-            <div>
-                <div class="footer-title">CONTACT</div>
-                <div style="font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.8;">
-                    Suganya Lodge Complex,<br>
-                    Near Bus Stand, Dindigul.<br>
-                    WhatsApp: <span style="color: var(--winstar-yellow);">9345046665</span><br>
-                    Phone: 9786089001 / 8300970451
-                </div>
-            </div>
-        </div>
         <div class="footer-bottom">
             <div>&copy; 2026 WINSTAR DIGITAL PRINTING & XEROX. All Rights Reserved.</div>
-            <div style="display: flex; gap: 20px;">
-                <a href="privacy.html">Privacy Policy</a>
-                <a href="terms.html">Terms & Conditions</a>
-                <a href="refund.html">Refund Policy</a>
-            </div>
+            <div>Suganya Lodge Complex, Near Bus Stand, Dindigul</div>
         </div>
     </div>
 </footer>
 
-<!-- FLOATING WHATSAPP CTA -->
-<a href="https://wa.me/9345046665" class="floating-whatsapp js-whatsapp-link" target="_blank" rel="noopener">
-    <svg viewBox="0 0 24 24" width="22" height="22">
-        <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.81 9.81 0 0012.04 2z"/>
-    </svg>
-    <span>ORDER ON WHATSAPP</span>
-</a>
-
 <script type="module" src="js/app.js"></script>
+<script type="module">
+    import { renderFullServicesCatalog } from './js/services.js';
+    document.addEventListener('DOMContentLoaded', () => {
+        renderFullServicesCatalog('fullServicesGrid');
+    });
+</script>
 </body>
 </html>

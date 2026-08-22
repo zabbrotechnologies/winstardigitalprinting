@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholesale Agency Registration | Winstar Digital Printing & Xerox</title>
+    <meta name="description" content="Register your company or agency for wholesale digital printing prices at Winstar Digital Printing & Xerox.">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/pages/auth.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="container navbar-container">
+        <a href="index.html" class="logo-brand">
+            <div class="logo-badge">
+                <img src="assets/images/logo.png" alt="Winstar Logo">
+            </div>
+            <div class="logo-text">
+                <div class="logo-title">WINSTAR <span>DIGITAL</span></div>
+                <div class="logo-sub">PRINTING & XEROX</div>
+            </div>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a href="index.html" class="nav-link">Home</a></li>
+            <li><a href="services.html" class="nav-link">Services</a></li>
+            <li><a href="quick-print.html" class="nav-link">Quick Print</a></li>
+            <li><a href="bulk-order.html" class="nav-link active">Bulk Order</a></li>
+        </ul>
+
+        <div class="nav-actions">
+            <div class="nav-auth">
+                <a href="login.html" class="nav-link">Login</a>
+            </div>
+            <a href="quick-print.html" class="btn btn-gradient btn-sm">Print Now &rarr;</a>
+        </div>
+    </div>
+</header>
+
+<section class="auth-page-section">
+    <div class="container" style="display: flex; justify-content: center;">
+        <div class="auth-card auth-card-wide">
+            <div class="auth-header">
+                <span class="badge badge-yellow" style="margin-bottom: 0.5rem;">AGENCY ACCOUNT APPLICATION</span>
+                <h1>Register for Wholesale</h1>
+                <p>Submit your company details and verification documents for account approval.</p>
+            </div>
+
+            <form id="registerForm">
+                <!-- PERSONAL INFO -->
+                <div style="font-family: var(--font-heading); font-size: 1rem; color: var(--winstar-yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem;">
+                    1. Personal Information
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="applicantName">Full Name <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="applicantName" placeholder="e.g. Master Administrator" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="applicantPhone">Mobile Number <span class="required">*</span></label>
+                        <input type="tel" class="form-input" id="applicantPhone" placeholder="e.g. 9345046665" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="applicantEmail">Email Address <span class="required">*</span></label>
+                        <input type="email" class="form-input" id="applicantEmail" placeholder="e.g. info@agency.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="applicantPassword">Account Password <span class="required">*</span></label>
+                        <input type="password" class="form-input" id="applicantPassword" placeholder="Create password" required>
+                    </div>
+                </div>
+
+                <!-- COMPANY INFO -->
+                <div style="font-family: var(--font-heading); font-size: 1rem; color: var(--winstar-yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin: 1.5rem 0 1rem;">
+                    2. Company Information
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="companyName">Company / Agency Name <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="companyName" placeholder="e.g. Apex Media House" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="gstNumber">GST Number (Optional)</label>
+                        <input type="text" class="form-input" id="gstNumber" placeholder="33AAAAA0000A1Z5">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="businessAddress">Business Address <span class="required">*</span></label>
+                    <textarea class="form-textarea" id="businessAddress" rows="2" placeholder="Full office address..." required></textarea>
+                </div>
+
+                <!-- VERIFICATION UPLOADS -->
+                <div style="font-family: var(--font-heading); font-size: 1rem; color: var(--winstar-yellow); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin: 1.5rem 0 1rem;">
+                    3. Business Verification Documents
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label" for="visitingCardInput">Visiting Card Photo <span class="required">*</span></label>
+                        <input type="file" class="form-input" id="visitingCardInput" accept="image/*,.pdf" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="businessProofInput">Business Proof / Document <span class="required">*</span></label>
+                        <input type="file" class="form-input" id="businessProofInput" accept="image/*,.pdf,.doc,.docx" required>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-gradient btn-lg" id="submitRegBtn" style="width: 100%; justify-content: center;">
+                        APPLY FOR WHOLESALE &rarr;
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-footer-links">
+                Already registered? <a href="login.html">Login here</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REGISTRATION SUCCESS MODAL -->
+<div class="modal-overlay" id="regModal">
+    <div class="modal-container" style="text-align: center;">
+        <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">⏳</div>
+        <h2 style="color: #FFF; font-size: 1.75rem; margin-bottom: 0.5rem;">APPLICATION SUBMITTED</h2>
+        <p style="color: var(--color-text-muted); font-size: 1rem; margin-bottom: 1.5rem;">
+            Your account application is currently waiting for Winstar verification. Our administration team will review your submitted visiting card and business proof.
+        </p>
+        <a href="index.html" class="btn btn-gradient btn-lg" style="width: 100%; justify-content: center;">
+            RETURN TO HOME
+        </a>
+    </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+<script type="module" src="js/register.js"></script>
+</body>
+</html>

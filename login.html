@@ -3,210 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Sign In | WINSTAR DIGITAL PRINTING & XEROX</title>
-    <meta name="description" content="Sign in to your Winstar Business & Wholesale account for discounted rates, order history, and express delivery.">
+    <title>Login | Winstar Digital Printing & Xerox</title>
+    <meta name="description" content="Single login portal for Winstar Digital Printing admin management and approved wholesale agency accounts.">
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/pages/auth.css">
 </head>
-<body style="background: var(--gradient-dark-plum); min-height: 100vh; display: flex; flex-direction: column;">
+<body>
 
-<div class="texture-overlay"></div>
-
-<!-- HEADER NAVBAR -->
 <header class="navbar">
     <div class="container navbar-container">
         <a href="index.html" class="logo-brand">
             <div class="logo-badge">
-                <img src="assets/images/logo.png" alt="Winstar Digital Printing Logo">
+                <img src="assets/images/logo.png" alt="Winstar Logo">
             </div>
             <div class="logo-text">
                 <div class="logo-title">WINSTAR <span>DIGITAL</span></div>
                 <div class="logo-sub">PRINTING & XEROX</div>
             </div>
         </a>
-        
+
         <ul class="nav-menu">
             <li><a href="index.html" class="nav-link">Home</a></li>
             <li><a href="services.html" class="nav-link">Services</a></li>
             <li><a href="quick-print.html" class="nav-link">Quick Print</a></li>
-            <li><a href="business.html" class="nav-link">Wholesale</a></li>
-            <li><a href="about.html" class="nav-link">About Us</a></li>
-            <li><a href="contact.html" class="nav-link">Contact</a></li>
+            <li><a href="bulk-order.html" class="nav-link">Bulk Order</a></li>
         </ul>
-        <div class="nav-actions">
-            <a href="signup.html" class="btn btn-outline btn-sm">Create Account</a>
 
-            <button class="mobile-toggle" aria-label="Toggle Navigation Menu">
-                <span></span><span></span><span></span>
-            </button>
+        <div class="nav-actions">
+            <a href="quick-print.html" class="btn btn-gradient btn-sm">Print Now &rarr;</a>
         </div>
     </div>
 </header>
 
-<!-- LOGIN CENTERED BOX -->
-<main style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 120px 20px 60px;">
-    <div class="glass-card gradient-border-card" style="width: 100%; max-width: 440px; padding: 40px;">
-        <div class="text-center" style="margin-bottom: 28px;">
-            <div class="badge badge-wholesale" style="margin-bottom: 12px;">WHOLESALE PORTAL</div>
-            <h1 style="font-size: 2rem; color: #FFF; margin-bottom: 6px;">WELCOME BACK</h1>
-            <p style="font-size: 0.9rem; color: var(--color-text-muted);">Access your business pricing & order history.</p>
-        </div>
-
-        <form id="login-form">
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #FFF; margin-bottom: 8px;">EMAIL ADDRESS *</label>
-                <input type="email" id="login-email" required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF;" placeholder="e.g. name@company.com">
+<section class="auth-page-section">
+    <div class="container" style="display: flex; justify-content: center;">
+        <div class="auth-card">
+            <div class="auth-header">
+                <span class="badge badge-yellow" style="margin-bottom: 0.5rem;">PORTAL AUTHENTICATION</span>
+                <h1>Sign In</h1>
+                <p>Access your Wholesale Account or Admin Portal.</p>
             </div>
 
-            <div style="margin-bottom: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <label style="font-size: 0.85rem; font-weight: 700; color: #FFF;">PASSWORD *</label>
+            <div id="loginAlert" style="display: none; padding: 1rem; border-radius: var(--radius-md); font-size: 0.9rem; margin-bottom: 1.25rem; text-align: center;"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="loginEmail">Email Address</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="e.g. admin@winstardigital.com" required>
                 </div>
-                <input type="password" id="login-password" required class="glass-card" style="width: 100%; padding: 12px 16px; color: #FFF;" placeholder="Enter your password">
-            </div>
 
-            <button type="submit" class="btn btn-gradient btn-lg" style="width: 100%; margin-bottom: 20px;">
-                SIGN IN &rarr;
-            </button>
-        </form>
-
-        <div style="padding: 12px; background: rgba(255, 195, 0, 0.1); border: 1px dashed rgba(255, 195, 0, 0.3); border-radius: var(--radius-md); font-size: 0.8rem; color: var(--winstar-yellow); text-align: center; margin-bottom: 20px;" id="login-notice-box">
-            <strong>BUSINESS PORTAL:</strong><br>
-            Sign in with your approved company credentials. Awaiting approval? Your account will be unlocked upon administrator verification.
-        </div>
-
-        <div class="text-center" style="font-size: 0.9rem; margin-bottom: 16px;">
-            Don't have a business account? <a href="signup.html" style="color: var(--winstar-yellow); font-weight: 700;">CREATE ACCOUNT</a>
-        </div>
-
-        <div style="padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: var(--radius-md); text-align: center; margin-bottom: 20px;">
-            <p style="font-size: 0.85rem; color: #FFF; margin-bottom: 8px;"><strong>Looking for Personal Printing?</strong></p>
-            <p style="font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 12px;">Retail customers do not need an account to print!</p>
-            <a href="quick-print.html" class="btn btn-outline btn-sm" style="width: 100%;">GUEST QUICK PRINT &rarr;</a>
-        </div>
-
-        <div class="text-center" style="font-size: 0.8rem;">
-            Staff / Business Owner? <a href="admin-login.html" style="color: var(--winstar-pink); font-weight: 700;">ADMIN PORTAL SIGN IN &rarr;</a>
-        </div>
-    </div>
-</main>
-
-<!-- FOOTER -->
-<footer class="footer">
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div class="logo-badge" style="width: 36px; height: 36px;">
-                        <img src="assets/images/logo.png" alt="Winstar Digital Printing Logo">
-                    </div>
-                    <div class="logo-title" style="font-size: 1.4rem;">WINSTAR <span>DIGITAL</span></div>
+                <div class="form-group">
+                    <label class="form-label" for="loginPassword">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Enter password" required>
                 </div>
-                <div class="logo-sub" style="margin-bottom: 16px;">PRINTING & XEROX</div>
-                <p>Suganya Lodge Complex, Near Bus Stand, Dindigul - 624001. Complete digital printing, copying, and finishing solutions since 2010.</p>
-            </div>
-            <div>
-                <div class="footer-title">NAVIGATION</div>
-                <ul class="footer-links">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="services.html">Services Catalogue</a></li>
-                    <li><a href="quick-print.html">Personal Printing</a></li>
-                    <li><a href="business.html">Wholesale Portal</a></li>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="contact.html">Contact Us</a></li>
-                </ul>
-            </div>
-            <div>
-                <div class="footer-title">SERVICES</div>
-                <ul class="footer-links">
-                    <li><a href="services.html">Digital Printing</a></li>
-                    <li><a href="services.html">Stickers & Labels</a></li>
-                    <li><a href="services.html">Book Binding</a></li>
-                    <li><a href="services.html">Lamination</a></li>
-                    <li><a href="services.html">Wide Format</a></li>
-                </ul>
-            </div>
-            <div>
-                <div class="footer-title">BUSINESS</div>
-                <ul class="footer-links">
-                    <li><a href="login.html">Agency Login</a></li>
-                    <li><a href="signup.html">Create Account</a></li>
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="orders.html">Order History</a></li>
-                </ul>
-            </div>
-            <div>
-                <div class="footer-title">CONTACT</div>
-                <div style="font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.8;">
-                    Suganya Lodge Complex,<br>
-                    Near Bus Stand, Dindigul.<br>
-                    WhatsApp: <span style="color: var(--winstar-yellow);">9345046665</span><br>
-                    Phone: 9786089001 / 8300970451
+
+                <div style="margin-top: 1.75rem;">
+                    <button type="submit" class="btn btn-gradient btn-lg" id="submitLoginBtn" style="width: 100%; justify-content: center;">
+                        SIGN IN &rarr;
+                    </button>
                 </div>
+            </form>
+
+            <div style="margin-top: 1.5rem; background: rgba(255, 193, 7, 0.08); border: 1px dashed var(--winstar-yellow); border-radius: var(--radius-md); padding: 1rem; font-size: 0.8rem; color: #FFF;">
+                <strong>💡 DEMO CREDENTIALS:</strong><br>
+                • <strong>Admin Portal:</strong> <code>admin@winstardigital.com</code> / <code>admin</code><br>
+                • <strong>Wholesale Agency:</strong> Register a new wholesale account via <a href="register.html" style="color: var(--winstar-yellow); text-decoration: underline;">Registration Form</a>.
             </div>
-        </div>
-        <div class="footer-bottom">
-            <div>&copy; 2026 WINSTAR DIGITAL PRINTING & XEROX. All Rights Reserved.</div>
-            <div style="display: flex; gap: 20px;">
-                <a href="privacy.html">Privacy Policy</a>
-                <a href="terms.html">Terms & Conditions</a>
-                <a href="refund.html">Refund Policy</a>
+
+            <div class="auth-footer-links">
+                Need a Wholesale Agency Account? <a href="register.html">Apply for Wholesale</a>
             </div>
         </div>
     </div>
-</footer>
+</section>
 
+<script type="module" src="js/app.js"></script>
 <script type="module">
     import { Auth } from './js/auth.js';
     import { showToast } from './js/app.js';
 
     document.addEventListener('DOMContentLoaded', () => {
-        const form = document.getElementById('login-form');
-        const submitBtn = form.querySelector('button[type="submit"]');
+        const form = document.getElementById('loginForm');
+        const alertEl = document.getElementById('loginAlert');
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = 'VERIFYING CREDENTIALS...';
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
 
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+                const submitBtn = document.getElementById('submitLoginBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Authenticating...';
 
-            const res = await Auth.login(email, password);
-            if (res.success) {
-                showToast("Login successful! Redirecting...", "success");
-                setTimeout(() => {
-                    if (res.user && res.user.role === 'admin') {
-                        window.location.href = 'admin.html';
+                try {
+                    const result = await Auth.login(email, password);
+
+                    if (result.success) {
+                        showToast('Login successful! Redirecting...', 'success');
+                        setTimeout(() => {
+                            window.location.href = result.redirect;
+                        }, 800);
                     } else {
-                        window.location.href = 'dashboard.html';
+                        alertEl.style.display = 'block';
+                        alertEl.style.background = result.status === 'pending' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+                        alertEl.style.border = result.status === 'pending' ? '1px solid var(--color-warning)' : '1px solid var(--color-error)';
+                        alertEl.style.color = result.status === 'pending' ? '#FCD34D' : '#FCA5A5';
+                        alertEl.textContent = result.message;
                     }
-                }, 800);
-            } else {
-                showToast(res.message, "error");
-                
-                const noticeBox = document.getElementById('login-notice-box');
-                if (res.status === 'pending') {
-                    noticeBox.style.background = 'rgba(255, 195, 0, 0.2)';
-                    noticeBox.style.color = '#FFC300';
-                    noticeBox.innerHTML = '<strong>AWAITING APPROVAL:</strong><br>Your account is currently awaiting administrator approval. You will receive an email once approved.';
-                } else if (res.status === 'rejected') {
-                    noticeBox.style.background = 'rgba(239, 68, 68, 0.2)';
-                    noticeBox.style.color = '#EF4444';
-                    noticeBox.innerHTML = '<strong>REGISTRATION NOT APPROVED:</strong><br>Your registration request was not approved. Please contact the administrator at contact@winstardigital.com';
+                } catch (err) {
+                    showToast('Login error. Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'SIGN IN →';
                 }
-
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = 'SIGN IN &rarr;';
-            }
-        });
+            });
+        }
     });
 </script>
-
-<script type="module" src="js/app.js"></script>
 </body>
 </html>

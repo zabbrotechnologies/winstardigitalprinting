@@ -4,7 +4,7 @@ Premium Online Digital Printing, Document Service, Copying, and Wholesale Busine
 
 ---
 
-## 🏗️ Architecture & Technology Stack
+## Architecture & Technology Stack
 
 ### Backend
 - **Runtime**: Node.js (v18+) & Express.js

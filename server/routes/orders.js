@@ -189,14 +189,14 @@ router.post('/', async (req, res) => {
   } = req.body;
 
   try {
-    let userId = 'guest';
+    let userId = null;
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
         const parts = authHeader.split(' ')[1].split('.');
         if (parts.length === 3) {
           const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-          userId = payload.sub || payload.userId || 'guest';
+          userId = payload.sub || payload.userId || null;
         }
       } catch {}
     }

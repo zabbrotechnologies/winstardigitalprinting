@@ -160,7 +160,7 @@ export async function uploadPrintFile(file) {
 export async function createOrder(orderPayload, currentUser = null) {
   const requestId = generateRequestId();
   const now = new Date().toISOString();
-  const userId = currentUser?.id || currentUser?.$id || 'guest';
+  const userId = currentUser?.id || currentUser?.$id || null;
 
   const orderData = {
     request_id: requestId,

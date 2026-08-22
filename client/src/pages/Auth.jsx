@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Navigate, Link } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -10,16 +10,15 @@ export default function Auth() {
   const [tab, setTab] = useState('login');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
 
-  // Login form state
+  // Login form state (Simple Email & Password with Remember Me)
   const [loginData, setLoginData] = useState({ email: '', password: '', remember: false });
 
-  // Register form state
+  // Register form state (Simple Name, Email, Password, Mobile)
   const [regData, setRegData] = useState({
-    full_name: '', company_name: '', email: '', mobile: '', password: '', business_details: '',
+    full_name: '', email: '', mobile: '', password: '',
   });
-
-  const [portalType, setPortalType] = useState('client'); // 'client' | 'admin'
 
   if (user) {
     if (profile?.isAdmin || user?.email?.toLowerCase().includes('admin')) {
@@ -34,9 +33,9 @@ export default function Auth() {
     setLoading(true);
     try {
       const loggedUser = await signIn(loginData.email, loginData.password);
-      const isAdminLogin = portalType === 'admin' ||
-        loginData.email.toLowerCase().includes('admin') ||
-        loggedUser?.email?.toLowerCase().includes('admin');
+      const isAdminLogin = loginData.email.toLowerCase().includes('admin') ||
+        loggedUser?.email?.toLowerCase().includes('admin') ||
+        loggedUser?.labels?.includes('admin');
 
       if (isAdminLogin) {
         navigate('/admin');
@@ -44,7 +43,7 @@ export default function Auth() {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.message || 'Invalid credentials. Please try again.');
+      setError(err.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -57,17 +56,16 @@ export default function Auth() {
     try {
       const createdUser = await signUp(regData.email, regData.password, {
         full_name: regData.full_name,
-        company_name: regData.company_name,
         mobile: regData.mobile,
-        business_details: regData.business_details,
       });
+
       if (regData.email.toLowerCase().includes('admin')) {
         navigate('/admin');
       } else {
         navigate('/dashboard');
       }
     } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.message || 'Registration failed. Please verify your details.');
     } finally {
       setLoading(false);
     }
@@ -78,118 +76,59 @@ export default function Auth() {
       <Navbar />
 
       <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '120px 16px 80px' }}>
-        <div style={{ width: '100%', maxWidth: 520 }}>
-          {/* Portal Switcher (Client vs Admin) */}
-          <div style={{
-            display: 'flex',
-            background: 'var(--surface-container-high)',
-            padding: 4,
-            borderRadius: 'var(--radius-full)',
-            marginBottom: 28,
-            boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.06)',
-          }}>
-            <button
-              type="button"
-              onClick={() => { setPortalType('client'); setError(''); }}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                borderRadius: 'var(--radius-full)',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: 13,
-                background: portalType === 'client' ? 'var(--surface-container-lowest)' : 'transparent',
-                color: portalType === 'client' ? 'var(--on-surface)' : 'var(--on-surface-variant)',
-                boxShadow: portalType === 'client' ? 'var(--shadow-ambient)' : 'none',
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>person</span>
-              Client Portal
-            </button>
-            <button
-              type="button"
-              onClick={() => { setPortalType('admin'); setError(''); }}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                borderRadius: 'var(--radius-full)',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: 700,
-                fontSize: 13,
-                background: portalType === 'admin' ? 'var(--primary-container)' : 'transparent',
-                color: portalType === 'admin' ? 'var(--on-primary)' : 'var(--on-surface-variant)',
-                boxShadow: portalType === 'admin' ? '0 2px 8px rgba(183,0,17,0.3)' : 'none',
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 6,
-              }}
-            >
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>shield_person</span>
-              Admin Master
-            </button>
-          </div>
-
+        <div style={{ width: '100%', maxWidth: 460 }}>
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
             <div style={{
-              width: 64, height: 64, borderRadius: '50%',
-              background: portalType === 'admin' ? '#fee2e2' : 'var(--primary-fixed)',
+              width: 56, height: 56, borderRadius: '50%',
+              background: 'var(--primary-fixed)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 16px',
-              boxShadow: portalType === 'admin' ? '0 0 0 12px rgba(220,38,38,0.1)' : '0 0 0 12px rgba(183,0,17,0.06)',
+              boxShadow: '0 0 0 10px rgba(183,0,17,0.06)',
             }}>
-              <span className="material-symbols-outlined icon-fill" style={{ color: portalType === 'admin' ? '#dc2626' : 'var(--primary-container)', fontSize: 32 }}>
-                {portalType === 'admin' ? 'admin_panel_settings' : 'lock'}
+              <span className="material-symbols-outlined icon-fill" style={{ color: 'var(--primary-container)', fontSize: 28 }}>
+                lock
               </span>
             </div>
             <h1 className="headline-md" style={{ marginBottom: 6 }}>
-              {portalType === 'admin' ? 'Admin Master Portal' : 'Client Portal'}
+              {tab === 'login' ? 'Sign in to Account' : 'Create an Account'}
             </h1>
             <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
-              {portalType === 'admin'
-                ? 'Sign in with administrator credentials to manage orders & clients'
-                : tab === 'login' ? 'Sign in to manage your print orders' : 'Create a business account for enhanced features'
+              {tab === 'login'
+                ? 'Enter your credentials to access your account'
+                : 'Register to manage orders and track printing status'
               }
             </p>
           </div>
 
           {/* Card */}
-          <div className="card" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden' }}>
+          <div className="card" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-modal)' }}>
             {/* Tabs */}
             <div style={{ display: 'flex', borderBottom: '1px solid var(--surface-container)' }}>
               {['login', 'register'].map(t => (
                 <button
                   key={t}
-                  onClick={() => { setTab(t); setError(''); }}
+                  onClick={() => { setTab(t); setError(''); setForgotSent(false); }}
                   style={{
-                    flex: 1, padding: '16px', fontSize: 14, fontWeight: 600,
+                    flex: 1, padding: '16px', fontSize: 14, fontWeight: 700,
                     letterSpacing: '0.04em', border: 'none', cursor: 'pointer',
                     background: 'none', textTransform: 'capitalize',
                     color: tab === t ? 'var(--primary-container)' : 'var(--on-surface-variant)',
-                    borderBottom: tab === t ? '2.5px solid var(--primary-container)' : '2.5px solid transparent',
+                    borderBottom: tab === t ? '3px solid var(--primary-container)' : '3px solid transparent',
                     transition: 'all 0.2s',
                   }}
                 >
-                  {t === 'login' ? 'Login' : 'Register'}
+                  {t === 'login' ? 'Sign In' : 'Create Account'}
                 </button>
               ))}
             </div>
 
-            <div style={{ padding: '32px' }}>
+            <div style={{ padding: '28px 24px' }}>
               {/* Error Banner */}
               {error && (
                 <div style={{
                   background: 'var(--error-container)', color: 'var(--on-error-container)',
-                  padding: '12px 16px', borderRadius: 'var(--radius)', marginBottom: 24,
+                  padding: '12px 16px', borderRadius: 'var(--radius)', marginBottom: 20,
                   fontSize: 14, display: 'flex', alignItems: 'center', gap: 8,
                 }}>
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>error</span>
@@ -197,16 +136,28 @@ export default function Auth() {
                 </div>
               )}
 
+              {/* Forgot Password Success */}
+              {forgotSent && (
+                <div style={{
+                  background: '#dcfce7', color: '#166534',
+                  padding: '12px 16px', borderRadius: 'var(--radius)', marginBottom: 20,
+                  fontSize: 14, display: 'flex', alignItems: 'center', gap: 8,
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>
+                  Password reset link sent to your email.
+                </div>
+              )}
+
               {/* LOGIN FORM */}
               {tab === 'login' && (
-                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="animate-fade-in">
+                <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 18 }} className="animate-fade-in">
                   <div className="form-group">
                     <label className="label" htmlFor="login-email">Email Address</label>
                     <input
                       id="login-email"
                       type="email"
                       className="input"
-                      placeholder="jane@company.com"
+                      placeholder="name@example.com"
                       required
                       value={loginData.email}
                       onChange={e => setLoginData(d => ({ ...d, email: e.target.value }))}
@@ -218,45 +169,59 @@ export default function Auth() {
                       id="login-password"
                       type="password"
                       className="input"
-                      placeholder="••••••••••"
+                      placeholder="••••••••••••"
                       required
                       value={loginData.password}
                       onChange={e => setLoginData(d => ({ ...d, password: e.target.value }))}
                     />
                   </div>
+
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13.5 }}>
                       <input
                         type="checkbox"
-                        style={{ width: 16, height: 16 }}
+                        style={{ width: 16, height: 16, cursor: 'pointer' }}
                         checked={loginData.remember}
                         onChange={e => setLoginData(d => ({ ...d, remember: e.target.checked }))}
                       />
                       <span style={{ color: 'var(--on-surface-variant)' }}>Remember me</span>
                     </label>
-                    <a href="#" style={{ fontSize: 14, fontWeight: 600, color: 'var(--primary-container)' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!loginData.email) {
+                          setError('Please enter your email above first to reset password.');
+                        } else {
+                          setError('');
+                          setForgotSent(true);
+                        }
+                      }}
+                      style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--primary-container)', background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
                       Forgot password?
-                    </a>
+                    </button>
                   </div>
+
                   <button
                     type="submit"
                     className="btn btn-primary btn-full"
-                    style={{ height: 52, fontSize: 16, borderRadius: 'var(--radius-md)', marginTop: 8 }}
+                    style={{ height: 50, fontSize: 15, borderRadius: 'var(--radius-md)', marginTop: 6 }}
                     disabled={loading}
                   >
                     {loading
                       ? <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
-                      : <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span> Login to Portal</>
+                      : <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span> Sign In</>
                     }
                   </button>
-                  <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--on-surface-variant)' }}>
+
+                  <p style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--on-surface-variant)', marginTop: 4 }}>
                     Don't have an account?{' '}
                     <button
                       type="button"
-                      onClick={() => setTab('register')}
-                      style={{ color: 'var(--primary-container)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer' }}
+                      onClick={() => { setTab('register'); setError(''); setForgotSent(false); }}
+                      style={{ color: 'var(--primary-container)', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
                     >
-                      Create one
+                      Create Account
                     </button>
                   </p>
                 </form>
@@ -264,76 +229,52 @@ export default function Auth() {
 
               {/* REGISTER FORM */}
               {tab === 'register' && (
-                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 18 }} className="animate-fade-in">
-                  <div style={{
-                    background: 'var(--surface-container-low)', padding: '12px 16px',
-                    borderRadius: 'var(--radius)', fontSize: 14, color: 'var(--on-surface-variant)',
-                    display: 'flex', alignItems: 'flex-start', gap: 8,
-                  }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary-container)', flexShrink: 0 }}>info</span>
-                    Registration unlocks order history, reordering, and enterprise discounts.
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <div className="form-group">
-                      <label className="label" htmlFor="reg-name">Full Name *</label>
-                      <input id="reg-name" type="text" className="input" placeholder="Jane Doe" required
-                        value={regData.full_name} onChange={e => setRegData(d => ({ ...d, full_name: e.target.value }))} />
-                    </div>
-                    <div className="form-group">
-                      <label className="label" htmlFor="reg-company">Company</label>
-                      <input id="reg-company" type="text" className="input" placeholder="Acme Corp"
-                        value={regData.company_name} onChange={e => setRegData(d => ({ ...d, company_name: e.target.value }))} />
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <div className="form-group">
-                      <label className="label" htmlFor="reg-email">Work Email *</label>
-                      <input id="reg-email" type="email" className="input" placeholder="jane@acme.com" required
-                        value={regData.email} onChange={e => setRegData(d => ({ ...d, email: e.target.value }))} />
-                    </div>
-                    <div className="form-group">
-                      <label className="label" htmlFor="reg-mobile">Mobile</label>
-                      <input id="reg-mobile" type="tel" className="input" placeholder="+1 (555) 000-0000"
-                        value={regData.mobile} onChange={e => setRegData(d => ({ ...d, mobile: e.target.value }))} />
-                    </div>
+                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="animate-fade-in">
+                  <div className="form-group">
+                    <label className="label" htmlFor="reg-name">Full Name *</label>
+                    <input id="reg-name" type="text" className="input" placeholder="Your Name" required
+                      value={regData.full_name} onChange={e => setRegData(d => ({ ...d, full_name: e.target.value }))} />
                   </div>
 
                   <div className="form-group">
-                    <label className="label" htmlFor="reg-password">Password *</label>
-                    <input id="reg-password" type="password" className="input" placeholder="Create a strong password" required
+                    <label className="label" htmlFor="reg-email">Email Address *</label>
+                    <input id="reg-email" type="email" className="input" placeholder="yourname@gmail.com" required
+                      value={regData.email} onChange={e => setRegData(d => ({ ...d, email: e.target.value }))} />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="label" htmlFor="reg-mobile">Mobile Number (WhatsApp)</label>
+                    <input id="reg-mobile" type="tel" className="input" placeholder="9876543210"
+                      value={regData.mobile} onChange={e => setRegData(d => ({ ...d, mobile: e.target.value }))} />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="label" htmlFor="reg-password">Create Password *</label>
+                    <input id="reg-password" type="password" className="input" placeholder="At least 8 characters" required
                       value={regData.password} onChange={e => setRegData(d => ({ ...d, password: e.target.value }))} />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="label" htmlFor="reg-details">Business Details</label>
-                    <textarea id="reg-details" className="textarea" rows={3}
-                      placeholder="Describe your typical printing volume or specific needs..."
-                      value={regData.business_details}
-                      onChange={e => setRegData(d => ({ ...d, business_details: e.target.value }))}
-                    />
                   </div>
 
                   <button
                     type="submit"
-                    className="btn btn-full"
-                    style={{
-                      height: 52, fontSize: 16, borderRadius: 'var(--radius-md)',
-                      background: 'var(--inverse-surface)', color: 'var(--inverse-on-surface)',
-                    }}
+                    className="btn btn-primary btn-full"
+                    style={{ height: 50, fontSize: 15, borderRadius: 'var(--radius-md)', marginTop: 6 }}
                     disabled={loading}
                   >
                     {loading
                       ? <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
-                      : 'Create Business Account'
+                      : 'Create Account'
                     }
                   </button>
-                  <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--on-surface-variant)' }}>
-                    By registering you agree to our{' '}
-                    <a href="#" style={{ color: 'var(--primary-container)' }}>Terms of Service</a>
-                    {' '}and{' '}
-                    <a href="#" style={{ color: 'var(--primary-container)' }}>Privacy Policy</a>.
+
+                  <p style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--on-surface-variant)', marginTop: 4 }}>
+                    Already have an account?{' '}
+                    <button
+                      type="button"
+                      onClick={() => { setTab('login'); setError(''); }}
+                      style={{ color: 'var(--primary-container)', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
+                    >
+                      Sign In
+                    </button>
                   </p>
                 </form>
               )}

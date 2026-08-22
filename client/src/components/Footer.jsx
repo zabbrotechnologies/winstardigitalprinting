@@ -32,8 +32,8 @@ export default function Footer() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--primary-fixed-dim)' }}>Account</span>
-            <Link to="/auth" className="footer-link">Client Login</Link>
-            <Link to="/dashboard" className="footer-link">Dashboard</Link>
+            <Link to="/auth" className="footer-link">Login / Register</Link>
+            <Link to="/dashboard" className="footer-link">My Account</Link>
           </div>
         </div>
       </div>

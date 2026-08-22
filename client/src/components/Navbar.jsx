@@ -81,20 +81,12 @@ export default function Navbar() {
                   overflow: 'hidden',
                 }}>
                   <Link
-                    to="/dashboard"
+                    to={profile?.isAdmin ? '/admin' : '/dashboard'}
                     style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', fontSize: 14, color: 'var(--on-surface)', borderBottom: '1px solid var(--surface-container)' }}
                     onClick={() => setUserMenuOpen(false)}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>dashboard</span>
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/admin"
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', fontSize: 14, color: 'var(--primary-container)', fontWeight: 600, borderBottom: '1px solid var(--surface-container)' }}
-                    onClick={() => setUserMenuOpen(false)}
-                  >
-                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>admin_panel_settings</span>
-                    Admin Panel
+                    {profile?.isAdmin ? 'Management Panel' : 'My Dashboard'}
                   </Link>
                   <button
                     onClick={() => { setUserMenuOpen(false); handleSignOut(); }}
@@ -108,10 +100,10 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="desktop-actions" style={{ display: 'flex', gap: 8 }}>
-              <Link to="/auth" className="btn btn-outline btn-pill" style={{ padding: '8px 16px', fontSize: 13 }}>
+              <Link to="/auth" className="btn btn-outline btn-pill" style={{ padding: '8px 18px', fontSize: 13 }}>
                 Login
               </Link>
-              <Link to="/#quick-print" className="btn btn-primary btn-pill" style={{ padding: '8px 16px', fontSize: 13 }}>
+              <Link to="/#quick-print" className="btn btn-primary btn-pill" style={{ padding: '8px 18px', fontSize: 13 }}>
                 Start Project
               </Link>
             </div>
@@ -147,22 +139,13 @@ export default function Navbar() {
           {user ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <Link
-                to="/dashboard"
+                to={profile?.isAdmin ? '/admin' : '/dashboard'}
                 className="mobile-nav-link"
                 style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                 onClick={() => setMobileOpen(false)}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>dashboard</span>
-                Dashboard
-              </Link>
-              <Link
-                to="/admin"
-                className="mobile-nav-link"
-                style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--primary-container)', fontWeight: 700 }}
-                onClick={() => setMobileOpen(false)}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>admin_panel_settings</span>
-                Admin Panel
+                {profile?.isAdmin ? 'Management Panel' : 'My Dashboard'}
               </Link>
               <button
                 onClick={() => { setMobileOpen(false); handleSignOut(); }}
@@ -176,10 +159,10 @@ export default function Navbar() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
               <Link to="/auth" className="btn btn-outline" onClick={() => setMobileOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
-                Client Login / Register
+                Login / Register
               </Link>
               <Link to="/#quick-print" className="btn btn-primary" onClick={() => setMobileOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
-                Start Print Job
+                Start Project
               </Link>
             </div>
           )}

@@ -1,6 +1,6 @@
 -- ============================================================
--- Winstar / Xerox Digital Pro — Comprehensive Supabase Schema
--- Run this in: Supabase Dashboard → SQL Editor
+-- Winstar / Xerox Digital Pro — FINAL Supabase Schema
+-- Run this in: Supabase Dashboard → SQL Editor -> New Query
 -- ============================================================
 
 -- Enable UUID extension
@@ -10,7 +10,7 @@ create extension if not exists "uuid-ossp";
 -- 1. profiles table (extends auth.users with wholesale & admin support)
 -- ============================================================
 create table if not exists public.profiles (
-  id text primary key,
+  id uuid primary key, -- matches auth.users.id
   email text,
   full_name text not null default 'User',
   company_name text,
@@ -29,6 +29,7 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+-- Policies for profiles
 drop policy if exists "Allow public read of profiles" on public.profiles;
 create policy "Allow public read of profiles" on public.profiles for select using (true);
 
@@ -38,11 +39,12 @@ create policy "Allow insert on signup" on public.profiles for insert with check 
 drop policy if exists "Allow update by owner or admin" on public.profiles;
 create policy "Allow update by owner or admin" on public.profiles for update using (true);
 
+
 -- ============================================================
 -- 2. wholesale_applications table (DEDICATED INDEPENDENT TABLE)
 -- ============================================================
 create table if not exists public.wholesale_applications (
-  id text primary key,
+  id uuid default gen_random_uuid() primary key,
   email text not null,
   full_name text not null,
   company_name text not null,
@@ -58,6 +60,7 @@ create table if not exists public.wholesale_applications (
 
 alter table public.wholesale_applications enable row level security;
 
+-- Policies for wholesale_applications
 drop policy if exists "Allow public read of wholesale_applications" on public.wholesale_applications;
 create policy "Allow public read of wholesale_applications" on public.wholesale_applications for select using (true);
 
@@ -67,13 +70,14 @@ create policy "Allow public insert of wholesale_applications" on public.wholesal
 drop policy if exists "Allow public update of wholesale_applications" on public.wholesale_applications;
 create policy "Allow public update of wholesale_applications" on public.wholesale_applications for update using (true);
 
+
 -- ============================================================
 -- 3. orders table (supports both guest quick prints, wholesale & user orders)
 -- ============================================================
 create table if not exists public.orders (
   id uuid default gen_random_uuid() primary key,
   request_id text not null unique,
-  user_id text default 'guest',
+  user_id uuid default null, -- null for guest orders, or auth.users.id
   customer_name text not null,
   customer_phone text not null,
   service_name text default 'Print Service',
@@ -96,6 +100,7 @@ create table if not exists public.orders (
 
 alter table public.orders enable row level security;
 
+-- Policies for orders
 drop policy if exists "Allow public insert on orders" on public.orders;
 create policy "Allow public insert on orders" on public.orders for insert with check (true);
 
@@ -104,6 +109,7 @@ create policy "Allow public select on orders" on public.orders for select using 
 
 drop policy if exists "Allow public update on orders" on public.orders;
 create policy "Allow public update on orders" on public.orders for update using (true);
+
 
 -- ============================================================
 -- 4. Storage Bucket: print-files
@@ -120,3 +126,6 @@ create policy "Allow public read on print-files" on storage.objects for select u
 
 drop policy if exists "Allow public update on print-files" on storage.objects;
 create policy "Allow public update on print-files" on storage.objects for update using (bucket_id = 'print-files');
+
+drop policy if exists "Allow public delete on print-files" on storage.objects;
+create policy "Allow public delete on print-files" on storage.objects for delete using (bucket_id = 'print-files');

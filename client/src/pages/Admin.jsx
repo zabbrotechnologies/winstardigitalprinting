@@ -219,9 +219,6 @@ export default function Admin() {
             <button className="btn btn-outline btn-sm" onClick={fetchAdminData}>
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>refresh</span> Refresh Data
             </button>
-            <Link to="/dashboard" className="btn btn-ghost btn-sm">
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person</span> Client View
-            </Link>
           </div>
         </div>
 

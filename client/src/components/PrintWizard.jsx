@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { ID } from 'appwrite';
 import { useAuth } from '../context/AuthContext';
 import { storage, STORAGE_BUCKET_ID, endpoint, projectId } from '../lib/appwrite';
+import { createOrder } from '../lib/orderService';
 
 const WINSTAR_PHONE = '919345046665'; // Winstar WhatsApp support number
 
@@ -160,19 +161,15 @@ export default function PrintWizard({ isWholesale = false }) {
     setError('');
     try {
       const token = await getAccessToken();
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      };
-
       const prices = getCalculatedPrice();
+
       const payload = {
         customer_name: customerName,
         customer_phone: customerPhone,
         service_name: PRINT_TYPES.find(t => t.value === config.print_type)?.label,
         file_name: uploadedFile?.fileName || file?.name || 'print-file.pdf',
-        file_url: uploadedFile?.publicUrl || null,
-        file_id: uploadedFile?.fileId || null,
+        file_url: uploadedFile?.publicUrl || '',
+        file_id: uploadedFile?.fileId || '',
         ...config,
         delivery_type: deliveryType,
         delivery_address: deliveryType === 'courier' ? deliveryAddress : '',
@@ -180,15 +177,7 @@ export default function PrintWizard({ isWholesale = false }) {
         total_price: prices.grandTotal,
       };
 
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${apiUrl}/api/orders`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit order');
+      const data = await createOrder(payload, user, token);
       setCreatedOrder(data);
     } catch (err) {
       setError(err.message || 'Order submission failed.');

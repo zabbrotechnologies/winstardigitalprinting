@@ -4,6 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatCard';
 
+import { fetchAllAdminOrders } from '../lib/orderService';
+import { databases, DATABASE_ID, ORDERS_COLLECTION_ID, USERS_COLLECTION_ID } from '../lib/appwrite';
+import { Query } from 'appwrite';
+
 const STATUSES = ['Pending', 'Confirmed', 'Printing', 'Processing', 'Ready for Pickup', 'Delivered', 'Completed', 'Cancelled'];
 
 function formatCurrency(val) {
@@ -22,8 +26,6 @@ export default function Admin() {
   const [updatingId, setUpdatingId] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const API = import.meta.env.VITE_API_URL || '';
-
   useEffect(() => {
     if (!user) return;
     fetchAdminData();
@@ -33,28 +35,54 @@ export default function Admin() {
     setLoading(true);
     try {
       const token = await getAccessToken();
-      const headers = { Authorization: `Bearer ${token}` };
+      const allOrders = await fetchAllAdminOrders(token);
+      setOrders(allOrders);
 
-      const [ordersRes, statsRes, agenciesRes] = await Promise.all([
-        fetch(`${API}/api/orders/admin/all`, { headers }),
-        fetch(`${API}/api/orders/admin/stats`, { headers }),
-        fetch(`${API}/api/auth/agencies`, { headers }).catch(() => ({ ok: false })),
-      ]);
+      // Load agencies
+      try {
+        const agenciesRes = await databases.listDocuments(
+          DATABASE_ID,
+          USERS_COLLECTION_ID,
+          [Query.equal('account_type', 'wholesale'), Query.limit(100)]
+        );
+        setAgencies(agenciesRes.documents.map(d => ({ id: d.$id, ...d })));
+      } catch {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await fetch(`${apiUrl}/api/auth/agencies`, { headers }).catch(() => ({ ok: false }));
+        if (res.ok) setAgencies(await res.json());
+      }
 
-      if (ordersRes.ok) {
-        const ordersData = await ordersRes.json();
-        setOrders(ordersData);
-      }
-      if (statsRes.ok) {
-        const statsData = await statsRes.json();
-        setStats(statsData);
-      }
-      if (agenciesRes.ok) {
-        const agenciesData = await agenciesRes.json();
-        setAgencies(agenciesData);
-      }
+      // Compute admin stats
+      let totalOrders = allOrders.length;
+      let normalOrders = 0;
+      let wholesaleOrders = 0;
+      let pendingOrders = 0;
+      let processingOrders = 0;
+      let completedOrders = 0;
+      let totalRevenue = 0;
+
+      allOrders.forEach(doc => {
+        if (doc.order_type === 'wholesale') wholesaleOrders += 1;
+        else normalOrders += 1;
+        if (doc.status === 'Pending') pendingOrders += 1;
+        if (doc.status === 'Printing' || doc.status === 'Processing') processingOrders += 1;
+        if (['Printed', 'Ready for Pickup', 'Delivered', 'Completed'].includes(doc.status)) completedOrders += 1;
+        totalRevenue += parseFloat(doc.total_price || 0);
+      });
+
+      setStats({
+        totalOrders,
+        normalOrders,
+        wholesaleOrders,
+        pendingOrders,
+        processingOrders,
+        completedOrders,
+        totalRevenue,
+        pendingAgencies: agencies.filter(a => a.status === 'pending').length,
+      });
     } catch (err) {
-      console.error('Failed to load admin data:', err);
+      console.error('Admin data fetch notice:', err);
     } finally {
       setLoading(false);
     }
@@ -63,27 +91,33 @@ export default function Admin() {
   async function handleStatusChange(orderId, newStatus) {
     setUpdatingId(orderId);
     try {
-      const token = await getAccessToken();
-      const res = await fetch(`${API}/api/orders/admin/${orderId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (res.ok) {
-        setOrders(prev => prev.map(o => (o.id === orderId ? { ...o, status: newStatus } : o)));
-        if (selectedOrder?.id === orderId) {
-          setSelectedOrder(prev => ({ ...prev, status: newStatus }));
-        }
+      // 1. Try Direct Appwrite DB
+      try {
+        await databases.updateDocument(
+          DATABASE_ID,
+          ORDERS_COLLECTION_ID,
+          orderId,
+          { status: newStatus, updated_at: new Date().toISOString() }
+        );
+      } catch {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
         const token = await getAccessToken();
-        const statsRes = await fetch(`${API}/api/orders/admin/stats`, { headers: { Authorization: `Bearer ${token}` } });
-        if (statsRes.ok) setStats(await statsRes.json());
+        await fetch(`${apiUrl}/api/orders/admin/${orderId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+      }
+
+      setOrders(prev => prev.map(o => (o.id === orderId ? { ...o, status: newStatus } : o)));
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder(prev => ({ ...prev, status: newStatus }));
       }
     } catch (err) {
-      console.error('Status update failed:', err);
+      console.error('Status update notice:', err);
     } finally {
       setUpdatingId(null);
     }
@@ -92,24 +126,29 @@ export default function Admin() {
   async function handleAgencyVerify(agencyId, newStatus) {
     setUpdatingId(agencyId);
     try {
-      const token = await getAccessToken();
-      const res = await fetch(`${API}/api/auth/agencies/${agencyId}/verify`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (res.ok) {
-        setAgencies(prev => prev.map(a => (a.id === agencyId ? { ...a, status: newStatus } : a)));
+      try {
+        await databases.updateDocument(
+          DATABASE_ID,
+          USERS_COLLECTION_ID,
+          agencyId,
+          { status: newStatus, verified_at: new Date().toISOString() }
+        );
+      } catch {
+        const apiUrl = import.meta.env.VITE_API_URL || '';
         const token = await getAccessToken();
-        const statsRes = await fetch(`${API}/api/orders/admin/stats`, { headers: { Authorization: `Bearer ${token}` } });
-        if (statsRes.ok) setStats(await statsRes.json());
+        await fetch(`${apiUrl}/api/auth/agencies/${agencyId}/verify`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
       }
+
+      setAgencies(prev => prev.map(a => (a.id === agencyId ? { ...a, status: newStatus } : a)));
     } catch (err) {
-      console.error('Agency status update failed:', err);
+      console.error('Agency status update notice:', err);
     } finally {
       setUpdatingId(null);
     }

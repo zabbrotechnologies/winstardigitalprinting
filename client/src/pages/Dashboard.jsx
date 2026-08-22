@@ -6,8 +6,10 @@ import Sidebar from '../components/Sidebar';
 import StatCard from '../components/StatCard';
 import OrderTable from '../components/OrderTable';
 
+import { fetchUserOrders } from '../lib/orderService';
+
 function formatCurrency(val) {
-  return '$' + parseFloat(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return '₹' + parseFloat(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export default function Dashboard() {
@@ -17,38 +19,33 @@ export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [ordersLoading, setOrdersLoading] = useState(true);
 
-  const API = import.meta.env.VITE_API_URL || '';
-
   useEffect(() => {
     if (!user) return;
-    fetchStats();
-    fetchOrders();
+    loadDashboardData();
   }, [user]);
 
-  async function fetchStats() {
-    try {
-      const token = await getAccessToken();
-      const res = await fetch(`${API}/api/orders/stats`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) setStats(data);
-    } catch (err) {
-      console.error('Failed to fetch stats:', err);
-    }
-  }
-
-  async function fetchOrders() {
+  async function loadDashboardData() {
     setOrdersLoading(true);
     try {
       const token = await getAccessToken();
-      const res = await fetch(`${API}/api/orders`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const userOrders = await fetchUserOrders(user.$id, token);
+      setOrders(userOrders);
+
+      // Compute stats
+      let totalOrders = userOrders.length;
+      let activeOrders = 0;
+      let completedOrders = 0;
+      let totalSpending = 0;
+
+      userOrders.forEach(ord => {
+        if (['Pending', 'Confirmed', 'Printing', 'Processing'].includes(ord.status)) activeOrders += 1;
+        if (['Printed', 'Ready for Pickup', 'Delivered', 'Completed'].includes(ord.status)) completedOrders += 1;
+        totalSpending += parseFloat(ord.total_price || 0);
       });
-      const data = await res.json();
-      if (res.ok) setOrders(data);
+
+      setStats({ totalOrders, activeOrders, completedOrders, totalSpending });
     } catch (err) {
-      console.error('Failed to fetch orders:', err);
+      console.error('Failed to load user orders:', err);
     } finally {
       setOrdersLoading(false);
     }

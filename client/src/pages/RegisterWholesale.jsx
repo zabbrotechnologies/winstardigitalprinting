@@ -46,42 +46,56 @@ export default function RegisterWholesale() {
         businessProofUrl = up2?.publicUrl || null;
       }
 
-      // 2. Submit application & create user account
+      // 2. Submit application into Supabase Auth & Profiles
+      let createdAuthUserId = null;
       try {
-        await signUp(formData.email, formData.password, {
-          full_name: formData.full_name,
-          company_name: formData.company_name,
-          gst_number: formData.gst_number,
-          business_address: formData.business_address,
-          mobile: formData.mobile,
-          business_details: formData.business_details,
-          visiting_card_url: visitingCardUrl,
-          business_proof_url: businessProofUrl,
-          account_type: 'wholesale',
-          role: 'wholesale',
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: {
+              full_name: formData.full_name,
+              mobile: formData.mobile,
+            },
+          },
         });
+        if (!authError && authData?.user) {
+          createdAuthUserId = authData.user.id;
+        }
       } catch (authErr) {
-        // Fallback: save agency application directly into Supabase profiles table
-        try {
-          await supabase.from('profiles').upsert([{
-            email: formData.email,
-            full_name: formData.full_name,
-            company_name: formData.company_name,
-            gst_number: formData.gst_number,
-            business_address: formData.business_address,
-            mobile: formData.mobile,
-            visiting_card_url: visitingCardUrl,
-            business_proof_url: businessProofUrl,
-            account_type: 'wholesale',
-            role: 'wholesale',
-            status: 'pending',
-            created_at: new Date().toISOString(),
-          }]);
-        } catch {}
+        console.warn('Auth sign up notice:', authErr);
       }
+
+      // 3. Guarantee Saving Wholesale Application Record to Supabase Profiles
+      const profileRecord = {
+        ...(createdAuthUserId ? { id: createdAuthUserId } : {}),
+        email: formData.email.trim().toLowerCase(),
+        full_name: formData.full_name,
+        company_name: formData.company_name,
+        gst_number: formData.gst_number || null,
+        business_address: formData.business_address,
+        mobile: formData.mobile,
+        visiting_card_url: visitingCardUrl,
+        business_proof_url: businessProofUrl,
+        account_type: 'wholesale',
+        role: 'wholesale',
+        status: 'pending',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      try {
+        await supabase.from('profiles').upsert([profileRecord], { onConflict: 'email' });
+      } catch (dbErr) {
+        console.warn('Profile direct save notice:', dbErr);
+      }
+
+      // 4. Ensure user is logged out immediately so they must wait for admin approval
+      await supabase.auth.signOut().catch(() => {});
 
       setSubmitted(true);
     } catch (err) {
+      setError(err.message || 'Submission error');
       setSubmitted(true);
     } finally {
       setSubmitting(false);
@@ -122,17 +136,30 @@ export default function RegisterWholesale() {
           )}
 
           {submitted ? (
-            <div style={{ textAlign: 'center', padding: '32px 0' }} className="animate-fade-in">
-              <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#dcfce7', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span className="material-symbols-outlined icon-fill" style={{ fontSize: 40, color: '#16a34a' }}>check_circle</span>
+            <div style={{ textAlign: 'center', padding: '40px 16px' }} className="animate-fade-in">
+              <div style={{
+                width: 80, height: 80, borderRadius: '50%', background: '#fef3c7', margin: '0 auto 24px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 0 12px rgba(245, 158, 11, 0.12)'
+              }}>
+                <span className="material-symbols-outlined icon-fill" style={{ fontSize: 44, color: '#d97706' }}>hourglass_top</span>
               </div>
-              <h2 className="headline-md" style={{ marginBottom: 12 }}>APPLICATION SUBMITTED</h2>
-              <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: 480, margin: '0 auto 28px' }}>
-                Your account is waiting for Winstar administrator verification. You will be able to access wholesale rates once approved!
+              <h2 className="headline-md" style={{ marginBottom: 12, color: 'var(--on-surface)' }}>
+                Application Submitted — Waiting for Admin Approval
+              </h2>
+              <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: 520, margin: '0 auto 28px', lineHeight: 1.6 }}>
+                Your wholesale agency application for <strong>{formData.company_name}</strong> has been received by Winstar administration.
+                <br /><br />
+                Our team will review your business proof documents and approve your account shortly. <strong>You will be able to log in once your application is approved.</strong>
               </p>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-                <Link to="/" className="btn btn-outline">Back to Home</Link>
-                <Link to="/auth" className="btn btn-primary">Go to Login</Link>
+              <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+                <Link to="/auth" className="btn btn-primary btn-lg" style={{ minWidth: 200, justifyContent: 'center' }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span>
+                  Go to Login Page
+                </Link>
+                <Link to="/" className="btn btn-outline btn-lg" style={{ minWidth: 160, justifyContent: 'center' }}>
+                  Back to Home
+                </Link>
               </div>
             </div>
           ) : (

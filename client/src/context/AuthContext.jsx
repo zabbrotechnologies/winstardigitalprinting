@@ -78,35 +78,37 @@ export function AuthProvider({ children }) {
   }
 
   async function signIn(email, password) {
-    // 1. Check if this email is a pending wholesale account before creating active session
+    const cleanEmail = email.trim().toLowerCase();
+
+    // 1. Pre-check Wholesale Application Status from Profiles
     try {
       const { data: profileCheck } = await supabase
         .from('profiles')
         .select('*')
-        .eq('email', email)
+        .eq('email', cleanEmail)
         .maybeSingle();
 
       if (profileCheck && (profileCheck.account_type === 'wholesale' || profileCheck.role === 'wholesale')) {
         if (profileCheck.status === 'pending') {
-          throw new Error('Your Wholesale Agency application is currently waiting for Admin Approval. You will be able to sign in once verified.');
+          throw new Error('Your Wholesale Agency application is waiting for Admin Approval. You will be able to log in once approved.');
         } else if (profileCheck.status === 'rejected') {
-          throw new Error('Your Wholesale Agency application was not approved. Please contact Winstar support for details.');
+          throw new Error('Your Wholesale Agency application was Rejected by Admin. You cannot access wholesale ordering.');
         }
       }
     } catch (checkErr) {
-      if (checkErr.message?.includes('waiting for Admin Approval') || checkErr.message?.includes('not approved')) {
+      if (checkErr.message?.includes('waiting for Admin Approval') || checkErr.message?.includes('Rejected')) {
         throw checkErr;
       }
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: cleanEmail,
       password,
     });
 
     if (error) throw error;
 
-    // 2. Fetch Profile and double-check approval status
+    // 2. Fetch Profile and verify approval status post-authentication
     const { data: userProfile } = await supabase
       .from('profiles')
       .select('*')
@@ -116,10 +118,10 @@ export function AuthProvider({ children }) {
     if (userProfile && (userProfile.account_type === 'wholesale' || userProfile.role === 'wholesale')) {
       if (userProfile.status === 'pending') {
         await supabase.auth.signOut();
-        throw new Error('Your Wholesale Agency application is currently waiting for Admin Approval. You will be able to sign in once verified.');
+        throw new Error('Your Wholesale Agency application is waiting for Admin Approval. You will be able to log in once approved.');
       } else if (userProfile.status === 'rejected') {
         await supabase.auth.signOut();
-        throw new Error('Your Wholesale Agency application was not approved. Please contact Winstar support for details.');
+        throw new Error('Your Wholesale Agency application was Rejected by Admin. You cannot access wholesale ordering.');
       }
     }
 

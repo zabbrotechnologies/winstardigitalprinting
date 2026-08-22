@@ -91,39 +91,16 @@ export default function Auth() {
               </span>
             </div>
             <h1 className="headline-md" style={{ marginBottom: 6 }}>
-              {tab === 'login' ? 'Sign in to Account' : 'Create an Account'}
+              Sign In to Account
             </h1>
             <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
-              {tab === 'login'
-                ? 'Enter your credentials to access your account'
-                : 'Register to manage orders and track printing status'
-              }
+              Enter your registered email and password to access your dashboard
             </p>
           </div>
 
           {/* Card */}
           <div className="card" style={{ borderRadius: 'var(--radius-xl)', overflow: 'hidden', boxShadow: 'var(--shadow-modal)' }}>
-            {/* Tabs */}
-            <div style={{ display: 'flex', borderBottom: '1px solid var(--surface-container)' }}>
-              {['login', 'register'].map(t => (
-                <button
-                  key={t}
-                  onClick={() => { setTab(t); setError(''); setForgotSent(false); }}
-                  style={{
-                    flex: 1, padding: '16px', fontSize: 14, fontWeight: 700,
-                    letterSpacing: '0.04em', border: 'none', cursor: 'pointer',
-                    background: 'none', textTransform: 'capitalize',
-                    color: tab === t ? 'var(--primary-container)' : 'var(--on-surface-variant)',
-                    borderBottom: tab === t ? '3px solid var(--primary-container)' : '3px solid transparent',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {t === 'login' ? 'Sign In' : 'Create Account'}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ padding: '28px 24px' }}>
+            <div style={{ padding: '32px 28px' }}>
               {/* Error Banner */}
               {error && (
                 <div style={{
@@ -149,146 +126,81 @@ export default function Auth() {
               )}
 
               {/* LOGIN FORM */}
-              {tab === 'login' && (
-                <form onSubmit={handleLogin} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 18 }} className="animate-fade-in">
-                  <div className="form-group">
-                    <label className="label" htmlFor="login-email">Email Address</label>
+              <form onSubmit={handleLogin} autoComplete="off" style={{ display: 'flex', flexDirection: 'column', gap: 20 }} className="animate-fade-in">
+                <div className="form-group">
+                  <label className="label" htmlFor="login-email">Email Address</label>
+                  <input
+                    id="login-email"
+                    name="w_client_email_input_field"
+                    type="text"
+                    className="input"
+                    placeholder="name@example.com"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
+                    data-lpignore="true"
+                    data-form-type="other"
+                    required
+                    value={loginData.email}
+                    onChange={e => setLoginData(d => ({ ...d, email: e.target.value }))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="label" htmlFor="login-password">Password</label>
+                  <input
+                    id="login-password"
+                    name="w_client_secret_input_field"
+                    type="password"
+                    className="input"
+                    placeholder="••••••••••••"
+                    autoComplete="new-password"
+                    data-lpignore="true"
+                    data-form-type="other"
+                    required
+                    value={loginData.password}
+                    onChange={e => setLoginData(d => ({ ...d, password: e.target.value }))}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13.5 }}>
                     <input
-                      id="login-email"
-                      name="w_client_email_input_field"
-                      type="text"
-                      className="input"
-                      placeholder="name@example.com"
-                      autoComplete="off"
-                      autoCorrect="off"
-                      autoCapitalize="off"
-                      spellCheck="false"
-                      data-lpignore="true"
-                      data-form-type="other"
-                      required
-                      value={loginData.email}
-                      onChange={e => setLoginData(d => ({ ...d, email: e.target.value }))}
+                      type="checkbox"
+                      style={{ width: 16, height: 16, cursor: 'pointer' }}
+                      checked={loginData.remember}
+                      onChange={e => setLoginData(d => ({ ...d, remember: e.target.checked }))}
                     />
-                  </div>
-                  <div className="form-group">
-                    <label className="label" htmlFor="login-password">Password</label>
-                    <input
-                      id="login-password"
-                      name="w_client_secret_input_field"
-                      type="password"
-                      className="input"
-                      placeholder="••••••••••••"
-                      autoComplete="new-password"
-                      data-lpignore="true"
-                      data-form-type="other"
-                      required
-                      value={loginData.password}
-                      onChange={e => setLoginData(d => ({ ...d, password: e.target.value }))}
-                    />
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13.5 }}>
-                      <input
-                        type="checkbox"
-                        style={{ width: 16, height: 16, cursor: 'pointer' }}
-                        checked={loginData.remember}
-                        onChange={e => setLoginData(d => ({ ...d, remember: e.target.checked }))}
-                      />
-                      <span style={{ color: 'var(--on-surface-variant)' }}>Remember me</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!loginData.email) {
-                          setError('Please enter your email above first to reset password.');
-                        } else {
-                          setError('');
-                          setForgotSent(true);
-                        }
-                      }}
-                      style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--primary-container)', background: 'none', border: 'none', cursor: 'pointer' }}
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Remember me</span>
+                  </label>
                   <button
-                    type="submit"
-                    className="btn btn-primary btn-full"
-                    style={{ height: 50, fontSize: 15, borderRadius: 'var(--radius-md)', marginTop: 6 }}
-                    disabled={loading}
+                    type="button"
+                    onClick={() => {
+                      if (!loginData.email) {
+                        setError('Please enter your email above first to reset password.');
+                      } else {
+                        setError('');
+                        setForgotSent(true);
+                      }
+                    }}
+                    style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--primary-container)', background: 'none', border: 'none', cursor: 'pointer' }}
                   >
-                    {loading
-                      ? <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
-                      : <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span> Sign In</>
-                    }
+                    Forgot password?
                   </button>
+                </div>
 
-                  <p style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--on-surface-variant)', marginTop: 4 }}>
-                    Don't have an account?{' '}
-                    <button
-                      type="button"
-                      onClick={() => { setTab('register'); setError(''); setForgotSent(false); }}
-                      style={{ color: 'var(--primary-container)', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
-                    >
-                      Create Account
-                    </button>
-                  </p>
-                </form>
-              )}
-
-              {/* REGISTER FORM */}
-              {tab === 'register' && (
-                <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 16 }} className="animate-fade-in">
-                  <div className="form-group">
-                    <label className="label" htmlFor="reg-name">Full Name *</label>
-                    <input id="reg-name" type="text" className="input" placeholder="Your Name" required
-                      value={regData.full_name} onChange={e => setRegData(d => ({ ...d, full_name: e.target.value }))} />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="label" htmlFor="reg-email">Email Address *</label>
-                    <input id="reg-email" type="email" className="input" placeholder="yourname@gmail.com" required
-                      value={regData.email} onChange={e => setRegData(d => ({ ...d, email: e.target.value }))} />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="label" htmlFor="reg-mobile">Mobile Number (WhatsApp)</label>
-                    <input id="reg-mobile" type="tel" className="input" placeholder="9876543210"
-                      value={regData.mobile} onChange={e => setRegData(d => ({ ...d, mobile: e.target.value }))} />
-                  </div>
-
-                  <div className="form-group">
-                    <label className="label" htmlFor="reg-password">Create Password *</label>
-                    <input id="reg-password" type="password" className="input" placeholder="At least 8 characters" required
-                      value={regData.password} onChange={e => setRegData(d => ({ ...d, password: e.target.value }))} />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-full"
-                    style={{ height: 50, fontSize: 15, borderRadius: 'var(--radius-md)', marginTop: 6 }}
-                    disabled={loading}
-                  >
-                    {loading
-                      ? <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
-                      : 'Create Account'
-                    }
-                  </button>
-
-                  <p style={{ textAlign: 'center', fontSize: 13.5, color: 'var(--on-surface-variant)', marginTop: 4 }}>
-                    Already have an account?{' '}
-                    <button
-                      type="button"
-                      onClick={() => { setTab('login'); setError(''); }}
-                      style={{ color: 'var(--primary-container)', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}
-                    >
-                      Sign In
-                    </button>
-                  </p>
-                </form>
-              )}
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-full"
+                  style={{ height: 50, fontSize: 15, borderRadius: 'var(--radius-md)', marginTop: 8 }}
+                  disabled={loading}
+                >
+                  {loading
+                    ? <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
+                    : <><span className="material-symbols-outlined" style={{ fontSize: 20 }}>login</span> Sign In</>
+                  }
+                </button>
+              </form>
             </div>
           </div>
         </div>

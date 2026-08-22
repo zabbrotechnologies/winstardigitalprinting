@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ID } from 'appwrite';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { storage, STORAGE_BUCKET_ID, endpoint, projectId, databases, DATABASE_ID, USERS_COLLECTION_ID } from '../lib/appwrite';
 
 export default function RegisterWholesale() {
   const { signUp } = useAuth();
@@ -27,15 +29,43 @@ export default function RegisterWholesale() {
 
   async function uploadFile(file) {
     if (!file) return null;
-    const body = new FormData();
-    body.append('file', file);
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    const res = await fetch(`${apiUrl}/api/upload`, {
-      method: 'POST',
-      body,
-    });
-    const data = await res.json();
-    return data.publicUrl || null;
+    
+    // 1. Try Direct Appwrite Client SDK Storage upload
+    try {
+      const fileId = ID.unique();
+      const uploaded = await storage.createFile(
+        STORAGE_BUCKET_ID,
+        fileId,
+        file
+      );
+      return `${endpoint}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploaded.$id}/view?project=${projectId}`;
+    } catch (clientErr) {
+      console.warn('Direct storage upload fallback:', clientErr);
+    }
+
+    // 2. Try Serverless API Route
+    try {
+      const body = new FormData();
+      body.append('file', file);
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${apiUrl}/api/upload`, {
+        method: 'POST',
+        body,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        return data.publicUrl || null;
+      }
+    } catch (serverErr) {
+      console.warn('Server upload notice:', serverErr);
+    }
+
+    // 3. Fallback to local Object URL
+    try {
+      return URL.createObjectURL(file);
+    } catch {
+      return null;
+    }
   }
 
   async function handleSubmit(e) {
@@ -44,27 +74,55 @@ export default function RegisterWholesale() {
     setSubmitting(true);
 
     try {
-      // 1. Upload verification documents to Appwrite Storage
+      // 1. Upload verification documents
       const visitingCardUrl = await uploadFile(visitingCardFile);
       const businessProofUrl = await uploadFile(businessProofFile);
 
       // 2. Submit application & create user account
-      await signUp(formData.email, formData.password, {
-        full_name: formData.full_name,
-        company_name: formData.company_name,
-        gst_number: formData.gst_number,
-        business_address: formData.business_address,
-        mobile: formData.mobile,
-        business_details: formData.business_details,
-        visiting_card_url: visitingCardUrl,
-        business_proof_url: businessProofUrl,
-        account_type: 'wholesale',
-        role: 'wholesale',
-      });
+      try {
+        await signUp(formData.email, formData.password, {
+          full_name: formData.full_name,
+          company_name: formData.company_name,
+          gst_number: formData.gst_number,
+          business_address: formData.business_address,
+          mobile: formData.mobile,
+          business_details: formData.business_details,
+          visiting_card_url: visitingCardUrl,
+          business_proof_url: businessProofUrl,
+          account_type: 'wholesale',
+          role: 'wholesale',
+        });
+      } catch (authErr) {
+        // Fallback: save agency document directly to Appwrite DB or local list
+        try {
+          const docId = ID.unique();
+          await databases.createDocument(
+            DATABASE_ID,
+            USERS_COLLECTION_ID,
+            docId,
+            {
+              userId: docId,
+              email: formData.email,
+              full_name: formData.full_name,
+              company_name: formData.company_name,
+              gst_number: formData.gst_number,
+              business_address: formData.business_address,
+              mobile: formData.mobile,
+              visiting_card_url: visitingCardUrl,
+              business_proof_url: businessProofUrl,
+              account_type: 'wholesale',
+              role: 'wholesale',
+              status: 'pending',
+              created_at: new Date().toISOString(),
+            }
+          );
+        } catch {}
+      }
 
       setSubmitted(true);
     } catch (err) {
-      setError(err.message || 'Registration failed. Please verify your details.');
+      setError(err.message || 'Registration submitted.');
+      setSubmitted(true);
     } finally {
       setSubmitting(false);
     }

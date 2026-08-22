@@ -130,7 +130,7 @@ export default function Home() {
       {/* Services Preview */}
       <section className="section" style={{ background: 'linear-gradient(135deg, #fff 0%, #fdf2f8 100%)' }}>
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40 }}>
+          <div className="services-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40 }}>
             <div>
               <h2 className="headline-md" style={{ marginBottom: 8 }}>Our Services</h2>
               <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Everything you need under one roof</p>
@@ -139,7 +139,7 @@ export default function Home() {
               View All <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
             </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="services-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
             {SERVICES.map(s => (
               <ServiceCard key={s.title} {...s} />
             ))}

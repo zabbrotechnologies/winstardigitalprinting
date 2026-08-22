@@ -165,7 +165,7 @@ export default function PrintWizard({ isWholesale = false }) {
       )}
 
       {/* Step Tabs */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 32, borderBottom: '1px solid var(--surface-container)' }}>
+      <div className="wizard-tabs" style={{ display: 'flex', gap: 12, marginBottom: 32, borderBottom: '1px solid var(--surface-container)' }}>
         {[
           { stepNum: 1, label: '1. Upload File', icon: 'cloud_upload' },
           { stepNum: 2, label: '2. Print Specs', icon: 'tune' },
@@ -195,7 +195,7 @@ export default function PrintWizard({ isWholesale = false }) {
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 32 }}>
+      <div className="print-wizard-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 32 }}>
         {/* LEFT COLUMN: STEPS */}
         <div>
           {/* STEP 1: Upload */}

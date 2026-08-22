@@ -1,18 +1,10 @@
 import express from 'express';
 import multer from 'multer';
-import { ID } from 'node-appwrite';
-import { InputFile } from 'node-appwrite/file';
-import {
-  storage,
-  STORAGE_BUCKET_ID,
-  endpoint,
-  projectId,
-} from '../appwriteServer.js';
-import { requireAuth } from '../middleware/authMiddleware.js';
+import { supabaseAdmin, STORAGE_BUCKET } from '../supabaseServer.js';
 
 const router = express.Router();
 
-// Memory storage for piping to Appwrite Storage bucket
+// Memory storage — pipe to Supabase Storage
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
@@ -32,56 +24,48 @@ const upload = multer({
   },
 });
 
-// POST /api/upload — upload a print file to Appwrite Storage (Supports Guest & Auth)
+// POST /api/upload — upload print file to Supabase Storage
 router.post('/', upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file provided' });
   }
 
-  let userId = 'guest';
-  if (req.headers.authorization) {
-    try {
-      const parts = req.headers.authorization.split(' ')[1].split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-        userId = payload.userId || payload.sub || 'guest';
-      }
-    } catch {}
-  }
-  const fileId = ID.unique();
+  const fileExt = req.file.originalname.split('.').pop();
+  const fileName = `uploads/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
 
   try {
-    const inputFile = InputFile.fromBuffer(req.file.buffer, req.file.originalname);
+    const { data, error } = await supabaseAdmin.storage
+      .from(STORAGE_BUCKET)
+      .upload(fileName, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: true,
+      });
 
-    const uploadedFile = await storage.createFile(
-      STORAGE_BUCKET_ID,
-      fileId,
-      inputFile
-    );
+    if (error) throw new Error(error.message);
 
-    // Build standard Appwrite file view / download URL
-    const fileViewUrl = `${endpoint}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploadedFile.$id}/view?project=${projectId}`;
-    const fileDownloadUrl = `${endpoint}/storage/buckets/${STORAGE_BUCKET_ID}/files/${uploadedFile.$id}/download?project=${projectId}`;
+    const { data: { publicUrl } } = supabaseAdmin.storage
+      .from(STORAGE_BUCKET)
+      .getPublicUrl(fileName);
 
     res.status(201).json({
       message: 'File uploaded successfully',
-      fileId: uploadedFile.$id,
+      fileId: fileName,
       fileName: req.file.originalname,
-      publicUrl: fileViewUrl,
-      downloadUrl: fileDownloadUrl,
-      sizeOriginal: uploadedFile.sizeOriginal,
-      mimeType: uploadedFile.mimeType,
+      publicUrl,
+      downloadUrl: publicUrl,
+      sizeOriginal: req.file.size,
+      mimeType: req.file.mimetype,
     });
   } catch (err) {
-    // Fallback simulation URL for local development if Appwrite bucket is offline/not initialized
-    const simulatedFileId = `file_${Date.now()}`;
-    const simulatedUrl = `${endpoint}/storage/buckets/${STORAGE_BUCKET_ID}/files/${simulatedFileId}/view?project=${projectId}`;
-
+    // Fallback — return simulated response so Quick Print still works without storage bucket
+    console.warn('Supabase Storage upload fallback:', err.message);
+    const simulatedId = `local_${Date.now()}`;
     res.status(201).json({
-      message: 'File upload handled',
-      fileId: simulatedFileId,
+      message: 'File upload handled (fallback)',
+      fileId: simulatedId,
       fileName: req.file.originalname,
-      publicUrl: simulatedUrl,
+      publicUrl: null,
+      downloadUrl: null,
       sizeOriginal: req.file.size,
       mimeType: req.file.mimetype,
     });

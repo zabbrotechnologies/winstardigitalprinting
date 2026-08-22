@@ -23,11 +23,41 @@ export function getLocalOrders() {
 export function saveLocalOrder(order) {
   try {
     const orders = getLocalOrders();
-    orders.unshift(order);
+    const index = orders.findIndex(o => (order.id && o.id === order.id) || (order.request_id && o.request_id === order.request_id));
+    if (index >= 0) {
+      orders[index] = { ...orders[index], ...order };
+    } else {
+      orders.unshift(order);
+    }
     localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(orders.slice(0, 100)));
   } catch (err) {
     console.warn('Could not save local order:', err);
   }
+}
+
+export function updateOrderStatus(orderId, newStatus) {
+  try {
+    const orders = getLocalOrders();
+    const index = orders.findIndex(o => o.id === orderId || o.request_id === orderId);
+    if (index >= 0) {
+      orders[index].status = newStatus;
+      orders[index].updated_at = new Date().toISOString();
+      localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(orders));
+    }
+  } catch (err) {
+    console.warn('Local order status update notice:', err);
+  }
+
+  // Also attempt Supabase update
+  return supabase
+    .from('orders')
+    .update({ status: newStatus })
+    .or(`id.eq.${orderId},request_id.eq.${orderId}`)
+    .then(() => true)
+    .catch(err => {
+      console.warn('Supabase status update fallback:', err);
+      return false;
+    });
 }
 
 export function getLocalAgencies() {
@@ -52,6 +82,31 @@ export function saveLocalAgency(agency) {
   } catch (err) {
     console.warn('Could not save local agency:', err);
   }
+}
+
+export function updateAgencyStatus(agencyId, newStatus) {
+  try {
+    const agencies = getLocalAgencies();
+    const index = agencies.findIndex(a => a.id === agencyId || a.email === agencyId);
+    if (index >= 0) {
+      agencies[index].status = newStatus;
+      agencies[index].updated_at = new Date().toISOString();
+      localStorage.setItem(LOCAL_AGENCIES_KEY, JSON.stringify(agencies));
+    }
+  } catch (err) {
+    console.warn('Local agency status update notice:', err);
+  }
+
+  // Attempt Supabase update on profiles
+  return supabase
+    .from('profiles')
+    .update({ status: newStatus })
+    .or(`id.eq.${agencyId},email.eq.${agencyId}`)
+    .then(() => true)
+    .catch(err => {
+      console.warn('Supabase agency update fallback:', err);
+      return false;
+    });
 }
 
 /**
@@ -217,7 +272,7 @@ export async function fetchAllAdminOrders() {
 }
 
 /**
- * Fetch all Wholesale Agencies with triple-fallback
+ * Fetch all Wholesale Agencies with robust fallback
  */
 export async function fetchAllAgencies() {
   let remoteAgencies = [];
@@ -236,16 +291,39 @@ export async function fetchAllAgencies() {
     console.warn('wholesale_applications fetch notice:', err);
   }
 
-  // 2. Try profiles table
+  // 2. Try profiles table (extract direct columns or parsed business_details)
   try {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
-      .or('account_type.eq.wholesale,role.eq.wholesale,status.eq.pending,status.eq.rejected')
       .order('created_at', { ascending: false });
 
     if (!error && data && data.length > 0) {
-      remoteAgencies.push(...data);
+      const agenciesFromProfiles = data
+        .map(p => {
+          let details = {};
+          if (p.business_details && typeof p.business_details === 'string' && p.business_details.startsWith('{')) {
+            try { details = JSON.parse(p.business_details); } catch {}
+          }
+          return {
+            ...details,
+            ...p,
+            id: p.id,
+            email: p.email || details.email || '',
+            full_name: p.full_name || details.full_name || 'Agency Applicant',
+            company_name: p.company_name || details.company_name || 'Agency',
+            mobile: p.mobile || details.mobile || '',
+            gst_number: p.gst_number || details.gst_number || '',
+            business_address: p.business_address || details.business_address || '',
+            visiting_card_url: p.visiting_card_url || details.visiting_card_url || null,
+            business_proof_url: p.business_proof_url || details.business_proof_url || null,
+            status: p.status || details.status || 'pending',
+            created_at: p.created_at || details.created_at || new Date().toISOString(),
+          };
+        })
+        .filter(p => p.account_type === 'wholesale' || p.role === 'wholesale' || p.status === 'pending' || p.company_name);
+
+      remoteAgencies.push(...agenciesFromProfiles);
     }
   } catch (err) {
     console.warn('profiles fetch notice:', err);

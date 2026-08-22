@@ -66,7 +66,7 @@ export default function RegisterWholesale() {
         console.warn('Auth sign up notice:', authErr);
       }
 
-      const recordId = authUserId || `ws_${Date.now()}`;
+      const recordId = authUserId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`);
       const applicationRecord = {
         id: recordId,
         email: formData.email.trim().toLowerCase(),
@@ -91,14 +91,33 @@ export default function RegisterWholesale() {
         console.warn('wholesale_applications save notice:', appErr);
       }
 
-      // B. Save to profiles table
+      // B. Save to profiles table (try full payload, fallback to compact profile + business_details JSON)
       try {
-        await supabase.from('profiles').upsert([applicationRecord]);
+        const { error: pErr } = await supabase.from('profiles').upsert([applicationRecord]);
+        if (pErr) {
+          await supabase.from('profiles').upsert([{
+            id: recordId,
+            full_name: formData.full_name,
+            company_name: formData.company_name,
+            mobile: formData.mobile,
+            business_details: JSON.stringify(applicationRecord),
+            created_at: applicationRecord.created_at,
+          }]);
+        }
       } catch (dbErr) {
-        console.warn('Profile direct save notice:', dbErr);
+        try {
+          await supabase.from('profiles').upsert([{
+            id: recordId,
+            full_name: formData.full_name,
+            company_name: formData.company_name,
+            mobile: formData.mobile,
+            business_details: JSON.stringify(applicationRecord),
+            created_at: applicationRecord.created_at,
+          }]);
+        } catch {}
       }
 
-      // C. Save locally to guarantee instant visibility on Admin panel
+      // C. Save locally
       saveLocalAgency(applicationRecord);
 
       // 4. Ensure user is logged out immediately so they must wait for admin approval

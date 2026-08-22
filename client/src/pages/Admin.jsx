@@ -3,7 +3,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatCard';
-import { fetchAllAdminOrders, fetchAllAgencies, saveLocalAgency } from '../lib/orderService';
+import { fetchAllAdminOrders, fetchAllAgencies, saveLocalAgency, updateOrderStatus, updateAgencyStatus } from '../lib/orderService';
 import { supabase } from '../lib/supabase';
 
 const STATUSES = ['Pending', 'Confirmed', 'Printing', 'Processing', 'Ready for Pickup', 'Delivered', 'Completed', 'Cancelled'];
@@ -26,11 +26,35 @@ export default function Admin() {
 
   useEffect(() => {
     if (!user) return;
-    fetchAdminData();
+    fetchAdminData(true);
+
+    // Supabase Realtime channel for live updates from other users/devices
+    const channel = supabase
+      .channel('admin-realtime-channel')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetchAdminData(false);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'wholesale_applications' }, () => {
+        fetchAdminData(false);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchAdminData(false);
+      })
+      .subscribe();
+
+    // 8-second polling sync fallback
+    const interval = setInterval(() => {
+      fetchAdminData(false);
+    }, 8000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(interval);
+    };
   }, [user]);
 
-  async function fetchAdminData() {
-    setLoading(true);
+  async function fetchAdminData(showSpinner = false) {
+    if (showSpinner) setLoading(true);
     try {
       const [allOrders, allAgencies] = await Promise.all([
         fetchAllAdminOrders(),
@@ -66,25 +90,21 @@ export default function Admin() {
         processingOrders,
         completedOrders,
         totalRevenue,
-        pendingAgencies: agencies.filter(a => a.status === 'pending').length,
+        pendingAgencies: allAgencies.filter(a => a.status === 'pending').length,
       });
     } catch (err) {
       console.error('Admin data fetch notice:', err);
     } finally {
-      setLoading(false);
+      if (showSpinner) setLoading(false);
     }
   }
 
   async function handleStatusChange(orderId, newStatus) {
     setUpdatingId(orderId);
     try {
-      await supabase
-        .from('orders')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', orderId);
-
-      setOrders(prev => prev.map(o => (o.id === orderId ? { ...o, status: newStatus } : o)));
-      if (selectedOrder?.id === orderId) {
+      await updateOrderStatus(orderId, newStatus);
+      setOrders(prev => prev.map(o => (o.id === orderId || o.request_id === orderId ? { ...o, status: newStatus } : o)));
+      if (selectedOrder?.id === orderId || selectedOrder?.request_id === orderId) {
         setSelectedOrder(prev => ({ ...prev, status: newStatus }));
       }
     } catch (err) {
@@ -97,18 +117,7 @@ export default function Admin() {
   async function handleAgencyVerify(agencyId, newStatus) {
     setUpdatingId(agencyId);
     try {
-      try {
-        await supabase
-          .from('profiles')
-          .update({ status: newStatus, updated_at: new Date().toISOString() })
-          .or(`id.eq.${agencyId},email.eq.${agencyId}`);
-      } catch {}
-
-      const updated = agencies.find(a => a.id === agencyId || a.email === agencyId);
-      if (updated) {
-        saveLocalAgency({ ...updated, status: newStatus });
-      }
-
+      await updateAgencyStatus(agencyId, newStatus);
       setAgencies(prev => prev.map(a => (a.id === agencyId || a.email === agencyId ? { ...a, status: newStatus } : a)));
     } catch (err) {
       console.error('Agency status update notice:', err);

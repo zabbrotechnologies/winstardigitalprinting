@@ -1,16 +1,10 @@
 import express from 'express';
-import { ID, Query } from 'node-appwrite';
-import {
-  users,
-  databases,
-  DATABASE_ID,
-  USERS_COLLECTION_ID,
-} from '../appwriteServer.js';
+import { supabaseAdmin, PROFILES_TABLE, WHOLESALE_TABLE } from '../supabaseServer.js';
 import { requireAuth } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// POST /api/auth/register
+// POST /api/auth/register — create user in Supabase Auth + profiles table
 router.post('/register', async (req, res) => {
   const {
     email,
@@ -38,14 +32,21 @@ router.post('/register', async (req, res) => {
       if (!password) {
         return res.status(400).json({ error: 'Password is required' });
       }
-      const newUserId = ID.unique();
-      const userRecord = await users.create(newUserId, email, undefined, password, full_name);
-      userId = userRecord.$id;
+
+      const { data: authData, error: authErr } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        user_metadata: { full_name, mobile },
+        email_confirm: true,
+      });
+
+      if (authErr) throw new Error(authErr.message);
+      userId = authData.user.id;
     }
 
     const isWholesale = account_type === 'wholesale';
     const profileData = {
-      userId,
+      id: userId,
       email,
       full_name,
       company_name: company_name || null,
@@ -59,24 +60,15 @@ router.post('/register', async (req, res) => {
       account_type: account_type || 'client',
       status: isWholesale ? 'pending' : 'approved',
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    try {
-      await databases.createDocument(
-        DATABASE_ID,
-        USERS_COLLECTION_ID,
-        userId,
-        profileData
-      );
-    } catch {
-      try {
-        await databases.updateDocument(
-          DATABASE_ID,
-          USERS_COLLECTION_ID,
-          userId,
-          profileData
-        );
-      } catch {}
+    const { error: profileErr } = await supabaseAdmin.from(PROFILES_TABLE).upsert([profileData]);
+    if (profileErr) console.warn('Profile save notice:', profileErr.message);
+
+    // If wholesale, also write to dedicated table
+    if (isWholesale) {
+      await supabaseAdmin.from(WHOLESALE_TABLE).upsert([profileData]).catch(() => {});
     }
 
     res.status(201).json({
@@ -89,40 +81,63 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// GET /api/auth/agencies — get all wholesale agencies for admin verification
+// GET /api/auth/agencies — all wholesale agency applications for admin
 router.get('/agencies', requireAuth, async (req, res) => {
   try {
-    const response = await databases.listDocuments(
-      DATABASE_ID,
-      USERS_COLLECTION_ID,
-      [Query.equal('account_type', 'wholesale'), Query.limit(100)]
-    );
-    res.json(response.documents.map(doc => ({ id: doc.$id, ...doc })));
+    let agencies = [];
+
+    // 1. Try wholesale_applications table
+    const { data: waData } = await supabaseAdmin.from(WHOLESALE_TABLE).select('*').order('created_at', { ascending: false });
+    if (waData && waData.length > 0) agencies.push(...waData);
+
+    // 2. Fall back to profiles with wholesale role
+    const { data: profData } = await supabaseAdmin
+      .from(PROFILES_TABLE)
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (profData && profData.length > 0) {
+      const fromProfiles = profData.map(p => {
+        let details = {};
+        if (p.business_details && typeof p.business_details === 'string' && p.business_details.startsWith('{')) {
+          try { details = JSON.parse(p.business_details); } catch {}
+        }
+        return { ...details, ...p };
+      }).filter(p => p.account_type === 'wholesale' || p.role === 'wholesale' || p.company_name);
+
+      agencies.push(...fromProfiles);
+    }
+
+    // Deduplicate by email or id
+    const seen = new Set();
+    const merged = [];
+    agencies.forEach(a => {
+      const key = a.email || a.id;
+      if (key && !seen.has(key)) { seen.add(key); merged.push(a); }
+    });
+
+    res.json(merged);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// PATCH /api/auth/agencies/:id/verify — admin approve or reject wholesale agency
+// PATCH /api/auth/agencies/:id/verify — admin approve or reject agency
 router.patch('/agencies/:id/verify', requireAuth, async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body; // 'approved' | 'rejected' | 'pending'
+  const { status } = req.body;
 
   if (!['approved', 'rejected', 'pending'].includes(status)) {
     return res.status(400).json({ error: 'Status must be approved, rejected, or pending' });
   }
 
   try {
-    const updated = await databases.updateDocument(
-      DATABASE_ID,
-      USERS_COLLECTION_ID,
-      id,
-      {
-        status,
-        verified_at: new Date().toISOString(),
-      }
-    );
-    res.json({ id: updated.$id, ...updated });
+    const updatePayload = { status, updated_at: new Date().toISOString() };
+
+    await supabaseAdmin.from(PROFILES_TABLE).update(updatePayload).eq('id', id);
+    await supabaseAdmin.from(WHOLESALE_TABLE).update(updatePayload).eq('id', id).catch(() => {});
+
+    res.json({ id, status, updated_at: updatePayload.updated_at });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -132,25 +147,11 @@ router.patch('/agencies/:id/verify', requireAuth, async (req, res) => {
 router.get('/profile/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
-    try {
-      const doc = await databases.getDocument(DATABASE_ID, USERS_COLLECTION_ID, userId);
-      return res.json({ id: doc.$id, ...doc });
-    } catch {
-      const list = await databases.listDocuments(DATABASE_ID, USERS_COLLECTION_ID, [
-        Query.equal('userId', userId),
-      ]);
-      if (list.documents && list.documents.length > 0) {
-        const doc = list.documents[0];
-        return res.json({ id: doc.$id, ...doc });
-      }
+    const { data, error } = await supabaseAdmin.from(PROFILES_TABLE).select('*').eq('id', userId).maybeSingle();
+    if (error || !data) {
+      return res.status(404).json({ error: 'Profile not found' });
     }
-
-    const userRecord = await users.get(userId);
-    return res.json({
-      id: userRecord.$id,
-      full_name: userRecord.name || userRecord.email?.split('@')[0],
-      email: userRecord.email,
-    });
+    res.json({ id: data.id, ...data });
   } catch (err) {
     res.status(404).json({ error: 'Profile not found' });
   }

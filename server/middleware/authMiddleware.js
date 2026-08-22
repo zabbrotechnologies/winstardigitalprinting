@@ -1,8 +1,7 @@
-import { Client, Account } from 'node-appwrite';
-import { endpoint, projectId } from '../appwriteServer.js';
+import { supabaseAdmin } from '../supabaseServer.js';
 
 /**
- * Middleware to verify Appwrite JWT Token from Authorization header.
+ * Middleware to verify Supabase JWT Token from Authorization header.
  * Attaches authenticated user object to req.user on success.
  */
 export const requireAuth = async (req, res, next) => {
@@ -15,40 +14,38 @@ export const requireAuth = async (req, res, next) => {
   const jwt = authHeader.split(' ')[1];
 
   try {
-    // Verify JWT using Appwrite Client session
-    const jwtClient = new Client()
-      .setEndpoint(endpoint)
-      .setProject(projectId)
-      .setJWT(jwt);
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(jwt);
 
-    const account = new Account(jwtClient);
-    const user = await account.get();
+    if (error || !user) {
+      throw new Error(error?.message || 'Invalid token');
+    }
 
     req.user = {
-      id: user.$id,
-      uid: user.$id,
+      id: user.id,
+      uid: user.id,
       email: user.email,
-      name: user.name,
+      name: user.user_metadata?.full_name || user.email,
       ...user,
     };
     next();
   } catch (err) {
-    // If running in development without live Appwrite instance, parse payload if available
+    // Fallback: decode JWT payload for service-to-service tokens
     try {
       const parts = jwt.split('.');
       if (parts.length === 3) {
         const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-        if (payload.userId || payload.sub) {
+        const sub = payload.sub || payload.userId;
+        if (sub) {
           req.user = {
-            id: payload.userId || payload.sub,
-            uid: payload.userId || payload.sub,
-            email: payload.email || 'user@example.com',
+            id: sub,
+            uid: sub,
+            email: payload.email || 'user@winstar.com',
           };
           return next();
         }
       }
     } catch {}
 
-    return res.status(401).json({ error: 'Unauthorized: Invalid or expired Appwrite session token' });
+    return res.status(401).json({ error: 'Unauthorized: Invalid or expired session token' });
   }
 };

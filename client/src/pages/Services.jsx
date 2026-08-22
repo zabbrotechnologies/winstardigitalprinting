@@ -28,7 +28,7 @@ export default function Services() {
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState('');
 
-  const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const API = import.meta.env.VITE_API_URL || '';
 
   // Scroll to tracking section if #tracking hash
   useEffect(() => {

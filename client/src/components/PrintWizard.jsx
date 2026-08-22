@@ -91,8 +91,9 @@ export default function PrintWizard({ isWholesale = false }) {
 
       const token = await getAccessToken();
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const apiUrl = import.meta.env.VITE_API_URL || '';
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/upload`, {
+      const res = await fetch(`${apiUrl}/api/upload`, {
         method: 'POST',
         headers,
         body: formData,
@@ -138,7 +139,8 @@ export default function PrintWizard({ isWholesale = false }) {
         total_price: prices.grandTotal,
       };
 
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/orders`, {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${apiUrl}/api/orders`, {
         method: 'POST',
         headers,
         body: JSON.stringify(payload),

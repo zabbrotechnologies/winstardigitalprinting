@@ -29,7 +29,8 @@ export default function RegisterWholesale() {
     if (!file) return null;
     const body = new FormData();
     body.append('file', file);
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/upload`, {
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const res = await fetch(`${apiUrl}/api/upload`, {
       method: 'POST',
       body,
     });

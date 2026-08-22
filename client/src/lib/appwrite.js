@@ -19,5 +19,5 @@ export const USERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_USERS_COLLECTIO
 export const ORDERS_COLLECTION_ID = import.meta.env.VITE_APPWRITE_ORDERS_COLLECTION_ID || 'orders';
 export const STORAGE_BUCKET_ID = import.meta.env.VITE_APPWRITE_STORAGE_BUCKET_ID || 'print_files';
 
-export { client };
+export { client, endpoint, projectId };
 export default client;

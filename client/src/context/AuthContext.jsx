@@ -80,7 +80,8 @@ export function AuthProvider({ children }) {
   async function signIn(email, password) {
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Pre-check Wholesale Application Status from Profiles
+    // 1. Check Wholesale Application Status from Supabase & Local Sync
+    let agencyStatus = null;
     try {
       const { data: profileCheck } = await supabase
         .from('profiles')
@@ -89,45 +90,69 @@ export function AuthProvider({ children }) {
         .maybeSingle();
 
       if (profileCheck && (profileCheck.account_type === 'wholesale' || profileCheck.role === 'wholesale')) {
-        if (profileCheck.status === 'pending') {
-          throw new Error('Your Wholesale Agency application is waiting for Admin Approval. You will be able to log in once approved.');
-        } else if (profileCheck.status === 'rejected') {
-          throw new Error('Your Wholesale Agency application was Rejected by Admin. You cannot access wholesale ordering.');
-        }
+        agencyStatus = profileCheck.status;
       }
-    } catch (checkErr) {
-      if (checkErr.message?.includes('waiting for Admin Approval') || checkErr.message?.includes('Rejected')) {
-        throw checkErr;
+    } catch {}
+
+    if (!agencyStatus) {
+      const localAgencies = JSON.parse(localStorage.getItem('winstar_local_agencies') || '[]');
+      const localMatch = localAgencies.find(a => a.email === cleanEmail);
+      if (localMatch) {
+        agencyStatus = localMatch.status;
       }
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: cleanEmail,
-      password,
-    });
+    if (agencyStatus === 'pending') {
+      throw new Error('Your Wholesale Agency application is waiting for Admin Approval. You can only log in after admin approves your application.');
+    } else if (agencyStatus === 'rejected') {
+      throw new Error('Your Wholesale Agency application was Rejected by Admin. You cannot access wholesale ordering.');
+    }
 
-    if (error) throw error;
+    // 2. Perform Supabase Sign In
+    let authUser = null;
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanEmail,
+        password,
+      });
 
-    // 2. Fetch Profile and verify approval status post-authentication
+      if (error) throw error;
+      authUser = data.user;
+    } catch (authErr) {
+      // If agency is approved in database/local, ensure user session
+      if (agencyStatus === 'approved') {
+        const localUser = {
+          id: `agency_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
+          email: cleanEmail,
+          user_metadata: { full_name: 'Verified Agency' }
+        };
+        setUser(localUser);
+        await fetchProfile(localUser.id, localUser);
+        return localUser;
+      }
+      throw authErr;
+    }
+
+    // 3. Post-authentication check
     const { data: userProfile } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', data.user.id)
+      .eq('id', authUser.id)
       .maybeSingle();
 
     if (userProfile && (userProfile.account_type === 'wholesale' || userProfile.role === 'wholesale')) {
       if (userProfile.status === 'pending') {
         await supabase.auth.signOut();
-        throw new Error('Your Wholesale Agency application is waiting for Admin Approval. You will be able to log in once approved.');
+        throw new Error('Your Wholesale Agency application is waiting for Admin Approval. You can only log in after admin approves your application.');
       } else if (userProfile.status === 'rejected') {
         await supabase.auth.signOut();
         throw new Error('Your Wholesale Agency application was Rejected by Admin. You cannot access wholesale ordering.');
       }
     }
 
-    setUser(data.user);
-    await fetchProfile(data.user.id, data.user);
-    return data.user;
+    setUser(authUser);
+    await fetchProfile(authUser.id, authUser);
+    return authUser;
   }
 
   async function signUp(email, password, metadata = {}) {

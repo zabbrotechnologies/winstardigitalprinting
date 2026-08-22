@@ -155,11 +155,16 @@ export default function Auth() {
                     <label className="label" htmlFor="login-email">Email Address</label>
                     <input
                       id="login-email"
-                      name="user_login_email"
-                      type="email"
+                      name="w_client_email_input_field"
+                      type="text"
                       className="input"
                       placeholder="name@example.com"
                       autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck="false"
+                      data-lpignore="true"
+                      data-form-type="other"
                       required
                       value={loginData.email}
                       onChange={e => setLoginData(d => ({ ...d, email: e.target.value }))}
@@ -169,11 +174,13 @@ export default function Auth() {
                     <label className="label" htmlFor="login-password">Password</label>
                     <input
                       id="login-password"
-                      name="user_login_secret"
+                      name="w_client_secret_input_field"
                       type="password"
                       className="input"
                       placeholder="••••••••••••"
                       autoComplete="new-password"
+                      data-lpignore="true"
+                      data-form-type="other"
                       required
                       value={loginData.password}
                       onChange={e => setLoginData(d => ({ ...d, password: e.target.value }))}

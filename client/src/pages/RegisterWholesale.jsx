@@ -142,15 +142,34 @@ export default function RegisterWholesale() {
                   <div className="form-group">
                     <label className="label">Business Email *</label>
                     <input
-                      type="email" className="input" placeholder="e.g. contact@agency.com" required autoComplete="off"
-                      value={formData.email} onChange={e => setFormData(d => ({ ...d, email: e.target.value }))}
+                      type="text"
+                      className="input"
+                      placeholder="e.g. contact@agency.com"
+                      required
+                      name="w_agency_usr_mail_field"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      autoCapitalize="off"
+                      spellCheck="false"
+                      data-lpignore="true"
+                      data-form-type="other"
+                      value={formData.email}
+                      onChange={e => setFormData(d => ({ ...d, email: e.target.value }))}
                     />
                   </div>
                   <div className="form-group">
                     <label className="label">Password *</label>
                     <input
-                      type="password" className="input" placeholder="Create a secure password" required autoComplete="new-password"
-                      value={formData.password} onChange={e => setFormData(d => ({ ...d, password: e.target.value }))}
+                      type="password"
+                      className="input"
+                      placeholder="Create a secure password"
+                      required
+                      name="w_agency_usr_sec_key"
+                      autoComplete="new-password"
+                      data-lpignore="true"
+                      data-form-type="other"
+                      value={formData.password}
+                      onChange={e => setFormData(d => ({ ...d, password: e.target.value }))}
                     />
                   </div>
                 </div>

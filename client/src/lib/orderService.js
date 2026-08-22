@@ -97,16 +97,16 @@ export function updateAgencyStatus(agencyId, newStatus) {
     console.warn('Local agency status update notice:', err);
   }
 
-  // Attempt Supabase update on profiles
-  return supabase
-    .from('profiles')
-    .update({ status: newStatus })
-    .or(`id.eq.${agencyId},email.eq.${agencyId}`)
-    .then(() => true)
-    .catch(err => {
-      console.warn('Supabase agency update fallback:', err);
-      return false;
-    });
+  // Attempt Supabase update on both tables
+  return Promise.all([
+    supabase.from('wholesale_applications').update({ status: newStatus }).or(`id.eq.${agencyId},email.eq.${agencyId}`),
+    supabase.from('profiles').update({ status: newStatus }).or(`id.eq.${agencyId},email.eq.${agencyId}`)
+  ])
+  .then(() => true)
+  .catch(err => {
+    console.warn('Supabase agency update fallback:', err);
+    return false;
+  });
 }
 
 /**

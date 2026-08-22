@@ -67,7 +67,7 @@ export default function RegisterWholesale() {
       }
 
       const recordId = authUserId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`);
-      const applicationRecord = {
+      const baseRecord = {
         id: recordId,
         email: formData.email.trim().toLowerCase(),
         full_name: formData.full_name,
@@ -77,48 +77,39 @@ export default function RegisterWholesale() {
         mobile: formData.mobile,
         visiting_card_url: visitingCardUrl,
         business_proof_url: businessProofUrl,
-        account_type: 'wholesale',
-        role: 'wholesale',
         status: 'pending',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
-      // A. Save to dedicated wholesale_applications table
-      try {
-        await supabase.from('wholesale_applications').upsert([applicationRecord]);
-      } catch (appErr) {
-        console.warn('wholesale_applications save notice:', appErr);
+      // A. Save to dedicated wholesale_applications table (without role/account_type)
+      const { error: wError } = await supabase.from('wholesale_applications').upsert([baseRecord]);
+      if (wError) {
+        console.error('wholesale_applications save error:', wError);
       }
 
-      // B. Save to profiles table (try full payload, fallback to compact profile + business_details JSON)
-      try {
-        const { error: pErr } = await supabase.from('profiles').upsert([applicationRecord]);
-        if (pErr) {
-          await supabase.from('profiles').upsert([{
-            id: recordId,
-            full_name: formData.full_name,
-            company_name: formData.company_name,
-            mobile: formData.mobile,
-            business_details: JSON.stringify(applicationRecord),
-            created_at: applicationRecord.created_at,
-          }]);
-        }
-      } catch (dbErr) {
-        try {
-          await supabase.from('profiles').upsert([{
-            id: recordId,
-            full_name: formData.full_name,
-            company_name: formData.company_name,
-            mobile: formData.mobile,
-            business_details: JSON.stringify(applicationRecord),
-            created_at: applicationRecord.created_at,
-          }]);
-        } catch {}
+      // B. Save to profiles table (with role/account_type)
+      const profileRecord = {
+        ...baseRecord,
+        account_type: 'wholesale',
+        role: 'wholesale',
+      };
+      
+      const { error: pErr } = await supabase.from('profiles').upsert([profileRecord]);
+      if (pErr) {
+        // Fallback if profiles insert fails (usually due to FK constraint for anon users)
+        await supabase.from('profiles').upsert([{
+          id: recordId,
+          full_name: formData.full_name,
+          company_name: formData.company_name,
+          mobile: formData.mobile,
+          business_details: JSON.stringify(profileRecord),
+          created_at: profileRecord.created_at,
+        }]).catch(() => {}); // catch network errors
       }
 
       // C. Save locally
-      saveLocalAgency(applicationRecord);
+      saveLocalAgency(profileRecord);
 
       // 4. Ensure user is logged out immediately so they must wait for admin approval
       await supabase.auth.signOut().catch(() => {});

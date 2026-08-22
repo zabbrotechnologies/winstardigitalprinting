@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { uploadPrintFile } from '../lib/orderService';
+import { uploadPrintFile, saveLocalAgency } from '../lib/orderService';
 import { supabase } from '../lib/supabase';
 
 export default function RegisterWholesale() {
@@ -94,6 +94,9 @@ export default function RegisterWholesale() {
       } catch (dbErr) {
         console.warn('Profile direct save notice:', dbErr);
       }
+
+      // Save locally to guarantee instant visibility on Admin panel
+      saveLocalAgency({ id: authUserId || `ag_${Date.now()}`, ...profileRecord });
 
       // 4. Ensure user is logged out immediately so they must wait for admin approval
       await supabase.auth.signOut().catch(() => {});

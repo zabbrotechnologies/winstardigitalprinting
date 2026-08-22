@@ -3,7 +3,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatCard';
-import { fetchAllAdminOrders } from '../lib/orderService';
+import { fetchAllAdminOrders, fetchAllAgencies, saveLocalAgency } from '../lib/orderService';
 import { supabase } from '../lib/supabase';
 
 const STATUSES = ['Pending', 'Confirmed', 'Printing', 'Processing', 'Ready for Pickup', 'Delivered', 'Completed', 'Cancelled'];
@@ -32,21 +32,13 @@ export default function Admin() {
   async function fetchAdminData() {
     setLoading(true);
     try {
-      const allOrders = await fetchAllAdminOrders();
+      const [allOrders, allAgencies] = await Promise.all([
+        fetchAllAdminOrders(),
+        fetchAllAgencies(),
+      ]);
+
       setOrders(allOrders);
-
-      // Load agencies from Supabase profiles
-      try {
-        const { data: agencyList } = await supabase
-          .from('profiles')
-          .select('*')
-          .or('account_type.eq.wholesale,role.eq.wholesale')
-          .order('created_at', { ascending: false });
-
-        if (agencyList) setAgencies(agencyList);
-      } catch (err) {
-        console.warn('Agencies load notice:', err);
-      }
+      setAgencies(allAgencies);
 
       // Compute admin stats
       let totalOrders = allOrders.length;
@@ -105,12 +97,19 @@ export default function Admin() {
   async function handleAgencyVerify(agencyId, newStatus) {
     setUpdatingId(agencyId);
     try {
-      await supabase
-        .from('profiles')
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq('id', agencyId);
+      try {
+        await supabase
+          .from('profiles')
+          .update({ status: newStatus, updated_at: new Date().toISOString() })
+          .or(`id.eq.${agencyId},email.eq.${agencyId}`);
+      } catch {}
 
-      setAgencies(prev => prev.map(a => (a.id === agencyId ? { ...a, status: newStatus } : a)));
+      const updated = agencies.find(a => a.id === agencyId || a.email === agencyId);
+      if (updated) {
+        saveLocalAgency({ ...updated, status: newStatus });
+      }
+
+      setAgencies(prev => prev.map(a => (a.id === agencyId || a.email === agencyId ? { ...a, status: newStatus } : a)));
     } catch (err) {
       console.error('Agency status update notice:', err);
     } finally {

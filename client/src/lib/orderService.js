@@ -9,6 +9,7 @@ export function generateRequestId() {
 }
 
 const LOCAL_ORDERS_KEY = 'winstar_local_orders';
+const LOCAL_AGENCIES_KEY = 'winstar_local_agencies';
 
 export function getLocalOrders() {
   try {
@@ -26,6 +27,30 @@ export function saveLocalOrder(order) {
     localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(orders.slice(0, 100)));
   } catch (err) {
     console.warn('Could not save local order:', err);
+  }
+}
+
+export function getLocalAgencies() {
+  try {
+    const raw = localStorage.getItem(LOCAL_AGENCIES_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalAgency(agency) {
+  try {
+    const agencies = getLocalAgencies();
+    const index = agencies.findIndex(a => (agency.email && a.email === agency.email) || (agency.id && a.id === agency.id));
+    if (index >= 0) {
+      agencies[index] = { ...agencies[index], ...agency };
+    } else {
+      agencies.unshift(agency);
+    }
+    localStorage.setItem(LOCAL_AGENCIES_KEY, JSON.stringify(agencies));
+  } catch (err) {
+    console.warn('Could not save local agency:', err);
   }
 }
 
@@ -185,6 +210,39 @@ export async function fetchAllAdminOrders() {
     if (!seen.has(key)) {
       seen.add(key);
       merged.push(ord);
+    }
+  });
+
+  return merged;
+}
+
+/**
+ * Fetch all Wholesale Agencies with triple-fallback
+ */
+export async function fetchAllAgencies() {
+  let remoteAgencies = [];
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .or('account_type.eq.wholesale,role.eq.wholesale,status.eq.pending,status.eq.rejected')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) remoteAgencies = data;
+  } catch (err) {
+    console.warn('Supabase agencies fetch notice:', err);
+  }
+
+  const localAgencies = getLocalAgencies();
+  const seen = new Set();
+  const merged = [];
+
+  [...remoteAgencies, ...localAgencies].forEach(ag => {
+    const key = ag.email || ag.id;
+    if (key && !seen.has(key)) {
+      seen.add(key);
+      merged.push(ag);
     }
   });
 

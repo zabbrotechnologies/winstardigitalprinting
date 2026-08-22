@@ -78,12 +78,51 @@ export function AuthProvider({ children }) {
   }
 
   async function signIn(email, password) {
+    // 1. Check if this email is a pending wholesale account before creating active session
+    try {
+      const { data: profileCheck } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (profileCheck && (profileCheck.account_type === 'wholesale' || profileCheck.role === 'wholesale')) {
+        if (profileCheck.status === 'pending') {
+          throw new Error('Your Wholesale Agency application is currently waiting for Admin Approval. You will be able to sign in once verified.');
+        } else if (profileCheck.status === 'rejected') {
+          throw new Error('Your Wholesale Agency application was not approved. Please contact Winstar support for details.');
+        }
+      }
+    } catch (checkErr) {
+      if (checkErr.message?.includes('waiting for Admin Approval') || checkErr.message?.includes('not approved')) {
+        throw checkErr;
+      }
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (error) throw error;
+
+    // 2. Fetch Profile and double-check approval status
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', data.user.id)
+      .maybeSingle();
+
+    if (userProfile && (userProfile.account_type === 'wholesale' || userProfile.role === 'wholesale')) {
+      if (userProfile.status === 'pending') {
+        await supabase.auth.signOut();
+        throw new Error('Your Wholesale Agency application is currently waiting for Admin Approval. You will be able to sign in once verified.');
+      } else if (userProfile.status === 'rejected') {
+        await supabase.auth.signOut();
+        throw new Error('Your Wholesale Agency application was not approved. Please contact Winstar support for details.');
+      }
+    }
+
     setUser(data.user);
     await fetchProfile(data.user.id, data.user);
     return data.user;

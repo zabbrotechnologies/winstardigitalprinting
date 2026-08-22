@@ -200,14 +200,14 @@ export default function Admin() {
         </div>
 
         {/* Stat Cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
+        <div className="admin-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 32 }}>
           {statCards.map(c => (
             <StatCard key={c.label} {...c} />
           ))}
         </div>
 
         {/* 3 Master Flow Tabs */}
-        <div style={{ display: 'flex', gap: 12, marginBottom: 24, borderBottom: '2px solid var(--surface-container)' }}>
+        <div className="admin-tabs-container" style={{ display: 'flex', gap: 12, marginBottom: 24, borderBottom: '2px solid var(--surface-container)' }}>
           {[
             { id: 'normal', label: `1. NORMAL PRINTS (${normalOrders.length})`, icon: 'print' },
             { id: 'wholesale', label: `2. WHOLESALE ORDERS (${wholesaleOrders.length})`, icon: 'inventory_2' },
@@ -281,7 +281,7 @@ export default function Admin() {
               </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <table className="admin-responsive-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ background: 'var(--surface-container-low)', borderBottom: '1px solid var(--surface-container)' }}>
                       <th style={{ padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)', textTransform: 'uppercase' }}>Request ID & Date</th>
@@ -389,7 +389,7 @@ export default function Admin() {
               </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <table className="admin-responsive-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ background: 'var(--surface-container-low)', borderBottom: '1px solid var(--surface-container)' }}>
                       <th style={{ padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>COMPANY / AGENCY</th>

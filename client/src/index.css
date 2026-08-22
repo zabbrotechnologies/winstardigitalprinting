@@ -1208,3 +1208,75 @@ img {
 .uppercase { text-transform: uppercase; }
 .tracking-wide { letter-spacing: 0.05em; }
 .tracking-wider { letter-spacing: 0.08em; }
+
+/* ============================================================
+   RESPONSIVE ADMIN TABLES (MOBILE CARDS)
+   ============================================================ */
+@media (max-width: 768px) {
+  .admin-responsive-table, 
+  .admin-responsive-table thead, 
+  .admin-responsive-table tbody, 
+  .admin-responsive-table th, 
+  .admin-responsive-table td, 
+  .admin-responsive-table tr { 
+    display: block; 
+    width: 100%;
+  }
+  
+  .admin-responsive-table thead tr { 
+    display: none;
+  }
+  
+  .admin-responsive-table tr {
+    margin-bottom: 20px;
+    border: 1px solid var(--surface-container-high) !important;
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-container-lowest);
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+  }
+  
+  .admin-responsive-table td { 
+    border: none !important;
+    border-bottom: 1px dashed var(--surface-container-high) !important; 
+    position: relative;
+    padding: 12px 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  
+  .admin-responsive-table td:last-child {
+    border-bottom: none !important;
+    padding-bottom: 0 !important;
+  }
+
+  /* Make stat cards wrap on mobile */
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  /* Make tabs wrap or scroll on mobile */
+  .admin-tabs-container {
+    flex-wrap: wrap;
+    gap: 8px !important;
+  }
+  .admin-tabs-container button {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  /* Ensure select/buttons in cells take full width */
+  .admin-responsive-table select,
+  .admin-responsive-table button.btn {
+    width: 100%;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

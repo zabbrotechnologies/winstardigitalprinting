@@ -40,7 +40,8 @@ export default function Admin() {
         const { data: agencyList } = await supabase
           .from('profiles')
           .select('*')
-          .eq('account_type', 'wholesale');
+          .or('account_type.eq.wholesale,role.eq.wholesale')
+          .order('created_at', { ascending: false });
 
         if (agencyList) setAgencies(agencyList);
       } catch (err) {

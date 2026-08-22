@@ -47,10 +47,10 @@ export default function RegisterWholesale() {
       }
 
       // 2. Submit application into Supabase Auth & Profiles
-      let createdAuthUserId = null;
+      let authUserId = null;
       try {
         const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formData.email,
+          email: formData.email.trim().toLowerCase(),
           password: formData.password,
           options: {
             data: {
@@ -60,7 +60,7 @@ export default function RegisterWholesale() {
           },
         });
         if (!authError && authData?.user) {
-          createdAuthUserId = authData.user.id;
+          authUserId = authData.user.id;
         }
       } catch (authErr) {
         console.warn('Auth sign up notice:', authErr);
@@ -68,7 +68,7 @@ export default function RegisterWholesale() {
 
       // 3. Guarantee Saving Wholesale Application Record to Supabase Profiles
       const profileRecord = {
-        ...(createdAuthUserId ? { id: createdAuthUserId } : {}),
+        ...(authUserId ? { id: authUserId } : {}),
         email: formData.email.trim().toLowerCase(),
         full_name: formData.full_name,
         company_name: formData.company_name,
@@ -85,7 +85,12 @@ export default function RegisterWholesale() {
       };
 
       try {
-        await supabase.from('profiles').upsert([profileRecord], { onConflict: 'email' });
+        // Try insert first
+        const { error: insertErr } = await supabase.from('profiles').insert([profileRecord]);
+        if (insertErr) {
+          // If already exists, update
+          await supabase.from('profiles').update(profileRecord).eq('email', formData.email.trim().toLowerCase());
+        }
       } catch (dbErr) {
         console.warn('Profile direct save notice:', dbErr);
       }

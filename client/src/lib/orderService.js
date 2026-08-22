@@ -222,6 +222,21 @@ export async function fetchAllAdminOrders() {
 export async function fetchAllAgencies() {
   let remoteAgencies = [];
 
+  // 1. Try dedicated wholesale_applications table
+  try {
+    const { data, error } = await supabase
+      .from('wholesale_applications')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      remoteAgencies.push(...data);
+    }
+  } catch (err) {
+    console.warn('wholesale_applications fetch notice:', err);
+  }
+
+  // 2. Try profiles table
   try {
     const { data, error } = await supabase
       .from('profiles')
@@ -229,11 +244,14 @@ export async function fetchAllAgencies() {
       .or('account_type.eq.wholesale,role.eq.wholesale,status.eq.pending,status.eq.rejected')
       .order('created_at', { ascending: false });
 
-    if (!error && data) remoteAgencies = data;
+    if (!error && data && data.length > 0) {
+      remoteAgencies.push(...data);
+    }
   } catch (err) {
-    console.warn('Supabase agencies fetch notice:', err);
+    console.warn('profiles fetch notice:', err);
   }
 
+  // 3. Merge with local storage agencies
   const localAgencies = getLocalAgencies();
   const seen = new Set();
   const merged = [];

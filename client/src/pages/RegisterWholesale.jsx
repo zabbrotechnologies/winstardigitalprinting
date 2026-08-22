@@ -66,9 +66,9 @@ export default function RegisterWholesale() {
         console.warn('Auth sign up notice:', authErr);
       }
 
-      // 3. Guarantee Saving Wholesale Application Record to Supabase Profiles
-      const profileRecord = {
-        ...(authUserId ? { id: authUserId } : {}),
+      const recordId = authUserId || `ws_${Date.now()}`;
+      const applicationRecord = {
+        id: recordId,
         email: formData.email.trim().toLowerCase(),
         full_name: formData.full_name,
         company_name: formData.company_name,
@@ -84,19 +84,22 @@ export default function RegisterWholesale() {
         updated_at: new Date().toISOString(),
       };
 
+      // A. Save to dedicated wholesale_applications table
       try {
-        // Try insert first
-        const { error: insertErr } = await supabase.from('profiles').insert([profileRecord]);
-        if (insertErr) {
-          // If already exists, update
-          await supabase.from('profiles').update(profileRecord).eq('email', formData.email.trim().toLowerCase());
-        }
+        await supabase.from('wholesale_applications').upsert([applicationRecord]);
+      } catch (appErr) {
+        console.warn('wholesale_applications save notice:', appErr);
+      }
+
+      // B. Save to profiles table
+      try {
+        await supabase.from('profiles').upsert([applicationRecord]);
       } catch (dbErr) {
         console.warn('Profile direct save notice:', dbErr);
       }
 
-      // Save locally to guarantee instant visibility on Admin panel
-      saveLocalAgency({ id: authUserId || `ag_${Date.now()}`, ...profileRecord });
+      // C. Save locally to guarantee instant visibility on Admin panel
+      saveLocalAgency(applicationRecord);
 
       // 4. Ensure user is logged out immediately so they must wait for admin approval
       await supabase.auth.signOut().catch(() => {});

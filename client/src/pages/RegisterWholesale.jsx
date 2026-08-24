@@ -131,7 +131,7 @@ export default function RegisterWholesale() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
+            display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center', textAlign: 'center',
             background: '#dcfce7', color: '#166534', padding: '6px 16px',
             borderRadius: 'var(--radius-full)', fontSize: 13, fontWeight: 700,
             marginBottom: 16, letterSpacing: '0.04em',

@@ -74,7 +74,8 @@ export default function Admin() {
       let totalRevenue = 0;
 
       allOrders.forEach(doc => {
-        if (doc.order_type === 'wholesale') wholesaleOrders += 1;
+        const isWholesale = doc.order_type === 'wholesale' || (doc.request_id && doc.request_id.startsWith('WS-'));
+        if (isWholesale) wholesaleOrders += 1;
         else normalOrders += 1;
         if (doc.status === 'Pending') pendingOrders += 1;
         if (doc.status === 'Printing' || doc.status === 'Processing') processingOrders += 1;
@@ -141,8 +142,8 @@ export default function Admin() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const normalOrders = orders.filter(o => o.order_type !== 'wholesale');
-  const wholesaleOrders = orders.filter(o => o.order_type === 'wholesale');
+  const normalOrders = orders.filter(o => o.order_type !== 'wholesale' && !(o.request_id && o.request_id.startsWith('WS-')));
+  const wholesaleOrders = orders.filter(o => o.order_type === 'wholesale' || (o.request_id && o.request_id.startsWith('WS-')));
 
   const currentList = activeTab === 'normal' ? normalOrders : activeTab === 'wholesale' ? wholesaleOrders : agencies;
 

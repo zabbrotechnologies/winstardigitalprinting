@@ -158,7 +158,9 @@ export async function uploadPrintFile(file) {
  * Create Order with Supabase & local persistence
  */
 export async function createOrder(orderPayload, currentUser = null) {
-  const requestId = generateRequestId();
+  const isWholesale = orderPayload.order_type === 'wholesale';
+  const randomNum = Math.floor(100000 + Math.random() * 900000);
+  const requestId = isWholesale ? `WS-WSR-${randomNum}` : `WSR-${randomNum}`;
   const now = new Date().toISOString();
   const userId = currentUser?.id || currentUser?.$id || null;
 

@@ -39,6 +39,8 @@ export function AuthProvider({ children }) {
 
     // 2. Listen to Auth State Changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') return;
+      
       if (event === 'SIGNED_OUT') {
         localStorage.removeItem('winstar_fallback_session');
         setUser(null);

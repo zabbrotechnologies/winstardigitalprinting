@@ -73,7 +73,7 @@ export default function PrintWizard({ isWholesale = false }) {
 
   function getCalculatedPrice() {
     const item = PRINT_TYPES.find(t => t.value === config.print_type) || PRINT_TYPES[0];
-    const baseUnitRate = isWholesaleActive ? item.wholesalePrice : item.price;
+    const baseUnitRate = isWholesaleActive ? item.price * 0.75 : item.price;
     const gsmMult = GSM_OPTIONS.find(g => g.value === config.paper_gsm)?.mult || 1.0;
     const sideMult = config.double_sided ? 1.8 : 1.0;
     const bindingCost = BINDINGS.find(b => b.value === config.binding)?.price || 0;
@@ -281,7 +281,20 @@ export default function PrintWizard({ isWholesale = false }) {
                       <span className="material-symbols-outlined" style={{ color: 'var(--primary-container)' }}>{pt.icon}</span>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 700 }}>{pt.label}</div>
-                        <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>₹{isWholesaleActive ? pt.wholesalePrice : pt.price} / unit</div>
+                        <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>
+                          {isWholesaleActive ? (
+                            <>
+                              <span style={{ textDecoration: 'line-through', color: 'var(--error)', marginRight: 4 }}>
+                                ₹{pt.price.toFixed(2)}
+                              </span>
+                              <span style={{ color: '#166534', fontWeight: 800 }}>
+                                ₹{(pt.price * 0.75).toFixed(2)} / unit
+                              </span>
+                            </>
+                          ) : (
+                            `₹${pt.price.toFixed(2)} / unit`
+                          )}
+                        </div>
                       </div>
                     </button>
                   ))}

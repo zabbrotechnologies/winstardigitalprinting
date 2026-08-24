@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
 import StatCard from '../components/StatCard';
 import OrderTable from '../components/OrderTable';
+import PrintWizard from '../components/PrintWizard';
 
 import { fetchUserOrders } from '../lib/orderService';
 
@@ -60,6 +61,8 @@ export default function Dashboard() {
   }
 
   if (!user) return <Navigate to="/auth" replace />;
+
+  const isApprovedWholesale = user && profile?.isWholesale && profile?.isApproved;
 
   const statCards = [
     { icon: 'inventory', label: 'Total Orders', value: stats?.totalOrders ?? '—', iconBg: 'var(--primary-fixed)', iconColor: 'var(--primary-container)' },
@@ -123,7 +126,7 @@ export default function Dashboard() {
                 <h2 className="headline-sm" style={{ fontSize: 20, marginBottom: 20 }}>Quick Actions</h2>
                 <div style={{ display: 'flex', gap: 16 }}>
                   {[
-                    { icon: 'add_circle', label: 'New Print Request', desc: 'Upload and configure a new print job', action: () => window.location.href = '/bulk-order' },
+                    { icon: 'add_circle', label: 'New Print Request', desc: 'Upload and configure a new print job', action: () => setView('new_order') },
                     { icon: 'inventory_2', label: 'View All Orders', desc: 'Check status of all your orders', action: () => setView('orders') },
                     { icon: 'help', label: 'Get Support', desc: 'Contact us for help with your orders', action: () => {} },
                   ].map(qa => (
@@ -163,7 +166,7 @@ export default function Dashboard() {
                   </button>
                 ))}
                 <div style={{ flex: 1 }} />
-                <button className="btn btn-primary btn-sm" onClick={() => window.location.href = '/bulk-order'}>
+                <button className="btn btn-primary btn-sm" onClick={() => setView('new_order')}>
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
                   New Order
                 </button>
@@ -182,6 +185,34 @@ export default function Dashboard() {
               <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
                 This section is coming soon. Stay tuned!
               </p>
+            </div>
+          )}
+
+          {/* New Order View (Embedded Print Wizard) */}
+          {view === 'new_order' && (
+            <div className="animate-fade-in">
+              <div style={{ marginBottom: 32 }}>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  background: isApprovedWholesale ? '#dcfce7' : 'var(--primary-fixed)',
+                  color: isApprovedWholesale ? '#166534' : 'var(--on-primary-fixed-variant)',
+                  padding: '6px 16px', borderRadius: 'var(--radius-full)',
+                  fontSize: 13, fontWeight: 700, marginBottom: 16,
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                    {isApprovedWholesale ? 'verified' : 'print'}
+                  </span>
+                  {isApprovedWholesale ? 'WHOLESALE PRICING ACTIVE' : 'STANDARD RETAIL PRINTING'}
+                </div>
+                <h1 className="headline-md" style={{ marginBottom: 8 }}>Create New Print Job</h1>
+                <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
+                  Upload your files and configure your print specifications.
+                </p>
+              </div>
+              
+              <div style={{ maxWidth: 1000 }}>
+                <PrintWizard isWholesale={isApprovedWholesale} />
+              </div>
             </div>
           )}
         </main>

@@ -49,7 +49,10 @@ export default function Sidebar({ activeView, onViewChange }) {
         <button
           className="btn btn-primary"
           style={{ width: '100%', marginBottom: 8 }}
-          onClick={() => navigate('/bulk-order')}
+          onClick={() => {
+            if (onViewChange) onViewChange('new_order');
+            else navigate('/bulk-order');
+          }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
           New Print Request

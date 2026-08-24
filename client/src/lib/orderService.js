@@ -212,9 +212,10 @@ export async function createOrder(orderPayload, currentUser = null) {
   const dbPayload = { ...orderData };
   delete dbPayload.order_type; // Remove column that might not exist in Supabase schema
 
-  // Ensure user_id is a valid UUID for the database, otherwise set it to null to prevent crash
+  // Ensure user_id is a valid UUID for the original orders table, otherwise set it to null to prevent crash.
+  // The wholesale_orders table is explicitly designed to handle text strings, so we don't nullify it there.
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(dbPayload.user_id || '');
-  if (dbPayload.user_id && !isUuid) {
+  if (tableName === 'orders' && dbPayload.user_id && !isUuid) {
     dbPayload.user_id = null;
   }
 

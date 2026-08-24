@@ -64,12 +64,13 @@ export function AuthProvider({ children }) {
     } catch {
       const u = currentUser || user;
       const email = u?.email || '';
+      const isFallbackAgency = String(userId).startsWith('agency_');
       setProfile({
         id: userId,
         full_name: u?.user_metadata?.full_name || email.split('@')[0] || 'User',
         email,
         isAdmin: email.toLowerCase().includes('admin'),
-        isWholesale: false,
+        isWholesale: isFallbackAgency,
         isApproved: true,
       });
     } finally {

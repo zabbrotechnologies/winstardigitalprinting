@@ -123,7 +123,7 @@ export default function Dashboard() {
                 <h2 className="headline-sm" style={{ fontSize: 20, marginBottom: 20 }}>Quick Actions</h2>
                 <div style={{ display: 'flex', gap: 16 }}>
                   {[
-                    { icon: 'add_circle', label: 'New Print Request', desc: 'Upload and configure a new print job', action: () => window.location.href = '/#quick-print' },
+                    { icon: 'add_circle', label: 'New Print Request', desc: 'Upload and configure a new print job', action: () => window.location.href = '/bulk-order' },
                     { icon: 'inventory_2', label: 'View All Orders', desc: 'Check status of all your orders', action: () => setView('orders') },
                     { icon: 'help', label: 'Get Support', desc: 'Contact us for help with your orders', action: () => {} },
                   ].map(qa => (
@@ -163,7 +163,7 @@ export default function Dashboard() {
                   </button>
                 ))}
                 <div style={{ flex: 1 }} />
-                <button className="btn btn-primary btn-sm" onClick={() => window.location.href = '/#quick-print'}>
+                <button className="btn btn-primary btn-sm" onClick={() => window.location.href = '/bulk-order'}>
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
                   New Order
                 </button>

@@ -51,7 +51,7 @@ export default function OrderTable({ orders, loading }) {
           {orders.map(order => (
             <tr key={order.id}>
               <td style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--on-surface-variant)' }}>
-                #{order.id.slice(0, 8)}
+                {order.request_id ? order.request_id : `#${order.id.slice(0, 8)}`}
               </td>
               <td>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -65,7 +65,7 @@ export default function OrderTable({ orders, loading }) {
               <td>{order.copies}</td>
               <td>{order.paper_size}</td>
               <td><StatusChip status={order.status} /></td>
-              <td style={{ fontWeight: 600 }}>${parseFloat(order.total_price || 0).toFixed(2)}</td>
+              <td style={{ fontWeight: 600 }}>₹{parseFloat(order.total_price || 0).toFixed(2)}</td>
               <td style={{ color: 'var(--on-surface-variant)', fontSize: 13 }}>
                 {new Date(order.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </td>

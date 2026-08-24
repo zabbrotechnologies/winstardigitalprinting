@@ -1550,3 +1550,6 @@ img {
     grid-template-columns: 1fr !important;
   }
 }
+
+.responsive-form-grid { grid-template-columns: 1fr 1fr; }
+@media (max-width: 768px) { .responsive-form-grid { grid-template-columns: 1fr !important; } }

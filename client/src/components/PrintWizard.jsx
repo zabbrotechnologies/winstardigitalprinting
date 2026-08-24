@@ -347,7 +347,7 @@ export default function PrintWizard({ isWholesale = false }) {
               </p>
 
               <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div className="responsive-form-grid" style={{ display: 'grid', gap: 16 }}>
                   <div className="form-group">
                     <label className="label">Full Name *</label>
                     <input
@@ -374,7 +374,7 @@ export default function PrintWizard({ isWholesale = false }) {
 
                 <div className="form-group">
                   <label className="label">Delivery Method</label>
-                  <div style={{ display: 'flex', gap: 16 }}>
+                  <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
                       <input
                         type="radio"
@@ -414,14 +414,14 @@ export default function PrintWizard({ isWholesale = false }) {
                   type="submit"
                   className="btn btn-primary btn-full"
                   disabled={submitting}
-                  style={{ height: 52, fontSize: 16, background: '#25D366', borderColor: '#25D366', color: '#fff', marginTop: 8 }}
+                  style={{ height: 'auto', minHeight: 52, padding: '12px 16px', fontSize: 15, background: '#25D366', borderColor: '#25D366', color: '#fff', marginTop: 8, whiteSpace: 'normal', lineHeight: 1.3 }}
                 >
                   {submitting ? (
                     <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
                   ) : (
                     <>
-                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chat</span>
-                      SUBMIT PRINT ORDER & OPEN WHATSAPP
+                      <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>chat</span>
+                      <span><span className="hide-on-compact">SUBMIT PRINT ORDER & </span>OPEN WHATSAPP</span>
                     </>
                   )}
                 </button>

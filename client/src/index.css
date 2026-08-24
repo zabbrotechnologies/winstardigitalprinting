@@ -1,12 +1,12 @@
 /* ============================================================
-   Xerox Digital Pro — Chromatic Precision Design System
+   Xerox Digital Pro â€” Chromatic Precision Design System
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
 
 /* ============================================================
-   CSS CUSTOM PROPERTIES — Design Tokens
+   CSS CUSTOM PROPERTIES â€” Design Tokens
    ============================================================ */
 :root {
   /* Surface Colors */
@@ -1554,3 +1554,59 @@ img {
 
 .responsive-form-grid { grid-template-columns: 1fr 1fr; }
 @media (max-width: 768px) { .responsive-form-grid { grid-template-columns: 1fr !important; } }
+
+@media (max-width: 768px) {
+  .admin-responsive-table, 
+  .admin-responsive-table thead, 
+  .admin-responsive-table tbody, 
+  .admin-responsive-table th, 
+  .admin-responsive-table td, 
+  .admin-responsive-table tr {
+    display: block;
+    width: 100%;
+  }
+  
+  .admin-responsive-table thead tr {
+    display: none;
+  }
+  
+  .admin-responsive-table tr {
+    margin-bottom: 16px;
+    border: 1px solid var(--surface-container-high) !important;
+    border-radius: var(--radius-md);
+    background: var(--surface-container-lowest);
+    box-shadow: var(--shadow-ambient);
+    padding: 8px;
+  }
+  
+  .admin-responsive-table td {
+    padding: 12px 16px !important;
+    position: relative;
+    border-bottom: 1px solid var(--surface-container-low);
+    text-align: right;
+    min-height: 48px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .admin-responsive-table td:last-child {
+    border-bottom: none;
+  }
+  
+  .admin-responsive-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    text-align: left;
+  }
+  
+  .admin-responsive-table td > div {
+    text-align: right;
+  }
+}

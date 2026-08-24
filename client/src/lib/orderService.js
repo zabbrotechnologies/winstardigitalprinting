@@ -73,10 +73,13 @@ export function deleteOrder(orderId, isWholesale = false) {
   return supabase
     .from(tableName)
     .delete()
-    .or(`id.eq.${orderId},request_id.eq.${orderId}`)
-    .then(() => true)
+    .eq('id', orderId)
+    .then(({ error }) => {
+      if (error) throw error;
+      return true;
+    })
     .catch(err => {
-      console.warn('Supabase delete fallback:', err);
+      console.warn('Supabase delete error:', err);
       return false;
     });
 }

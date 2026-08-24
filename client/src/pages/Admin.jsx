@@ -315,7 +315,7 @@ export default function Admin() {
                   <tbody>
                     {filteredItems.map(ord => (
                       <tr key={ord.id} style={{ borderBottom: '1px solid var(--surface-container-low)' }}>
-                        <td style={{ padding: '16px 20px' }}>
+                        <td data-label="Request ID & Date" style={{ padding: '16px 20px' }}>
                           <div style={{ fontWeight: 800, fontSize: 14, fontFamily: 'monospace', color: 'var(--primary-container)' }}>
                             {ord.request_id || ord.id.slice(0, 10)}
                           </div>
@@ -324,19 +324,19 @@ export default function Admin() {
                           </div>
                         </td>
 
-                        <td style={{ padding: '16px 20px' }}>
+                        <td data-label="Customer / Phone" style={{ padding: '16px 20px' }}>
                           <div style={{ fontWeight: 700, fontSize: 14 }}>{ord.customer_name || ord.client?.full_name || 'Customer'}</div>
                           <div style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>{ord.customer_phone || ord.client?.mobile || 'N/A'}</div>
                         </td>
 
-                        <td style={{ padding: '16px 20px' }}>
+                        <td data-label="Service & Specs" style={{ padding: '16px 20px' }}>
                           <div style={{ fontSize: 13, fontWeight: 700 }}>{ord.service_name || ord.print_type}</div>
                           <div style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>
                             {ord.copies} copy(ies) • {ord.paper_size} ({ord.paper_gsm || 'Standard'})
                           </div>
                         </td>
 
-                        <td style={{ padding: '16px 20px' }}>
+                        <td data-label="File / Document" style={{ padding: '16px 20px' }}>
                           {ord.file_url ? (
                             <a
                               href={ord.file_url}
@@ -353,7 +353,7 @@ export default function Admin() {
                           )}
                         </td>
 
-                        <td style={{ padding: '16px 20px' }}>
+                        <td data-label="Delivery" style={{ padding: '16px 20px' }}>
                           <span style={{
                             display: 'inline-block', padding: '4px 10px', borderRadius: 6, fontSize: 12, fontWeight: 600,
                             background: ord.delivery_type === 'courier' ? '#fef3c7' : '#f1f5f9',
@@ -363,11 +363,11 @@ export default function Admin() {
                           </span>
                         </td>
 
-                        <td style={{ padding: '16px 20px' }}>
+                        <td data-label="Amount" style={{ padding: '16px 20px' }}>
                           <div style={{ fontWeight: 800, fontSize: 15 }}>{formatCurrency(ord.total_price)}</div>
                         </td>
 
-                        <td style={{ padding: '16px 20px' }}>
+                        <td data-label="Status" style={{ padding: '16px 20px' }}>
                           <select
                             value={ord.status}
                             disabled={updatingId === ord.id}
@@ -382,7 +382,7 @@ export default function Admin() {
                           </select>
                         </td>
 
-                        <td style={{ padding: '16px 20px' }}>
+                        <td data-label="Actions" style={{ padding: '16px 20px' }}>
                           <button className="btn btn-ghost btn-sm" onClick={() => setSelectedOrder(ord)}>
                             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>visibility</span>
                           </button>

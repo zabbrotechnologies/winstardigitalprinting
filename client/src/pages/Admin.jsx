@@ -3,7 +3,7 @@ import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/Navbar';
 import StatCard from '../components/StatCard';
-import { fetchAllAdminOrders, fetchAllAgencies, saveLocalAgency, updateOrderStatus, updateAgencyStatus } from '../lib/orderService';
+import { fetchAllAdminOrders, fetchAllAgencies, saveLocalAgency, updateOrderStatus, updateAgencyStatus, deleteOrder } from '../lib/orderService';
 import { supabase } from '../lib/supabase';
 
 const STATUSES = ['Pending', 'Confirmed', 'Printing', 'Processing', 'Ready for Pickup', 'Delivered', 'Completed', 'Cancelled'];
@@ -122,6 +122,23 @@ export default function Admin() {
       setAgencies(prev => prev.map(a => (a.id === agencyId || a.email === agencyId ? { ...a, status: newStatus } : a)));
     } catch (err) {
       console.error('Agency status update notice:', err);
+    } finally {
+      setUpdatingId(null);
+    }
+  }
+
+  async function handleDelete(ord) {
+    if (!window.confirm(`Are you sure you want to delete order ${ord.request_id || ord.id}?`)) return;
+    const isWholesale = ord.order_type === 'wholesale' || (ord.request_id && ord.request_id.startsWith('WS-'));
+    setUpdatingId(ord.id);
+    try {
+      await deleteOrder(ord.id, isWholesale);
+      setOrders(prev => prev.filter(o => o.id !== ord.id && o.request_id !== ord.id));
+      if (selectedOrder?.id === ord.id || selectedOrder?.request_id === ord.id) {
+        setSelectedOrder(null);
+      }
+    } catch (err) {
+      console.error('Delete order notice:', err);
     } finally {
       setUpdatingId(null);
     }
@@ -368,6 +385,9 @@ export default function Admin() {
                         <td style={{ padding: '16px 20px' }}>
                           <button className="btn btn-ghost btn-sm" onClick={() => setSelectedOrder(ord)}>
                             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>visibility</span>
+                          </button>
+                          <button className="btn btn-ghost btn-sm" style={{ color: 'var(--error)' }} disabled={updatingId === ord.id} onClick={() => handleDelete(ord)}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
                           </button>
                         </td>
                       </tr>

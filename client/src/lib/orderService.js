@@ -60,6 +60,27 @@ export function updateOrderStatus(orderId, newStatus) {
   });
 }
 
+export function deleteOrder(orderId, isWholesale = false) {
+  try {
+    const orders = getLocalOrders();
+    const newOrders = orders.filter(o => o.id !== orderId && o.request_id !== orderId);
+    localStorage.setItem(LOCAL_ORDERS_KEY, JSON.stringify(newOrders));
+  } catch (err) {
+    console.warn('Local order delete notice:', err);
+  }
+
+  const tableName = isWholesale ? 'wholesale_orders' : 'orders';
+  return supabase
+    .from(tableName)
+    .delete()
+    .or(`id.eq.${orderId},request_id.eq.${orderId}`)
+    .then(() => true)
+    .catch(err => {
+      console.warn('Supabase delete fallback:', err);
+      return false;
+    });
+}
+
 export function getLocalAgencies() {
   try {
     const raw = localStorage.getItem(LOCAL_AGENCIES_KEY);

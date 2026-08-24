@@ -6,14 +6,17 @@ import { supabase } from '../lib/supabase';
 import { getLocalOrders } from '../lib/orderService';
 
 const ALL_SERVICES = [
-  { icon: 'print', title: 'Xerox / Photocopy', description: 'High-volume, crisp black and white duplication for standard business needs.' },
-  { icon: 'palette', title: 'Color Printing', description: 'Vibrant, true-to-life color reproduction for presentations and marketing materials.' },
-  { icon: 'description', title: 'B&W Printing', description: 'Cost-effective, sharp text documents for manuals, reports, and everyday use.' },
-  { icon: 'article', title: 'Document Printing', description: 'Professional handling of multi-page documents with varied stock options.' },
-  { icon: 'photo_library', title: 'Photo Printing', description: 'High-resolution prints on premium glossy or matte photographic paper.' },
-  { icon: 'scanner', title: 'Scanning', description: 'High-fidelity digitization of physical documents and artwork to various formats.' },
-  { icon: 'layers', title: 'Lamination', description: 'Durable, protective coating (matte or gloss) for frequent-use documents.' },
-  { icon: 'auto_stories', title: 'Spiral Binding', description: 'Flexible, lay-flat binding ideal for workbooks, manuals, and presentations.' },
+  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.' },
+  { icon: 'print', title: 'Wide Format', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.' },
+  { icon: 'file_copy', title: 'Print Copy Scan', description: 'High-quality B&W and color printing, high-speed copying, and document scanning.' },
+  { icon: 'contact_mail', title: 'Invitations', description: 'Custom-designed invitations for weddings, birthdays, anniversaries, and corporate events.' },
+  { icon: 'military_tech', title: 'Certificates', description: 'High-quality certificates for awards, recognitions, and official documents.' },
+  { icon: 'badge', title: 'ID Cards', description: 'Durable, custom-printed ID cards for schools, businesses, and organizations.' },
+  { icon: 'business_center', title: 'Business Cards', description: 'Professionally designed business cards with matte, glossy, or textured finishes.' },
+  { icon: 'menu_book', title: 'Brochures', description: 'Informative and eye-catching brochures for promoting products, services, or events.' },
+  { icon: 'restaurant_menu', title: 'Menu Cards', description: 'High-quality menu cards that showcase a restaurant\'s offerings beautifully.' },
+  { icon: 'draft', title: 'Letter Head', description: 'Professional letterheads to reinforce brand identity in official correspondence.' },
+  { icon: 'auto_stories', title: 'Magazines', description: 'Multi-page, high-quality publications typically used for content-heavy material.' },
 ];
 
 const STATUS_TIMELINE = [

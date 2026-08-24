@@ -49,14 +49,10 @@ export default function Sidebar({ activeView, onViewChange }) {
         <button
           className="btn btn-primary"
           style={{ width: '100%', marginBottom: 8 }}
-          onClick={() => navigate('/#quick-print')}
+          onClick={() => navigate('/bulk-order')}
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
           New Print Request
-        </button>
-        <button className="sidebar-link" onClick={() => navigate('/services')}>
-          <span className="material-symbols-outlined">settings</span>
-          Settings
         </button>
         <button className="sidebar-link" style={{ color: 'var(--error)' }} onClick={handleSignOut}>
           <span className="material-symbols-outlined">logout</span>

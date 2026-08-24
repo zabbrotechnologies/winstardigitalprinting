@@ -12,6 +12,14 @@ const PRINT_TYPES = [
   { value: 'photo', label: 'Photo Printing', icon: 'photo_library', price: 25.00, wholesalePrice: 16.00 },
   { value: 'xerox', label: 'Xerox / Photocopy', icon: 'print', price: 1.50, wholesalePrice: 0.90 },
   { value: 'lamination', label: 'Lamination', icon: 'layers', price: 15.00, wholesalePrice: 10.00 },
+  { value: 'stickers', label: 'Stickers & Labels', icon: 'style', price: 25.00, wholesalePrice: 18.00 },
+  { value: 'wide_format', label: 'Wide Format', icon: 'print', price: 150.00, wholesalePrice: 110.00 },
+  { value: 'invitations', label: 'Invitations', icon: 'contact_mail', price: 40.00, wholesalePrice: 28.00 },
+  { value: 'certificates', label: 'Certificates', icon: 'military_tech', price: 50.00, wholesalePrice: 35.00 },
+  { value: 'id_cards', label: 'ID Cards', icon: 'badge', price: 60.00, wholesalePrice: 45.00 },
+  { value: 'menu_cards', label: 'Menu Cards', icon: 'restaurant_menu', price: 35.00, wholesalePrice: 25.00 },
+  { value: 'letter_head', label: 'Letter Head', icon: 'draft', price: 8.00, wholesalePrice: 5.00 },
+  { value: 'magazines', label: 'Magazines', icon: 'menu_book', price: 200.00, wholesalePrice: 140.00 },
 ];
 
 const PAPER_SIZES = ['A4', 'A3', 'A5', '12x18 (Digital)', 'Letter', 'Legal'];

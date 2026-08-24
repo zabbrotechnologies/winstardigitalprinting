@@ -190,7 +190,7 @@ export default function RegisterWholesale() {
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--primary-container)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span className="material-symbols-outlined">person</span> 1. Personal & Account Details
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div className="responsive-form-grid" style={{ display: 'grid', gap: 16 }}>
                   <div className="form-group">
                     <label className="label">Full Name *</label>
                     <input
@@ -248,7 +248,7 @@ export default function RegisterWholesale() {
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--primary-container)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span className="material-symbols-outlined">business</span> 2. Company Information
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div className="responsive-form-grid" style={{ display: 'grid', gap: 16, marginBottom: 16 }}>
                   <div className="form-group">
                     <label className="label">Company / Agency Name *</label>
                     <input
@@ -280,7 +280,7 @@ export default function RegisterWholesale() {
                 <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: 'var(--primary-container)', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span className="material-symbols-outlined">verified_user</span> 3. Verification Documents (Visiting Card & Proof)
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div className="responsive-form-grid" style={{ display: 'grid', gap: 20 }}>
                   <div className="form-group">
                     <label className="label">Visiting Card Photo / PDF *</label>
                     <input

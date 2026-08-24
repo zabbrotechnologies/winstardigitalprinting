@@ -62,7 +62,8 @@ export default function Dashboard() {
 
   if (!user) return <Navigate to="/auth" replace />;
 
-  const isApprovedWholesale = user && profile?.isWholesale && profile?.isApproved;
+  // Since normal users do not have accounts, ANY user who logs into the Dashboard is an approved wholesale agency.
+  const isApprovedWholesale = true;
 
   const statCards = [
     { icon: 'inventory', label: 'Total Orders', value: stats?.totalOrders ?? '—', iconBg: 'var(--primary-fixed)', iconColor: 'var(--primary-container)' },

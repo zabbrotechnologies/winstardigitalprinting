@@ -48,16 +48,16 @@ export function updateOrderStatus(orderId, newStatus) {
     console.warn('Local order status update notice:', err);
   }
 
-  // Also attempt Supabase update
-  return supabase
-    .from('orders')
-    .update({ status: newStatus })
-    .or(`id.eq.${orderId},request_id.eq.${orderId}`)
-    .then(() => true)
-    .catch(err => {
-      console.warn('Supabase status update fallback:', err);
-      return false;
-    });
+  // Attempt Supabase update on both tables
+  return Promise.all([
+    supabase.from('orders').update({ status: newStatus }).or(`id.eq.${orderId},request_id.eq.${orderId}`),
+    supabase.from('wholesale_orders').update({ status: newStatus }).or(`id.eq.${orderId},request_id.eq.${orderId}`)
+  ])
+  .then(() => true)
+  .catch(err => {
+    console.warn('Supabase status update fallback:', err);
+    return false;
+  });
 }
 
 export function getLocalAgencies() {

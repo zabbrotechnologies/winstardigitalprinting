@@ -187,11 +187,14 @@ export async function createOrder(orderPayload, currentUser = null) {
     updated_at: now,
   };
 
+  const dbPayload = { ...orderData };
+  delete dbPayload.order_type; // Remove column that might not exist in Supabase schema
+
   // 1. Save in Supabase
   try {
     const { data, error } = await supabase
       .from('orders')
-      .insert([orderData])
+      .insert([dbPayload])
       .select()
       .single();
 

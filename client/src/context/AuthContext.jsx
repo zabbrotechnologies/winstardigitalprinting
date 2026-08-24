@@ -46,9 +46,15 @@ export function AuthProvider({ children }) {
 
       const u = currentUser || user;
       const email = u?.email || doc?.email || '';
+      
+      let parsedDetails = {};
+      if (doc?.business_details && typeof doc.business_details === 'string' && doc.business_details.startsWith('{')) {
+         try { parsedDetails = JSON.parse(doc.business_details); } catch {}
+      }
+      
       const isAdmin = (doc?.role === 'admin') || email.toLowerCase().includes('admin');
-      const isWholesale = doc?.role === 'wholesale' || doc?.account_type === 'wholesale';
-      const isApproved = doc?.status === 'approved';
+      const isWholesale = doc?.role === 'wholesale' || doc?.account_type === 'wholesale' || parsedDetails.role === 'wholesale' || parsedDetails.account_type === 'wholesale' || !!doc?.company_name;
+      const isApproved = doc?.status === 'approved' || parsedDetails.status === 'approved';
 
       const mergedProfile = {
         id: userId,
@@ -57,6 +63,7 @@ export function AuthProvider({ children }) {
         isAdmin,
         isWholesale,
         isApproved,
+        ...parsedDetails,
         ...doc,
       };
 

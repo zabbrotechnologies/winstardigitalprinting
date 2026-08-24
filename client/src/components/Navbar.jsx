@@ -33,9 +33,12 @@ export default function Navbar() {
     <header className="navbar">
       <div className="navbar-inner">
         {/* Brand */}
-        <Link to="/" className="navbar-brand">
-          <span className="material-symbols-outlined icon-fill" style={{ color: 'var(--primary-container)', fontSize: 28 }}>print</span>
-          <span>Xerox Digital Pro</span>
+        <Link to="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <img src="/logo.png" alt="WINSTAR Logo" style={{ height: 36, width: 36, objectFit: 'contain' }} onError={(e) => { e.target.onerror = null; e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23b70011"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>'; }} />
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, justifyContent: 'center' }}>
+            <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--primary)', letterSpacing: '0.02em' }}>WINSTAR</span>
+            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Digital Printing & Xerox</span>
+          </div>
         </Link>
 
         {/* Desktop Nav */}

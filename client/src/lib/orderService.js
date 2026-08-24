@@ -212,6 +212,12 @@ export async function createOrder(orderPayload, currentUser = null) {
   const dbPayload = { ...orderData };
   delete dbPayload.order_type; // Remove column that might not exist in Supabase schema
 
+  // Ensure user_id is a valid UUID for the database, otherwise set it to null to prevent crash
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(dbPayload.user_id || '');
+  if (dbPayload.user_id && !isUuid) {
+    dbPayload.user_id = null;
+  }
+
   // 1. Save in Supabase
   try {
     const { data, error } = await supabase
@@ -221,6 +227,8 @@ export async function createOrder(orderPayload, currentUser = null) {
       .single();
 
     if (!error && data) {
+      // Restore the original string user_id so the user can still see it in their local dashboard
+      data.user_id = orderData.user_id;
       saveLocalOrder(data);
       return data;
     }

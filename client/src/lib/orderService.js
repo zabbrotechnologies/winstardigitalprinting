@@ -159,6 +159,7 @@ export async function uploadPrintFile(file) {
  */
 export async function createOrder(orderPayload, currentUser = null) {
   const isWholesale = orderPayload.order_type === 'wholesale';
+  const tableName = isWholesale ? 'wholesale_orders' : 'orders';
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const requestId = isWholesale ? `WS-WSR-${randomNum}` : `WSR-${randomNum}`;
   const now = new Date().toISOString();
@@ -193,7 +194,7 @@ export async function createOrder(orderPayload, currentUser = null) {
   // 1. Save in Supabase
   try {
     const { data, error } = await supabase
-      .from('orders')
+      .from(tableName)
       .insert([dbPayload])
       .select()
       .single();
@@ -222,14 +223,30 @@ export async function fetchUserOrders(userId) {
   let remoteOrders = [];
 
   try {
-    const { data, error } = await supabase
+    const { data: normalData, error: err1 } = await supabase
       .from('orders')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
-    if (!error && data) remoteOrders = data;
-  } catch {}
+    if (!err1 && normalData) remoteOrders.push(...normalData);
+  } catch (err) {
+    console.warn('Orders fetch notice:', err);
+  }
+
+  try {
+    const { data: wholesaleData, error: err2 } = await supabase
+      .from('wholesale_orders')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (!err2 && wholesaleData) {
+      remoteOrders.push(...wholesaleData.map(o => ({ ...o, order_type: 'wholesale' })));
+    }
+  } catch (err) {
+    console.warn('Wholesale orders fetch notice:', err);
+  }
 
   const localOrders = getLocalOrders().filter(o => o.user_id === userId || o.user_id === 'guest');
   const seen = new Set();
@@ -253,13 +270,28 @@ export async function fetchAllAdminOrders() {
   let remoteOrders = [];
 
   try {
-    const { data, error } = await supabase
+    const { data: normalData, error: err1 } = await supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!error && data) remoteOrders = data;
-  } catch {}
+    if (!err1 && normalData) remoteOrders.push(...normalData);
+  } catch (err) {
+    console.warn('Admin orders fetch notice:', err);
+  }
+
+  try {
+    const { data: wholesaleData, error: err2 } = await supabase
+      .from('wholesale_orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!err2 && wholesaleData) {
+      remoteOrders.push(...wholesaleData.map(o => ({ ...o, order_type: 'wholesale' })));
+    }
+  } catch (err) {
+    console.warn('Admin wholesale orders fetch notice:', err);
+  }
 
   const localOrders = getLocalOrders();
   const seen = new Set();

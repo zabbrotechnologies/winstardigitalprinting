@@ -9,27 +9,43 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Initial Session Check
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    function handleSessionCheck(session, isAuthEvent = false) {
       if (session?.user) {
         setUser(session.user);
         fetchProfile(session.user.id, session.user);
       } else {
+        const fallback = localStorage.getItem('winstar_fallback_session');
+        if (fallback) {
+          try {
+            const localUser = JSON.parse(fallback);
+            setUser(localUser);
+            fetchProfile(localUser.id, localUser);
+            return;
+          } catch (e) {
+            localStorage.removeItem('winstar_fallback_session');
+          }
+        }
+        
         setUser(null);
         setProfile(null);
         setLoading(false);
       }
+    }
+
+    // 1. Initial Session Check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      handleSessionCheck(session);
     });
 
     // 2. Listen to Auth State Changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        fetchProfile(session.user.id, session.user);
-      } else {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('winstar_fallback_session');
         setUser(null);
         setProfile(null);
         setLoading(false);
+      } else {
+        handleSessionCheck(session, true);
       }
     });
 
@@ -148,6 +164,7 @@ export function AuthProvider({ children }) {
           email: cleanEmail,
           user_metadata: { full_name: 'Verified Agency' }
         };
+        localStorage.setItem('winstar_fallback_session', JSON.stringify(localUser));
         setUser(localUser);
         await fetchProfile(localUser.id, localUser);
         return localUser;
@@ -227,6 +244,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signOut() {
+    localStorage.removeItem('winstar_fallback_session');
     await supabase.auth.signOut().catch(() => {});
     setUser(null);
     setProfile(null);

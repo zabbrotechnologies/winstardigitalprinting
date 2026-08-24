@@ -54,7 +54,20 @@ export function AuthProvider({ children }) {
       
       const isAdmin = (doc?.role === 'admin') || email.toLowerCase().includes('admin');
       const isWholesale = doc?.role === 'wholesale' || doc?.account_type === 'wholesale' || parsedDetails.role === 'wholesale' || parsedDetails.account_type === 'wholesale' || !!doc?.company_name;
-      const isApproved = doc?.status === 'approved' || parsedDetails.status === 'approved';
+      
+      let actualStatus = doc?.status || parsedDetails.status || 'pending';
+      try {
+        const { data: waData } = await supabase
+          .from('wholesale_applications')
+          .select('status')
+          .eq('email', email)
+          .maybeSingle();
+        if (waData?.status) {
+           actualStatus = waData.status;
+        }
+      } catch (e) {}
+      
+      const isApproved = actualStatus === 'approved';
 
       const mergedProfile = {
         id: userId,
@@ -65,6 +78,7 @@ export function AuthProvider({ children }) {
         isApproved,
         ...parsedDetails,
         ...doc,
+        status: actualStatus, // Override status with the verified source of truth
       };
 
       setProfile(mergedProfile);

@@ -130,17 +130,12 @@ export default function RegisterWholesale() {
       <main style={{ maxWidth: 800, margin: '0 auto', padding: '120px 20px 80px' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'center', textAlign: 'center',
-            background: '#dcfce7', color: '#166534', padding: '6px 16px',
-            borderRadius: 'var(--radius-full)', fontSize: 13, fontWeight: 700,
-            marginBottom: 16, letterSpacing: '0.04em',
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>domain</span>
-            WHOLESALE AGENCY & CORPORATE PORTAL
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fee2e2', color: '#991b1b', padding: '6px 14px', borderRadius: 999, fontSize: 13, fontWeight: 700, marginBottom: 16, letterSpacing: '0.04em' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>storefront</span>
+            B2B & CORPORATE PORTAL
           </div>
           <h1 className="headline-lg wholesale-title" style={{ marginBottom: 8 }}>
-            Apply for Wholesale Agency Rates
+            Apply for B2B Rates
           </h1>
           <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: 540, margin: '0 auto' }}>
             Get verified access to special bulk rates, dedicated courier dispatch, and corporate credit support.
@@ -165,11 +160,9 @@ export default function RegisterWholesale() {
               }}>
                 <span className="material-symbols-outlined icon-fill" style={{ fontSize: 44, color: '#d97706' }}>hourglass_top</span>
               </div>
-              <h2 className="headline-md" style={{ marginBottom: 12, color: 'var(--on-surface)' }}>
-                Application Submitted — Waiting for Admin Approval
-              </h2>
-              <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: 520, margin: '0 auto 28px', lineHeight: 1.6 }}>
-                Your wholesale agency application for <strong>{formData.company_name}</strong> has been received by Winstar administration.
+              <h2 className="headline-sm" style={{ marginBottom: 12 }}>Application Submitted</h2>
+              <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 24 }}>
+                Your B2B application for <strong>{formData.company_name}</strong> has been received by Winstar administration.
                 <br /><br />
                 Our team will review your business proof documents and approve your account shortly. <strong>You will be able to log in once your application is approved.</strong>
               </p>
@@ -321,7 +314,7 @@ export default function RegisterWholesale() {
                 ) : (
                   <>
                     <span className="material-symbols-outlined" style={{ fontSize: 20 }}>send</span>
-                    APPLY FOR WHOLESALE AGENCY ACCOUNT
+                    APPLY FOR B2B ACCOUNT
                   </>
                 )}
               </button>

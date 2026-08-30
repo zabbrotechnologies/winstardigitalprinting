@@ -63,7 +63,7 @@ export default function Home() {
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
               <a href="#quick-print" className="btn btn-primary btn-lg">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>print</span>
-                Start Print Job
+                Start Print
               </a>
               <Link to="/services" className="btn btn-outline btn-lg">
                 <span className="material-symbols-outlined" style={{ fontSize: 20 }}>grid_view</span>

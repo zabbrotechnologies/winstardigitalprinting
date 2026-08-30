@@ -26,18 +26,12 @@ export default function BulkOrder() {
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '120px 20px 80px' }}>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            background: '#e0f2fe', color: '#0369a1', padding: '6px 16px',
-            borderRadius: 'var(--radius-full)', fontSize: 13, fontWeight: 700,
-            marginBottom: 16, letterSpacing: '0.04em',
-            maxWidth: '100%'
-          }}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>local_shipping</span>
-            WINSTAR B2B & WHOLESALE BULK ORDERING
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef3c7', color: '#b45309', padding: '6px 16px', borderRadius: 'var(--radius-full)', fontSize: 13, fontWeight: 700, marginBottom: 16, letterSpacing: '0.04em' }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>inventory_2</span>
+            WINSTAR B2B BULK ORDERING
           </div>
           <h1 className="wholesale-title" style={{ fontSize: 34, marginBottom: 8, lineHeight: 1.2 }}>
-            Wholesale Printing Portal
+            B2B Printing Portal
           </h1>
           <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: 580, margin: '0 auto' }}>
             High-volume print jobs for advertising agencies, photo studios, corporate firms, and resellers.
@@ -48,16 +42,16 @@ export default function BulkOrder() {
         {!user && (
           <div className="card" style={{ padding: 40, textAlign: 'center', maxWidth: 680, margin: '0 auto 40px', borderRadius: 'var(--radius-xl)' }}>
             <span className="material-symbols-outlined icon-fill" style={{ fontSize: 56, color: 'var(--primary-container)', marginBottom: 16 }}>lock</span>
-            <h2 className="headline-sm" style={{ marginBottom: 12 }}>Wholesale Account Required</h2>
-            <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 28 }}>
-              To access discounted volume rates, courier delivery, and tax invoicing, please log in with your verified wholesale account or submit an agency application.
+            <h2 className="headline-sm" style={{ marginBottom: 12 }}>B2B Account Required</h2>
+            <p className="body-lg" style={{ color: 'var(--on-surface-variant)', marginBottom: 24 }}>
+              To access discounted volume rates, courier delivery, and tax invoicing, please log in with your verified B2B account or submit a B2B application.
             </p>
-            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
               <Link to="/register-wholesale" className="btn btn-primary btn-lg">
-                Apply for Wholesale Account
+                Apply for B2B Account
               </Link>
               <Link to="/auth" className="btn btn-outline btn-lg">
-                Agency Login
+                B2B Login
               </Link>
             </div>
           </div>
@@ -69,15 +63,15 @@ export default function BulkOrder() {
             <span className="material-symbols-outlined icon-fill" style={{ fontSize: 56, color: '#d97706', marginBottom: 16 }}>hourglass_top</span>
             <h2 className="headline-sm" style={{ marginBottom: 12, color: '#92400e' }}>Verification Under Review</h2>
             <p className="body-md" style={{ color: '#b45309', marginBottom: 20 }}>
-              Your wholesale business registration for <strong>{profile?.company_name}</strong> is currently waiting for admin approval.
+              Your B2B business registration for <strong>{profile?.company_name}</strong> is currently waiting for admin approval.
             </p>
-            <p style={{ fontSize: 13, color: '#78350f' }}>
-              You will gain access to wholesale volume rates immediately once the Winstar team verifies your documents.
+            <p className="body-md" style={{ color: '#b45309' }}>
+              You will gain access to B2B volume rates immediately once the Winstar team verifies your documents.
             </p>
           </div>
         )}
 
-        {/* State 3: Approved Wholesale Order Form */}
+        {/* State 3: Approved B2B Order Form */}
         {isApprovedWholesale && (
           <div>
             <div style={{

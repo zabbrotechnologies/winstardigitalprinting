@@ -203,7 +203,7 @@ export default function Dashboard() {
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
                     {isApprovedWholesale ? 'verified' : 'print'}
                   </span>
-                  {isApprovedWholesale ? 'WHOLESALE PRICING ACTIVE' : 'STANDARD RETAIL PRINTING'}
+                  {isApprovedWholesale ? 'B2B PRICING ACTIVE' : 'STANDARD RETAIL PRINTING'}
                 </div>
                 <h1 className="headline-md" style={{ marginBottom: 8 }}>Create New Print Job</h1>
                 <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>

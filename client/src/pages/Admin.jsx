@@ -190,7 +190,7 @@ export default function Admin() {
 
   const statCards = [
     { icon: 'print', label: 'Normal Print Orders', value: stats?.normalOrders ?? '—', iconBg: 'var(--primary-fixed)', iconColor: 'var(--primary-container)' },
-    { icon: 'inventory_2', label: 'Wholesale Orders', value: stats?.wholesaleOrders ?? '—', iconBg: '#e0f2fe', iconColor: '#0284c7' },
+    { icon: 'inventory_2', label: 'B2B Orders', value: stats?.wholesaleOrders ?? '—', iconBg: '#e0f2fe', iconColor: '#0284c7' },
     { icon: 'verified_user', label: 'Pending Verifications', value: stats?.pendingAgencies ?? '—', iconBg: '#fef3c7', iconColor: '#b45309' },
     { icon: 'payments', label: 'Total Revenue', value: stats ? formatCurrency(stats.totalRevenue) : '—', iconBg: '#dcfce7', iconColor: '#166534' },
   ];
@@ -209,7 +209,7 @@ export default function Admin() {
             </div>
             <h1 className="display-lg-mobile" style={{ fontSize: 32 }}>Operations & Print Order Management</h1>
             <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
-              Manage Normal Prints, Wholesale Orders, and Agency Document Verifications in one master dashboard.
+              Manage Normal Prints, B2B Orders, and B2B Document Verifications in one master dashboard.
             </p>
           </div>
           <div style={{ display: 'flex', gap: 12 }}>
@@ -230,8 +230,8 @@ export default function Admin() {
         <div className="admin-tabs-container" style={{ display: 'flex', gap: 12, marginBottom: 24, borderBottom: '2px solid var(--surface-container)' }}>
           {[
             { id: 'normal', label: `1. NORMAL PRINTS (${normalOrders.length})`, icon: 'print' },
-            { id: 'wholesale', label: `2. WHOLESALE ORDERS (${wholesaleOrders.length})`, icon: 'inventory_2' },
-            { id: 'agencies', label: `3. AGENCY VERIFICATION (${agencies.length})`, icon: 'domain_verification' },
+            { id: 'wholesale', label: `2. B2B ORDERS (${wholesaleOrders.length})`, icon: 'inventory_2' },
+            { id: 'agencies', label: `3. B2B VERIFICATION (${agencies.length})`, icon: 'domain_verification' },
           ].map(t => (
             <button
               key={t.id}
@@ -272,7 +272,7 @@ export default function Admin() {
             </div>
           ) : (
             <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--on-surface)' }}>
-              Wholesale Business Applications
+              B2B Business Applications
             </div>
           )}
 
@@ -280,7 +280,7 @@ export default function Admin() {
             <span className="material-symbols-outlined" style={{ color: 'var(--on-surface-variant)', fontSize: 20 }}>search</span>
             <input
               type="text" className="input" style={{ height: 38, fontSize: 13 }}
-              placeholder={activeTab === 'agencies' ? "Search agency or applicant name..." : "Search by Request ID (WSR-...), customer, file..."}
+              placeholder={activeTab === 'agencies' ? "Search B2B applicant name..." : "Search by Request ID (WSR-...), customer, file..."}
               value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
             />
           </div>
@@ -412,15 +412,15 @@ export default function Admin() {
             {agencies.length === 0 ? (
               <div style={{ padding: 60, textAlign: 'center' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--surface-container-high)', marginBottom: 12 }}>verified</span>
-                <h3 style={{ fontSize: 18, fontWeight: 700 }}>No Wholesale Applications Yet</h3>
-                <p style={{ color: 'var(--on-surface-variant)', fontSize: 14 }}>When businesses register on the wholesale portal, their verification documents will show up here.</p>
+                <h3 style={{ fontSize: 18, fontWeight: 700 }}>No B2B Applications Yet</h3>
+                <p style={{ color: 'var(--on-surface-variant)', fontSize: 14 }}>When businesses register on the B2B portal, their verification documents will show up here.</p>
               </div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table className="admin-responsive-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ background: 'var(--surface-container-low)', borderBottom: '1px solid var(--surface-container)' }}>
-                      <th style={{ padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>COMPANY / AGENCY</th>
+                      <th style={{ padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>COMPANY / B2B</th>
                       <th style={{ padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>APPLICANT & CONTACT</th>
                       <th style={{ padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>GST & ADDRESS</th>
                       <th style={{ padding: '16px 20px', fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>VERIFICATION DOCUMENTS</th>
@@ -432,7 +432,7 @@ export default function Admin() {
                     {filteredItems.map(ag => (
                       <tr key={ag.id} style={{ borderBottom: '1px solid var(--surface-container-low)' }}>
                         <td style={{ padding: '16px 20px' }}>
-                          <div style={{ fontWeight: 800, fontSize: 14 }}>{ag.company_name || 'Agency'}</div>
+                          <div style={{ fontWeight: 800, fontSize: 14 }}>{ag.company_name || 'B2B'}</div>
                           <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>Applied: {new Date(ag.created_at || ag.$createdAt).toLocaleDateString()}</div>
                         </td>
 

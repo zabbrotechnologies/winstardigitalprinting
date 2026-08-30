@@ -29,23 +29,35 @@ export const requireAuth = async (req, res, next) => {
     };
     next();
   } catch (err) {
-    // Fallback: decode JWT payload for service-to-service tokens
-    try {
-      const parts = jwt.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-        const sub = payload.sub || payload.userId;
-        if (sub) {
-          req.user = {
-            id: sub,
-            uid: sub,
-            email: payload.email || 'user@winstar.com',
-          };
-          return next();
-        }
-      }
-    } catch {}
-
     return res.status(401).json({ error: 'Unauthorized: Invalid or expired session token' });
+  }
+};
+
+/**
+ * Middleware to enforce Admin role. Must be used after requireAuth.
+ */
+export const requireAdmin = async (req, res, next) => {
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ error: 'Unauthorized: No user found' });
+  }
+
+  try {
+    const { data: profile, error } = await supabaseAdmin
+      .from('profiles')
+      .select('role, account_type')
+      .eq('id', req.user.id)
+      .single();
+
+    if (error || !profile) {
+      return res.status(403).json({ error: 'Forbidden: Profile not found' });
+    }
+
+    if (profile.role !== 'admin' && profile.account_type !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: Admin access required' });
+    }
+
+    next();
+  } catch (err) {
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 };

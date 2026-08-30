@@ -173,16 +173,8 @@ export async function uploadPrintFile(file) {
       mimeType: file.type,
     };
   } catch (err) {
-    console.warn('Supabase storage upload fallback:', err);
-    const objectUrl = URL.createObjectURL(file);
-    return {
-      fileId: `local_${Date.now()}`,
-      fileName: file.name,
-      publicUrl: objectUrl,
-      downloadUrl: objectUrl,
-      sizeOriginal: file.size,
-      mimeType: file.type,
-    };
+    console.warn('Supabase storage upload failed:', err);
+    throw new Error('Failed to upload file to the server. Please check your internet connection or try again.');
   }
 }
 

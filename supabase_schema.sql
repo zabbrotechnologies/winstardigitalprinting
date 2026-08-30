@@ -29,18 +29,35 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+-- Function to check if current user is admin (bypasses RLS to prevent recursion)
+create or replace function public.is_admin()
+returns boolean as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role = 'admin'
+  );
+$$ language sql security definer;
+
 -- Policies for profiles
 drop policy if exists "Allow public read of profiles" on public.profiles;
-create policy "Allow public read of profiles" on public.profiles for select using (true);
+create policy "Allow read own profile or admin" on public.profiles for select using (
+  auth.uid() = id OR public.is_admin()
+);
 
 drop policy if exists "Allow insert on signup" on public.profiles;
-create policy "Allow insert on signup" on public.profiles for insert with check (true);
+create policy "Allow insert own profile" on public.profiles for insert with check (
+  auth.uid() = id
+);
 
 drop policy if exists "Allow update by owner or admin" on public.profiles;
-create policy "Allow update by owner or admin" on public.profiles for update using (true);
+create policy "Allow update own profile or admin" on public.profiles for update using (
+  auth.uid() = id OR public.is_admin()
+);
 
 drop policy if exists "Allow delete on profiles" on public.profiles;
-create policy "Allow delete on profiles" on public.profiles for delete using (true);
+create policy "Allow delete by admin" on public.profiles for delete using (
+  public.is_admin()
+);
 
 
 -- ============================================================
@@ -65,16 +82,22 @@ alter table public.wholesale_applications enable row level security;
 
 -- Policies for wholesale_applications
 drop policy if exists "Allow public read of wholesale_applications" on public.wholesale_applications;
-create policy "Allow public read of wholesale_applications" on public.wholesale_applications for select using (true);
+create policy "Allow admin read wholesale_applications" on public.wholesale_applications for select using (
+  public.is_admin()
+);
 
 drop policy if exists "Allow public insert of wholesale_applications" on public.wholesale_applications;
 create policy "Allow public insert of wholesale_applications" on public.wholesale_applications for insert with check (true);
 
 drop policy if exists "Allow public update of wholesale_applications" on public.wholesale_applications;
-create policy "Allow public update of wholesale_applications" on public.wholesale_applications for update using (true);
+create policy "Allow admin update wholesale_applications" on public.wholesale_applications for update using (
+  public.is_admin()
+);
 
 drop policy if exists "Allow public delete of wholesale_applications" on public.wholesale_applications;
-create policy "Allow public delete of wholesale_applications" on public.wholesale_applications for delete using (true);
+create policy "Allow admin delete wholesale_applications" on public.wholesale_applications for delete using (
+  public.is_admin()
+);
 
 
 -- ============================================================
@@ -111,13 +134,19 @@ drop policy if exists "Allow public insert on orders" on public.orders;
 create policy "Allow public insert on orders" on public.orders for insert with check (true);
 
 drop policy if exists "Allow public select on orders" on public.orders;
-create policy "Allow public select on orders" on public.orders for select using (true);
+create policy "Allow read own orders or admin" on public.orders for select using (
+  auth.uid() = user_id OR public.is_admin()
+);
 
 drop policy if exists "Allow public update on orders" on public.orders;
-create policy "Allow public update on orders" on public.orders for update using (true);
+create policy "Allow update own orders or admin" on public.orders for update using (
+  auth.uid() = user_id OR public.is_admin()
+);
 
 drop policy if exists "Allow public delete on orders" on public.orders;
-create policy "Allow public delete on orders" on public.orders for delete using (true);
+create policy "Allow delete own orders or admin" on public.orders for delete using (
+  auth.uid() = user_id OR public.is_admin()
+);
 
 
 -- ============================================================

@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '../.env' });
 
-const supabaseUrl = process.env.SUPABASE_URL || 'https://dcjssexnlnakndvvmgnw.supabase.co';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseServiceKey) {
   console.warn('⚠️  SUPABASE_SERVICE_ROLE_KEY is not set. Server operations will use anon key (limited).');

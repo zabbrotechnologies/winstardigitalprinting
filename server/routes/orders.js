@@ -1,6 +1,6 @@
 import express from 'express';
 import { supabaseAdmin, ORDERS_TABLE, PROFILES_TABLE } from '../supabaseServer.js';
-import { requireAuth } from '../middleware/authMiddleware.js';
+import { requireAuth, requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ function generateRequestId() {
 }
 
 // GET /api/orders/admin/all — all orders for admin
-router.get('/admin/all', requireAuth, async (req, res) => {
+router.get('/admin/all', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { data: orders, error } = await supabaseAdmin
       .from(ORDERS_TABLE)
@@ -41,7 +41,7 @@ router.get('/admin/all', requireAuth, async (req, res) => {
 });
 
 // GET /api/orders/admin/stats — dashboard stats
-router.get('/admin/stats', requireAuth, async (req, res) => {
+router.get('/admin/stats', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { data: orders } = await supabaseAdmin.from(ORDERS_TABLE).select('status, order_type, total_price').limit(1000);
     const { data: agencies } = await supabaseAdmin.from(PROFILES_TABLE).select('status, account_type, role').limit(500);
@@ -69,7 +69,7 @@ router.get('/admin/stats', requireAuth, async (req, res) => {
 });
 
 // PATCH /api/orders/admin/:id — update order status
-router.patch('/admin/:id', requireAuth, async (req, res) => {
+router.patch('/admin/:id', requireAuth, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
   const allowedStatuses = ['Pending', 'Confirmed', 'Printing', 'Processing', 'Ready for Pickup', 'Delivered', 'Completed', 'Cancelled'];
@@ -193,10 +193,10 @@ router.post('/', async (req, res) => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
-        const parts = authHeader.split(' ')[1].split('.');
-        if (parts.length === 3) {
-          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-          userId = payload.sub || payload.userId || null;
+        const jwt = authHeader.split(' ')[1];
+        const { data: { user } } = await supabaseAdmin.auth.getUser(jwt);
+        if (user) {
+          userId = user.id;
         }
       } catch {}
     }

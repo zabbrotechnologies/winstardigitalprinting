@@ -1,6 +1,6 @@
 import express from 'express';
 import { supabaseAdmin, PROFILES_TABLE, WHOLESALE_TABLE } from '../supabaseServer.js';
-import { requireAuth } from '../middleware/authMiddleware.js';
+import { requireAuth, requireAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -82,7 +82,7 @@ router.post('/register', async (req, res) => {
 });
 
 // GET /api/auth/agencies — all wholesale agency applications for admin
-router.get('/agencies', requireAuth, async (req, res) => {
+router.get('/agencies', requireAuth, requireAdmin, async (req, res) => {
   try {
     let agencies = [];
 
@@ -123,7 +123,7 @@ router.get('/agencies', requireAuth, async (req, res) => {
 });
 
 // PATCH /api/auth/agencies/:id/verify — admin approve or reject agency
-router.patch('/agencies/:id/verify', requireAuth, async (req, res) => {
+router.patch('/agencies/:id/verify', requireAuth, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 

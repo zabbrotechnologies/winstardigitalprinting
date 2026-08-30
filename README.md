@@ -1,6 +1,6 @@
-# Xerox Digital Pro — Full Stack (React + Express + Appwrite)
+# Xerox Digital Pro — Full Stack (React + Express + Supabase)
 
-A full-stack e-commerce print service built with **React + Vite** (frontend), **Express.js** (backend API / serverless), and **Appwrite** (Authentication, Databases, and Storage Buckets).
+A full-stack e-commerce print service built with **React + Vite** (frontend), **Express.js** (backend API / serverless), and **Supabase** (Authentication, PostgreSQL Database, and Storage Buckets).
 
 ## 🗂️ Project Structure
 
@@ -11,7 +11,7 @@ winstar/
 ├── server/                     # Express.js API server & Appwrite controllers
 ├── vercel.json                 # Vercel deployment configuration
 ├── .env.example                # Template for environment variables
-├── appwrite_setup_guide.md     # Step-by-step Appwrite setup guide
+├── supabase_schema.sql         # Supabase SQL schema definitions
 └── WINSTAR_PLATFORM_WORKFLOW_AND_PROCESS_GUIDE.md # Workflow and processes guide
 ```
 
@@ -26,19 +26,11 @@ winstar/
 
 | Variable | Description | Sample / Default |
 |---|---|---|
-| `APPWRITE_ENDPOINT` | Appwrite instance API endpoint | `https://cloud.appwrite.io/v1` |
-| `APPWRITE_PROJECT_ID` | Appwrite project ID | `xerox-digital-pro` |
-| `APPWRITE_API_KEY` | Server Secret API Key (from Appwrite console) | *Secret Key* |
-| `APPWRITE_DATABASE_ID` | Database ID | `xerox_digital_pro` |
-| `APPWRITE_USERS_COLLECTION_ID` | Users collection ID | `users_profile` |
-| `APPWRITE_ORDERS_COLLECTION_ID` | Orders collection ID | `orders` |
-| `APPWRITE_STORAGE_BUCKET_ID` | Print files storage bucket ID | `print_files` |
-| `VITE_APPWRITE_ENDPOINT` | Appwrite endpoint for browser | `https://cloud.appwrite.io/v1` |
-| `VITE_APPWRITE_PROJECT_ID` | Project ID for browser | `xerox-digital-pro` |
-| `VITE_APPWRITE_DATABASE_ID` | Database ID for browser | `xerox_digital_pro` |
-| `VITE_APPWRITE_USERS_COLLECTION_ID` | Users collection ID for browser | `users_profile` |
-| `VITE_APPWRITE_ORDERS_COLLECTION_ID` | Orders collection ID for browser | `orders` |
-| `VITE_APPWRITE_STORAGE_BUCKET_ID` | Storage bucket ID for browser | `print_files` |
+| `SUPABASE_URL` | Supabase instance API URL | `https://your-project-ref.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server Secret API Key (from Supabase console) | *Secret Key* |
+| `SUPABASE_ANON_KEY` | Public Anon API Key | *Public Key* |
+| `VITE_SUPABASE_URL` | Supabase URL for browser | `https://your-project-ref.supabase.co` |
+| `VITE_SUPABASE_ANON_KEY` | Public Anon API Key for browser | *Public Key* |
 
 5. Click **Deploy**!
 
@@ -46,13 +38,13 @@ winstar/
 
 ## ⚡ Local Development
 
-### 1. Set Up Appwrite
-Follow [`appwrite_setup_guide.md`](./appwrite_setup_guide.md) to initialize your Appwrite cloud project.
+### 1. Set Up Supabase
+Run the `supabase_schema.sql` file in your Supabase SQL Editor to initialize your database and storage buckets.
 
 ### 2. Configure Environment Variables
 ```bash
 cp .env.example .env
-# Fill in your Appwrite keys in .env
+# Fill in your Supabase keys in .env
 ```
 
 ### 3. Install & Run
@@ -71,7 +63,7 @@ npm run dev
 | Route | Description |
 |---|---|
 | `/` | Home — Hero, Features, & Quick Print Wizard |
-| `/auth` | Login & Register (Appwrite Auth & User Profile) |
+| `/auth` | Login & Register (Supabase Auth & User Profile) |
 | `/dashboard` | Client Dashboard with stats + active order history |
 | `/services` | Services catalogue + Public Order Tracking |
 | `/bulk-order` | B2B Wholesale / Bulk Orders portal |

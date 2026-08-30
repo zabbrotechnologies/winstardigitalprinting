@@ -7,7 +7,7 @@ import ServiceCard from '../components/ServiceCard';
 const SERVICES = [
   { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
   { title: "Plan Printouts", icon: "print", image: "/images/services/plan-print-outs.jpg", description: "High quality large format plan printouts." },
-  { title: "Business Cards", icon: "badge", image: "/images/services/business-cards.jpg", description: "Premium customized business cards." },
+  { title: "Visiting Cards", icon: "badge", image: "/images/services/business-cards.jpg", description: "Premium customized business cards." },
   { title: "A4 Printouts", icon: "file_copy", image: "/images/services/a4-printouts.jpg", description: "Crisp and clear A4 document printing." },
   { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.webp", description: "Book-like perfect binding for a premium finish." },
   { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.webp", description: "Eye-catching tri-fold and bi-fold brochures." },

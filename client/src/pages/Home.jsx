@@ -47,8 +47,8 @@ export default function Home() {
               Professional Printing · Same Day Pickup
             </div>
             <h1 className="display-lg" style={{ marginBottom: 24, color: 'var(--on-surface)' }}>
-              Precision Printing,<br />
-              <span style={{ color: 'var(--primary-container)' }}>On Demand.</span>
+              Digital Printing,<br />
+              <span style={{ color: 'var(--primary-container)' }}>Made Easy.</span>
             </h1>
             <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: 560, marginBottom: 40 }}>
               Upload your files, configure your options, and get high-quality prints ready for pickup. Trusted by enterprise clients and creative professionals.

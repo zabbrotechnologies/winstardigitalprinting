@@ -14,7 +14,6 @@ const WINSTAR_PHONE = '919345046665';
 
 const TOP_LEVEL_SERVICES = [
   { value: 'printing', label: 'Document & Wide Format Printing', icon: 'print' },
-  { value: 'message', label: 'Message / Special Notes', icon: 'chat' },
   { value: 'lamination', label: 'Lamination', icon: 'layers' },
   { value: 'certificates', label: 'Certificates', icon: 'military_tech' },
   { value: 'visiting_cards', label: 'Visiting / Business Cards', icon: 'badge' },
@@ -122,11 +121,6 @@ export default function PrintWizard({ isWholesale = false }) {
         card_type: c.card_type || 'Art Board',
         card_side: c.card_side || 'Single Side',
         copies: [120, 150, 200, 300, 510, 720, 1020].includes(c.copies) ? c.copies : 120
-      }));
-    } else if (config.service === 'message') {
-      setConfig(c => ({
-        ...c,
-        message_text: c.message_text || ''
       }));
     }
   }, [config.service]);
@@ -268,10 +262,6 @@ export default function PrintWizard({ isWholesale = false }) {
         subtotal = baseRate + cutoff;
         printingTotal = subtotal;
 
-      } else if (config.service === 'message') {
-        subtotal = 0;
-        printingTotal = 0;
-
       } else {
         const keyMap = { 'certificates': 'Certificates', 'visiting_cards': 'Visiting Cards', 'brochures': 'Brochures' };
         const rates = FLAT_SERVICE_PRICES[keyMap[config.service]];
@@ -366,9 +356,7 @@ export default function PrintWizard({ isWholesale = false }) {
       `👤 *Customer:* ${order.customer_name} (${order.customer_phone})\n` +
       `📄 *Service:* ${order.service_name}\n`;
 
-    if (order.service === 'message') {
-      textStr += `📝 *Instructions:* ${order.message_text || ''}\n`;
-    } else if (order.service === 'visiting_cards') {
+    if (order.service === 'visiting_cards') {
       textStr += `🪪 *Card Type:* ${order.card_type}\n` +
                  `📐 *Side:* ${order.card_side}\n` +
                  `🔢 *Quantity:* ${order.copies} cards\n`;
@@ -379,13 +367,12 @@ export default function PrintWizard({ isWholesale = false }) {
                  `🔗 *Binding:* ${order.binding}\n`;
     }
 
-    textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + order.delivery_address : 'Store Pickup'}\n`;
-    
-    if (order.service === 'message') {
-      textStr += `💰 *Total Amount:* Estimation on WhatsApp\n\n`;
-    } else {
-      textStr += `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n`;
+    if (order.message_text) {
+      textStr += `📝 *Instructions:* ${order.message_text}\n`;
     }
+
+    textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + order.delivery_address : 'Store Pickup'}\n`;
+    textStr += `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n`;
     
     textStr += `Please confirm my print job! Request ID: ${reqId}`;
 
@@ -611,20 +598,6 @@ export default function PrintWizard({ isWholesale = false }) {
                     </div>
                   )}
 
-                   {config.service === 'message' && (
-                    <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
-                      <label className="label">Instructions / Message *</label>
-                      <textarea 
-                        className="textarea" 
-                        rows={4} 
-                        placeholder="Write details about your custom printing request (e.g. spiral binding, green sheets, custom sizes)..." 
-                        required 
-                        value={config.message_text} 
-                        onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
-                      />
-                    </div>
-                  )}
-
                   {config.service === 'visiting_cards' && (
                     <div className="animate-fade-in">
                       <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
@@ -664,7 +637,7 @@ export default function PrintWizard({ isWholesale = false }) {
                     </div>
                   )}
 
-                  {['printing', 'lamination'].includes(config.service) || (!['visiting_cards', 'message'].includes(config.service)) ? (
+                  {['printing', 'lamination'].includes(config.service) || config.service !== 'visiting_cards' ? (
                     <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                       {['printing', 'lamination'].includes(config.service) && (
                         <div className="form-group">
@@ -672,7 +645,7 @@ export default function PrintWizard({ isWholesale = false }) {
                           <input type="number" min="1" className="input" value={config.pages} onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} />
                         </div>
                       )}
-                      {!['visiting_cards', 'message'].includes(config.service) && (
+                      {config.service !== 'visiting_cards' && (
                         <div className="form-group">
                           <label className="label">Number of Copies</label>
                           <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
@@ -696,6 +669,18 @@ export default function PrintWizard({ isWholesale = false }) {
                       </select>
                     </div>
                   )}
+
+                  {/* Optional Printing Instructions Message Box (Always Visible) */}
+                  <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
+                    <label className="label">Special Instructions / Notes (Optional)</label>
+                    <textarea 
+                      className="textarea" 
+                      rows={2} 
+                      placeholder="e.g. Spiral binding request, print specific pages only, custom paper requirements..." 
+                      value={config.message_text} 
+                      onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                    />
+                  </div>
                 </>
               )}
 
@@ -787,14 +772,7 @@ export default function PrintWizard({ isWholesale = false }) {
                 <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.media : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}</span>
               </div>
               
-              {config.service === 'message' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'var(--surface-container-high)', padding: '10px 14px', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--outline-variant)' }}>
-                  <span style={{ color: 'var(--on-surface-variant)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Custom Instructions:</span>
-                  <span style={{ fontWeight: 600, fontSize: 12.5, color: 'var(--on-surface)', wordBreak: 'break-word', whiteSpace: 'pre-wrap', lineHeight: 1.3 }}>
-                    {config.message_text || 'No message provided.'}
-                  </span>
-                </div>
-              ) : config.service === 'visiting_cards' ? (
+              {config.service === 'visiting_cards' ? (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ color: 'var(--on-surface-variant)' }}>Card Type:</span>
@@ -835,6 +813,15 @@ export default function PrintWizard({ isWholesale = false }) {
                     <span style={{ fontWeight: 600 }}>{config.copies}</span>
                   </div>
                 </>
+              )}
+
+              {config.message_text && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'var(--surface-container-high)', padding: '10px 14px', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--outline-variant)' }}>
+                  <span style={{ color: 'var(--on-surface-variant)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Special Notes:</span>
+                  <span style={{ fontWeight: 600, fontSize: 12.5, color: 'var(--on-surface)', wordBreak: 'break-word', whiteSpace: 'pre-wrap', lineHeight: 1.3 }}>
+                    {config.message_text}
+                  </span>
+                </div>
               )}
               
               {(config.service === 'printing' || config.service === 'binding') && config.binding !== 'No Binding' && (
@@ -897,42 +884,33 @@ export default function PrintWizard({ isWholesale = false }) {
             </div>
 
             <div style={{ borderTop: '1px dashed var(--surface-container-high)', paddingTop: 14, marginBottom: 16 }}>
-              {config.service === 'message' ? (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 15, fontWeight: 700, color: 'var(--primary)', padding: '4px 0' }}>
-                  <span>Estimated Total:</span>
-                  <span style={{ background: 'var(--primary-container)', color: 'var(--on-primary-container)', padding: '4px 10px', borderRadius: 6, fontSize: 13 }}>WhatsApp Confirm</span>
+              {Number(prices.printingTotal) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                  <span>Printing Cost</span>
+                  <span>₹{prices.printingTotal}</span>
                 </div>
-              ) : (
-                <>
-                  {Number(prices.printingTotal) > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      <span>Printing Cost</span>
-                      <span>₹{prices.printingTotal}</span>
-                    </div>
-                  )}
-                  {Number(prices.bindingTotal) > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      <span>Binding Cost</span>
-                      <span>₹{prices.bindingTotal}</span>
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                    <span>Subtotal</span>
-                    <span>₹{prices.subtotal}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                    <span>GST (18%)</span>
-                    <span>₹{prices.gst}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, fontWeight: 800, color: 'var(--on-surface)' }}>
-                    <span>Estimated Total</span>
-                    <span style={{ color: 'var(--primary-container)' }}>₹{prices.grandTotal}</span>
-                  </div>
-                </>
               )}
+              {Number(prices.bindingTotal) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                  <span>Binding Cost</span>
+                  <span>₹{prices.bindingTotal}</span>
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                <span>Subtotal</span>
+                <span>₹{prices.subtotal}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                <span>GST (18%)</span>
+                <span>₹{prices.gst}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, fontWeight: 800, color: 'var(--on-surface)' }}>
+                <span>Estimated Total</span>
+                <span style={{ color: 'var(--primary-container)' }}>₹{prices.grandTotal}</span>
+              </div>
             </div>
             
-            {config.service !== 'message' && Number(prices.grandTotal) <= 0 && (
+            {Number(prices.grandTotal) <= 0 && (
               <div style={{ fontSize: 12, color: 'var(--error-container)', textAlign: 'center', background: 'rgba(255,0,0,0.1)', padding: 8, borderRadius: 4, marginBottom: 8 }}>
                 Price unavailable for this specification.
               </div>

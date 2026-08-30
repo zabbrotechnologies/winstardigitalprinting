@@ -35,7 +35,7 @@ export default function Home() {
       {/* Hero */}
       <section className="hero" style={{
         position: 'relative',
-        backgroundImage: 'url("https://images.unsplash.com/photo-1557672172-298e090bd0f1?q=80&w=2000&auto=format&fit=crop")', // red/crimson themed artistic background
+        backgroundImage: 'url("https://images.unsplash.com/photo-1562240020-ce31ccb0fa7d?q=80&w=2000&auto=format&fit=crop")', // commercial printing press
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         padding: '120px 0',

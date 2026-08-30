@@ -678,10 +678,54 @@ export default function PrintWizard({ isWholesale = false }) {
               </div>
               
               {(config.service === 'printing' || config.service === 'binding') && config.binding !== 'No Binding' && (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--on-surface-variant)' }}>Binding Add-on:</span>
-                  <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{config.binding}</span>
-                </div>
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Binding Add-on:</span>
+                    <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{config.binding}</span>
+                  </div>
+                  {config.binding === 'Spiral Binding' && (
+                    <div style={{
+                      marginTop: 8, padding: 12, background: 'var(--surface-container-high)',
+                      borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)',
+                      fontSize: 11.5, color: 'var(--on-surface-variant)', display: 'flex', flexDirection: 'column', gap: 4
+                    }}>
+                      <div style={{ fontWeight: 700, color: 'var(--primary)', marginBottom: 2 }}>
+                        📖 {config.paper_size} Spiral Binding Rates:
+                      </div>
+                      {config.paper_size === 'A4' ? (
+                        <>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 1 && config.pages <= 49 ? 1 : 0.6, fontWeight: config.pages >= 1 && config.pages <= 49 ? 700 : 400 }}>
+                            <span>1–49 pages</span> <span>₹25</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 50 && config.pages <= 99 ? 1 : 0.6, fontWeight: config.pages >= 50 && config.pages <= 99 ? 700 : 400 }}>
+                            <span>50–99 pages</span> <span>₹30</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 100 && config.pages <= 199 ? 1 : 0.6, fontWeight: config.pages >= 100 && config.pages <= 199 ? 700 : 400 }}>
+                            <span>100–199 pages</span> <span>₹40</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 200 && config.pages <= 299 ? 1 : 0.6, fontWeight: config.pages >= 200 && config.pages <= 299 ? 700 : 400 }}>
+                            <span>200–299 pages</span> <span>₹50</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 300 && config.pages <= 500 ? 1 : 0.6, fontWeight: config.pages >= 300 && config.pages <= 500 ? 700 : 400 }}>
+                            <span>300–500 pages</span> <span>₹70</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages > 500 ? 1 : 0.6, fontWeight: config.pages > 500 ? 700 : 400, color: 'var(--error)' }}>
+                            <span>501+ pages</span> <span>Not Available</span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 1 && config.pages <= 99 ? 1 : 0.6, fontWeight: config.pages >= 1 && config.pages <= 99 ? 700 : 400 }}>
+                            <span>1–99 pages</span> <span>₹50</span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 100 ? 1 : 0.6, fontWeight: config.pages >= 100 ? 700 : 400 }}>
+                            <span>100+ pages</span> <span>₹70</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </>
               )}
 
               {file && (

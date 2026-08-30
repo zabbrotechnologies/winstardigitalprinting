@@ -105,10 +105,10 @@ export default function PrintWizard({ isWholesale = false }) {
   }, [config.paper_size, config.service, isWholesaleActive]);
 
   useEffect(() => {
-    if (!isWholesaleActive && config.pages > 500 && config.binding === 'Spiral Binding') {
+    if (!isWholesaleActive && config.paper_size === 'A4' && config.pages > 500 && config.binding === 'Spiral Binding') {
       setConfig(c => ({ ...c, binding: 'No Binding' }));
     }
-  }, [config.pages, isWholesaleActive, config.binding]);
+  }, [config.pages, config.paper_size, isWholesaleActive, config.binding]);
 
   function getCalculatedPrice() {
     let subtotal = 0;
@@ -241,7 +241,7 @@ export default function PrintWizard({ isWholesale = false }) {
       return;
     }
 
-    if (!isWholesaleActive && config.service === 'printing' && config.binding === 'Spiral Binding' && config.pages > 500) {
+    if (!isWholesaleActive && config.paper_size === 'A4' && config.binding === 'Spiral Binding' && config.pages > 500) {
       setError('Spiral Binding is not available for documents over 500 pages.');
       return;
     }
@@ -526,8 +526,8 @@ export default function PrintWizard({ isWholesale = false }) {
                         <label className="label">Binding Add-on</label>
                         <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
                           <option value="Chat Binding">Chat Binding</option>
-                          <option value="Spiral Binding" disabled={config.pages > 500}>
-                            Spiral Binding {config.pages > 500 ? ' (Unavailable > 500 pages)' : ''}
+                          <option value="Spiral Binding" disabled={config.paper_size === 'A4' && config.pages > 500}>
+                            Spiral Binding {config.paper_size === 'A4' && config.pages > 500 ? ' (Unavailable > 500 pages)' : ''}
                           </option>
                         </select>
                       </div>
@@ -552,7 +552,7 @@ export default function PrintWizard({ isWholesale = false }) {
                       <label className="label">Binding Add-on</label>
                       <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
                         {BINDING_OPTIONS.map(b => {
-                          const disabled = b === 'Spiral Binding' && config.pages > 500;
+                          const disabled = b === 'Spiral Binding' && config.paper_size === 'A4' && config.pages > 500;
                           return (
                             <option key={b} value={b} disabled={disabled}>
                               {b} {disabled ? ' (Unavailable > 500 pages)' : ''}
@@ -841,26 +841,9 @@ export default function PrintWizard({ isWholesale = false }) {
                         <div><strong>Branch:</strong> FORT BRANCH, DINDIGUL</div>
                       </div>
                       
-                      {/* Generative Mock QR Code */}
+                      {/* Exact QR Code */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
-                        <svg viewBox="0 0 100 100" style={{ width: 100, height: 100, background: '#fff', padding: 6, border: '1px solid var(--outline-variant)', borderRadius: 6 }}>
-                          <rect x="0" y="0" width="22" height="22" fill="#000" />
-                          <rect x="3" y="3" width="16" height="16" fill="#fff" />
-                          <rect x="6" y="6" width="10" height="10" fill="#000" />
-                          
-                          <rect x="78" y="0" width="22" height="22" fill="#000" />
-                          <rect x="81" y="3" width="16" height="16" fill="#fff" />
-                          <rect x="84" y="6" width="10" height="10" fill="#000" />
-                          
-                          <rect x="0" y="78" width="22" height="22" fill="#000" />
-                          <rect x="3" y="81" width="16" height="16" fill="#fff" />
-                          <rect x="6" y="84" width="10" height="10" fill="#000" />
-                          
-                          <path d="M 28,3 H 40 V 12 H 28 Z M 48,0 H 68 V 3 H 48 Z M 28,18 H 36 V 26 H 28 Z M 48,14 H 62 V 22 H 48 Z" fill="#000" />
-                          <path d="M 0,32 H 10 V 42 H 0 Z M 14,32 H 32 V 46 H 14 Z M 38,32 H 56 V 42 H 38 Z M 68,28 H 76 V 46 H 68 Z M 82,32 H 98 V 42 H 82 Z" fill="#000" />
-                          <path d="M 0,50 H 18 V 60 H 0 Z M 28,50 H 46 V 64 H 28 Z M 56,50 H 70 V 60 H 56 Z M 76,50 H 98 V 64 H 76 Z" fill="#000" />
-                          <path d="M 32,68 H 42 V 82 H 32 Z M 46,68 H 60 V 86 H 46 Z M 64,68 H 82 V 78 H 64 Z M 78,82 H 98 V 98 H 78 Z" fill="#000" />
-                        </svg>
+                        <img src="/qr_code.png" alt="Winstar UPI QR Code" style={{ width: 100, height: 100, objectFit: 'contain', background: '#fff', padding: 6, border: '1px solid var(--outline-variant)', borderRadius: 6 }} />
                         <span style={{ fontSize: 10, color: 'var(--on-surface-variant)', marginTop: 4, fontWeight: 700 }}>Scan to Pay</span>
                       </div>
                     </div>

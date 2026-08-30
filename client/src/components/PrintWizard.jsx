@@ -289,7 +289,7 @@ export default function PrintWizard({ isWholesale = false }) {
         {[
           { stepNum: 1, label: '1. Upload File', icon: 'cloud_upload' },
           { stepNum: 2, label: '2. Print Specs', icon: 'tune' },
-          { stepNum: 3, label: '3. Customer & WhatsApp', icon: 'whatsapp' },
+          { stepNum: 3, label: '3. Customer & WhatsApp', icon: 'chat' },
         ].map(s => (
           <button
             key={s.stepNum}

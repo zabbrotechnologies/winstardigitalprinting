@@ -5,8 +5,8 @@ import PrintWizard from '../components/PrintWizard';
 import ServiceCard from '../components/ServiceCard';
 
 const SERVICES = [
-  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.', image: 'https://images.unsplash.com/photo-1628424075191-233de8e79cb2?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'print', title: 'Wide Format Printing', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.', image: 'https://images.unsplash.com/photo-1598522325010-0925dbdb81ba?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.', image: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'print', title: 'Wide Format Printing', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.', image: 'https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&q=80&w=800' },
   { icon: 'file_copy', title: 'Print Copy Scan', description: 'High-quality B&W and color printing, high-speed copying, and document scanning.', image: 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&q=80&w=800' },
   { icon: 'contact_mail', title: 'Invitations', description: 'Custom-designed invitations for events, including flat cards, folded cards, and pocket invitations.', image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800' },
   { icon: 'military_tech', title: 'Certificates', description: 'High-quality certificates for awards and recognitions with logos, seals, and borders.', image: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&q=80&w=800' },

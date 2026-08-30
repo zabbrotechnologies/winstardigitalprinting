@@ -6,17 +6,17 @@ import { supabase } from '../lib/supabase';
 import { getLocalOrders } from '../lib/orderService';
 
 const ALL_SERVICES = [
-  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.', image: 'https://images.unsplash.com/photo-1628424075191-233de8e79cb2?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'print', title: 'Wide Format', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.', image: 'https://images.unsplash.com/photo-1598522325010-0925dbdb81ba?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.', image: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'print', title: 'Wide Format', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.', image: 'https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&q=80&w=800' },
   { icon: 'file_copy', title: 'Print Copy Scan', description: 'High-quality B&W and color printing, high-speed copying, and document scanning.', image: 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&q=80&w=800' },
   { icon: 'contact_mail', title: 'Invitations', description: 'Custom-designed invitations for weddings, birthdays, anniversaries, and corporate events.', image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800' },
   { icon: 'military_tech', title: 'Certificates', description: 'High-quality certificates for awards, recognitions, and official documents.', image: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&q=80&w=800' },
   { icon: 'badge', title: 'ID Cards', description: 'Durable, custom-printed ID cards for schools, businesses, and organizations.', image: 'https://images.unsplash.com/photo-1506784926709-22f1ec395907?auto=format&fit=crop&q=80&w=800' },
   { icon: 'business_center', title: 'Business Cards', description: 'Professionally designed business cards with matte, glossy, or textured finishes.', image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'menu_book', title: 'Brochures', description: 'Informative and eye-catching brochures for promoting products, services, or events.', image: 'https://images.unsplash.com/photo-1586717799195-2cb6d38e6e5a?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'menu_book', title: 'Brochures', description: 'Informative and eye-catching brochures for promoting products, services, or events.', image: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&q=80&w=800' },
   { icon: 'restaurant_menu', title: 'Menu Cards', description: 'High-quality menu cards that showcase a restaurant\'s offerings beautifully.', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800' },
   { icon: 'draft', title: 'Letter Head', description: 'Professional letterheads to reinforce brand identity in official correspondence.', image: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'auto_stories', title: 'Magazines', description: 'Multi-page, high-quality publications typically used for content-heavy material.', image: 'https://images.unsplash.com/photo-1506880018603-83d5b62f4d38?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'auto_stories', title: 'Magazines', description: 'Multi-page, high-quality publications typically used for content-heavy material.', image: 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&q=80&w=800' },
 ];
 
 const STATUS_TIMELINE = [

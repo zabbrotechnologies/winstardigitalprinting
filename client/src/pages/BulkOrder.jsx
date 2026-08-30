@@ -27,15 +27,16 @@ export default function BulkOrder() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             background: '#e0f2fe', color: '#0369a1', padding: '6px 16px',
             borderRadius: 'var(--radius-full)', fontSize: 13, fontWeight: 700,
             marginBottom: 16, letterSpacing: '0.04em',
+            maxWidth: '100%'
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>local_shipping</span>
             WINSTAR B2B & WHOLESALE BULK ORDERING
           </div>
-          <h1 className="headline-lg" style={{ fontSize: 34, marginBottom: 8 }}>
+          <h1 className="wholesale-title" style={{ fontSize: 34, marginBottom: 8, lineHeight: 1.2 }}>
             Wholesale Printing Portal
           </h1>
           <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: 580, margin: '0 auto' }}>

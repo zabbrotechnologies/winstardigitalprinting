@@ -232,46 +232,59 @@ export default function Services() {
               </div>
 
               {/* Visiting Cards Sub-Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
                 {VISITING_CARD_TYPES.map(card => (
                   <div 
                     key={card.title} 
-                    className="card animate-fade-in" 
+                    className="animate-fade-in" 
                     style={{ 
                       borderRadius: 'var(--radius-xl)', 
                       overflow: 'hidden',
-                      boxShadow: 'var(--shadow-hover)',
-                      border: '1px solid var(--outline-variant)',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                       display: 'flex',
-                      flexDirection: 'column'
+                      flexDirection: 'column',
+                      background: 'var(--surface-container-lowest)',
+                      border: '1px solid var(--outline-variant)',
                     }}
                   >
-                    {/* BG Image Banner */}
+                    {/* Service Card Style Image */}
                     <div style={{
-                      height: 140,
-                      backgroundImage: `url(${card.image})`,
+                      backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.78)), url(${card.image})`,
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
-                      position: 'relative',
+                      minHeight: 200,
                       display: 'flex',
-                      alignItems: 'flex-end',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      padding: 20,
                     }}>
+                      {/* Top label */}
                       <div style={{
-                        position: 'absolute', inset: 0,
-                        background: 'linear-gradient(to top, rgba(10,10,20,0.75) 0%, rgba(10,10,20,0.1) 100%)',
-                      }} />
-                      <div style={{ position: 'relative', zIndex: 1, padding: '12px 18px' }}>
-                        <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 17, marginBottom: 2, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>{card.title}</h3>
-                        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', lineHeight: 1.4 }}>{card.desc}</p>
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        background: 'var(--primary-container)', color: '#fff',
+                        padding: '4px 10px', borderRadius: 4,
+                        fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
+                        textTransform: 'uppercase', width: 'fit-content',
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>badge</span>
+                        VISITING CARD
+                      </div>
+                      {/* Icon + Title at bottom */}
+                      <div>
+                        <div style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', borderRadius: 8, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                          <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: 22 }}>style</span>
+                        </div>
+                        <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 18, marginBottom: 4, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{card.title}</h3>
+                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.82)', lineHeight: 1.5 }}>{card.desc}</p>
                       </div>
                     </div>
 
                     {/* Table */}
-                    <div style={{ padding: 16, flex: 1 }}>
-                      <div style={{ overflowX: 'auto', background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-md)', padding: 12, border: '1px solid var(--surface-container)' }}>
+                    <div style={{ padding: '14px 16px', flex: 1 }}>
+                      <div style={{ overflowX: 'auto' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
                           <thead>
-                            <tr style={{ borderBottom: '1.5px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
+                            <tr style={{ borderBottom: '1.5px solid var(--outline-variant)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface-variant)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                               <th style={{ padding: '8px 4px' }}>Qty</th>
                               <th style={{ padding: '8px 4px' }}>Single Side</th>
                               <th style={{ padding: '8px 4px' }}>Front & Back</th>
@@ -282,14 +295,14 @@ export default function Services() {
                               const cutoff = p.qty <= 510 ? 60 : 120;
                               return (
                                 <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
-                                  <td style={{ padding: '8px 4px', fontWeight: 600 }}>{p.qty}</td>
-                                  <td style={{ padding: '8px 4px' }}>
-                                    <div style={{ fontSize: 10, opacity: 0.7 }}>₹{p.single} + ₹{cutoff}</div>
-                                    <div style={{ fontWeight: 700, color: 'var(--on-surface)' }}>₹{p.single + cutoff}</div>
+                                  <td style={{ padding: '7px 4px', fontWeight: 700, color: 'var(--on-surface)' }}>{p.qty}</td>
+                                  <td style={{ padding: '7px 4px' }}>
+                                    <div style={{ fontSize: 10, opacity: 0.6 }}>₹{p.single} + ₹{cutoff}</div>
+                                    <div style={{ fontWeight: 700, color: 'var(--primary-container)' }}>₹{p.single + cutoff}</div>
                                   </td>
-                                  <td style={{ padding: '8px 4px' }}>
-                                    <div style={{ fontSize: 10, opacity: 0.7 }}>₹{p.double} + ₹{cutoff}</div>
-                                    <div style={{ fontWeight: 700, color: 'var(--on-surface)' }}>₹{p.double + cutoff}</div>
+                                  <td style={{ padding: '7px 4px' }}>
+                                    <div style={{ fontSize: 10, opacity: 0.6 }}>₹{p.double} + ₹{cutoff}</div>
+                                    <div style={{ fontWeight: 700, color: 'var(--primary-container)' }}>₹{p.double + cutoff}</div>
                                   </td>
                                 </tr>
                               );

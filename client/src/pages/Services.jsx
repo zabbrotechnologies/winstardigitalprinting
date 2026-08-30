@@ -108,6 +108,7 @@ export default function Services() {
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState('');
   const [selectedService, setSelectedService] = useState(null);
+  const [activePriceTab, setActivePriceTab] = useState('documents');
 
   // Scroll to tracking section if #tracking hash
   useEffect(() => {
@@ -279,32 +280,174 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Pricing Banner */}
-      <section style={{ background: 'var(--inverse-surface)', padding: '64px 40px', textAlign: 'center' }}>
-        <div className="container">
-          <h2 className="headline-md" style={{ color: 'var(--inverse-on-surface)', marginBottom: 12 }}>
-            Transparent Pricing
-          </h2>
-          <p style={{ color: 'var(--surface-variant)', fontSize: 16, marginBottom: 40 }}>
-            No hidden fees. Pay only for what you print.
-          </p>
-          <div className="pricing-grid" style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
+      {/* Pricing Section */}
+      <section style={{ background: 'var(--surface-container-low)', padding: '64px 20px' }}>
+        <div className="container" style={{ maxWidth: 900 }}>
+          <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            <h2 className="headline-md" style={{ marginBottom: 12 }}>Transparent Standard Pricing</h2>
+            <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: 520, margin: '0 auto' }}>
+              No hidden fees. Pay only for what you print. Volume discounts are calculated automatically.
+            </p>
+          </div>
+
+          {/* Pricing Tabs */}
+          <div style={{
+            display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap',
+            marginBottom: 32, background: 'var(--surface-container)', padding: 6,
+            borderRadius: 'var(--radius-lg)', maxWidth: 'fit-content', margin: '0 auto 32px'
+          }}>
             {[
-              { label: 'B&W Print', price: '₹2/page', sub: 'A4 size' },
-              { label: 'Color Print', price: '₹10/page', sub: 'A4 size' },
-              { label: 'Photo Print', price: '₹25/page', sub: '4×6 glossy' },
-              { label: 'Lamination', price: '₹15/page', sub: 'Matte or Gloss' },
-              { label: 'Spiral Binding', price: '₹40/doc', sub: 'Up to 150 pages' },
-            ].map(p => (
-              <div key={p.label} style={{
-                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 'var(--radius-lg)', padding: '24px 28px', minWidth: 140,
-              }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 800, color: 'var(--secondary-container)', marginBottom: 4 }}>{p.price}</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--inverse-on-surface)' }}>{p.label}</div>
-                <div style={{ fontSize: 12, color: 'var(--surface-variant)', marginTop: 2 }}>{p.sub}</div>
-              </div>
+              { id: 'documents', label: 'Documents & Xerox', icon: 'description' },
+              { id: 'binding', label: 'Binding Add-ons', icon: 'menu_book' },
+              { id: 'lamination', label: 'Lamination', icon: 'layers' },
+              { id: 'wide-format', label: 'Wide Format', icon: 'photo_size_select_actual' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActivePriceTab(tab.id)}
+                className="btn btn-pill"
+                style={{
+                  gap: 6,
+                  padding: '8px 16px',
+                  fontSize: 13,
+                  background: activePriceTab === tab.id ? 'var(--primary-container)' : 'transparent',
+                  color: activePriceTab === tab.id ? 'var(--on-primary-container)' : 'var(--on-surface-variant)',
+                  border: 'none',
+                  boxShadow: activePriceTab === tab.id ? 'var(--shadow-sm)' : 'none'
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{tab.icon}</span>
+                {tab.label}
+              </button>
             ))}
+          </div>
+
+          {/* Pricing Content */}
+          <div className="card" style={{ padding: 24, borderRadius: 'var(--radius-xl)', overflow: 'hidden' }}>
+            {activePriceTab === 'documents' && (
+              <div>
+                <div style={{ background: '#fff9db', border: '1px solid #ffe3e3', color: '#b71c1c', padding: '10px 14px', borderRadius: 'var(--radius)', fontSize: 13, marginBottom: 20, fontWeight: 600 }}>
+                  💡 First 10 copies of A4 size and document prints are ₹1.00 per copy.
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                    <thead>
+                      <tr style={{ borderBottom: '2px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
+                        <th style={{ padding: 12 }}>Paper Size / Type</th>
+                        <th style={{ padding: 12 }}>Xerox Rate</th>
+                        <th style={{ padding: 12 }}>Print Rate</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        { name: "A4 f&b per side", xerox: "₹0.60", print: "₹0.80" },
+                        { name: "A4 single", xerox: "₹1.00", print: "₹1.20" },
+                        { name: "FS f&b per side", xerox: "₹1.00", print: "₹1.50" },
+                        { name: "FS single", xerox: "₹1.50", print: "₹2.00" },
+                        { name: "A3 f&b per side", xerox: "₹2.50", print: "₹3.00" },
+                        { name: "A3 single side", xerox: "₹3.00", print: "₹5.00" },
+                        { name: "A4 GREEN SHEET", xerox: "₹2.00", print: "₹3.00" },
+                        { name: "FS GREEN SHEET", xerox: "₹2.50", print: "₹3.00" }
+                      ].map((row, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
+                          <td style={{ padding: 12, fontWeight: 600 }}>{row.name}</td>
+                          <td style={{ padding: 12 }}>{row.xerox}</td>
+                          <td style={{ padding: 12 }}>{row.print}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activePriceTab === 'binding' && (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
+                      <th style={{ padding: 12 }}>Binding Type</th>
+                      <th style={{ padding: 12 }}>Paper Size / Pages</th>
+                      <th style={{ padding: 12 }}>Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { type: "Chat Binding", size: "A4", rate: "₹8" },
+                      { type: "Chat Binding", size: "FS", rate: "₹10" },
+                      { type: "Spiral Binding", size: "A4 BELOW 50 PAPER", rate: "₹25" },
+                      { type: "Spiral Binding", size: "A4 50 TO 99 PAPER", rate: "₹30" },
+                      { type: "Spiral Binding", size: "A4 100 TO 199 PAPER", rate: "₹40" },
+                      { type: "Spiral Binding", size: "A4 200 TO 300", rate: "₹50" },
+                      { type: "Spiral Binding", size: "FS BELOW 99 PAPER", rate: "₹50" },
+                      { type: "Spiral Binding", size: "FS ABOVE 100 PAPER", rate: "₹70" }
+                    ].map((row, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
+                        <td style={{ padding: 12, fontWeight: 600 }}>{row.type}</td>
+                        <td style={{ padding: 12 }}>{row.size}</td>
+                        <td style={{ padding: 12 }}>{row.rate}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {activePriceTab === 'lamination' && (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
+                      <th style={{ padding: 12 }}>Sheet Size</th>
+                      <th style={{ padding: 12 }}>Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { size: "ID Size", rate: "₹20" },
+                      { size: "A4 Size", rate: "₹25" },
+                      { size: "FS Size", rate: "₹35" },
+                      { size: "A3 Size", rate: "₹50" }
+                    ].map((row, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
+                        <td style={{ padding: 12, fontWeight: 600 }}>{row.size}</td>
+                        <td style={{ padding: 12 }}>{row.rate}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {activePriceTab === 'wide-format' && (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
+                      <th style={{ padding: 12 }}>Size / Print Type</th>
+                      <th style={{ padding: 12 }}>Xerox Rate</th>
+                      <th style={{ padding: 12 }}>Print Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { name: "A2 B&W", xerox: "₹30", print: "₹40" },
+                      { name: "A1 B&W", xerox: "₹60", print: "₹80" },
+                      { name: "A0 B&W", xerox: "₹120", print: "₹160" },
+                      { name: "A2 Color", xerox: "₹150", print: "₹200" },
+                      { name: "A1 Color", xerox: "₹250", print: "₹300" },
+                      { name: "A0 Color", xerox: "₹350", print: "₹400" }
+                    ].map((row, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
+                        <td style={{ padding: 12, fontWeight: 600 }}>{row.name}</td>
+                        <td style={{ padding: 12 }}>{row.xerox}</td>
+                        <td style={{ padding: 12 }}>{row.print}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </section>

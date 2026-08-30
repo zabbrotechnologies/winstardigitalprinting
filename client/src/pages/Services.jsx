@@ -39,7 +39,7 @@ const VISITING_CARD_TYPES = [
   {
     title: "Art Board with Lamination",
     desc: "Premium Laminated Art Board (Glossy or Matte finish for extra durability)",
-    image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1606722590583-6951b5ea92ad?auto=format&fit=crop&q=80&w=800",
     prices: [
       { qty: 120, single: 180, double: 230 },
       { qty: 150, single: 200, double: 250 },
@@ -53,7 +53,7 @@ const VISITING_CARD_TYPES = [
   {
     title: "Metallic & Special Boards",
     desc: "Metallic Gold & Silver, Needle Point, Texture, Linen, and Special Boards",
-    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&q=80&w=800",
     prices: [
       { qty: 120, single: 190, double: 260 },
       { qty: 150, single: 225, double: 300 },
@@ -67,7 +67,7 @@ const VISITING_CARD_TYPES = [
   {
     title: "Synthetic White 125 Micron",
     desc: "Non-tearable Waterproof White Plastic Cards (Lightweight 125 mic)",
-    image: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=800",
     prices: [
       { qty: 120, single: 200, double: 285 },
       { qty: 150, single: 235, double: 335 },
@@ -218,6 +218,19 @@ export default function Services() {
                 Back to All Services
               </button>
 
+              {/* Cut-off Charges Banner */}
+              <div style={{
+                background: '#fff9db', border: '1px solid #fce8a6', color: '#b7791f',
+                padding: '12px 16px', borderRadius: 'var(--radius-lg)', fontSize: 14,
+                marginBottom: 32, display: 'flex', alignItems: 'center', gap: 10,
+                fontWeight: 600
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>cut</span>
+                <span>
+                  ✂️ <strong>Additional Cut-off (Finishing) Charges:</strong> ₹60 applies for quantities up to 510 cards. ₹120 applies for 720 and 1020 cards. (Pricing below shows the calculation).
+                </span>
+              </div>
+
               {/* Visiting Cards Sub-Grid */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 24 }}>
                 {VISITING_CARD_TYPES.map(card => (
@@ -252,13 +265,22 @@ export default function Services() {
                           </tr>
                         </thead>
                         <tbody>
-                          {card.prices.map((p, idx) => (
-                            <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
-                              <td style={{ padding: '8px 4px', fontWeight: 600 }}>{p.qty}</td>
-                              <td style={{ padding: '8px 4px' }}>₹{p.single}</td>
-                              <td style={{ padding: '8px 4px' }}>₹{p.double}</td>
-                            </tr>
-                          ))}
+                          {card.prices.map((p, idx) => {
+                            const cutoff = p.qty <= 510 ? 60 : 120;
+                            return (
+                              <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
+                                <td style={{ padding: '8px 4px', fontWeight: 600 }}>{p.qty}</td>
+                                <td style={{ padding: '8px 4px' }}>
+                                  <div style={{ fontSize: 10, opacity: 0.7 }}>₹{p.single} + ₹{cutoff}</div>
+                                  <div style={{ fontWeight: 700, color: 'var(--on-surface)' }}>₹{p.single + cutoff}</div>
+                                </td>
+                                <td style={{ padding: '8px 4px' }}>
+                                  <div style={{ fontSize: 10, opacity: 0.7 }}>₹{p.double} + ₹{cutoff}</div>
+                                  <div style={{ fontWeight: 700, color: 'var(--on-surface)' }}>₹{p.double + cutoff}</div>
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>

@@ -6,17 +6,19 @@ import { supabase } from '../lib/supabase';
 import { getLocalOrders } from '../lib/orderService';
 
 const ALL_SERVICES = [
-  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.', image: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'print', title: 'Wide Format', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.', image: 'https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'file_copy', title: 'Print Copy Scan', description: 'High-quality B&W and color printing, high-speed copying, and document scanning.', image: 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'contact_mail', title: 'Invitations', description: 'Custom-designed invitations for weddings, birthdays, anniversaries, and corporate events.', image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'military_tech', title: 'Certificates', description: 'High-quality certificates for awards, recognitions, and official documents.', image: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'badge', title: 'ID Cards', description: 'Durable, custom-printed ID cards for schools, businesses, and organizations.', image: 'https://images.unsplash.com/photo-1506784926709-22f1ec395907?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'business_center', title: 'Business Cards', description: 'Professionally designed business cards with matte, glossy, or textured finishes.', image: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'menu_book', title: 'Brochures', description: 'Informative and eye-catching brochures for promoting products, services, or events.', image: 'https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'restaurant_menu', title: 'Menu Cards', description: 'High-quality menu cards that showcase a restaurant\'s offerings beautifully.', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'draft', title: 'Letter Head', description: 'Professional letterheads to reinforce brand identity in official correspondence.', image: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'auto_stories', title: 'Magazines', description: 'Multi-page, high-quality publications typically used for content-heavy material.', image: 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?auto=format&fit=crop&q=80&w=800' },
+  { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
+  { title: "Plan Printouts", icon: "print", image: "/images/services/plan-print-outs.jpg", description: "High quality large format plan printouts." },
+  { title: "Business Cards", icon: "badge", image: "/images/services/business-cards.jpg", description: "Premium customized business cards." },
+  { title: "A4 Printouts", icon: "file_copy", image: "/images/services/a4-printouts.jpg", description: "Crisp and clear A4 document printing." },
+  { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.webp", description: "Book-like perfect binding for a premium finish." },
+  { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.webp", description: "Eye-catching tri-fold and bi-fold brochures." },
+  { title: "Certificates", icon: "military_tech", image: "/images/services/certificates.jpg", description: "High-quality award and certificate printing." },
+  { title: "Wiro Binding", icon: "library_books", image: "/images/services/wiro-binding.webp", description: "Durable and flexible wiro binding." },
+  { title: "Soft Binding", icon: "book", image: "/images/services/soft-binding.webp", description: "Clean soft binding for presentations." },
+  { title: "Document OCR", icon: "document_scanner", image: "/images/services/document-ocr.webp", description: "Scan and convert documents into editable text." },
+  { title: "Rexin Binding", icon: "bookmark", image: "/images/services/rexin-binding.webp", description: "Classic rexin binding for thesis and reports." },
+  { title: "Moroccan Hard Binding", icon: "book_4", image: "/images/services/moroccan-hard-binding.webp", description: "Premium Moroccan hard binding." },
+  { title: "Hard Binding", icon: "library_books", image: "/images/services/hard-binding.webp", description: "Standard hard binding for maximum durability." }
 ];
 
 const STATUS_TIMELINE = [
@@ -108,7 +110,7 @@ export default function Services() {
             fontSize: 13, fontWeight: 600, marginBottom: 20, letterSpacing: '0.04em',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>grid_view</span>
-            8 Professional Services
+            13 Professional Services
           </div>
           <h1 className="display-lg-mobile" style={{ marginBottom: 16 }}>
             Our Printing <span style={{ color: 'var(--primary-container)' }}>Services</span>

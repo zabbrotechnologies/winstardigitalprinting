@@ -5,12 +5,19 @@ import PrintWizard from '../components/PrintWizard';
 import ServiceCard from '../components/ServiceCard';
 
 const SERVICES = [
-  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.', image: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'print', title: 'Wide Format Printing', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.', image: 'https://images.unsplash.com/photo-1588345921523-c2dcdb7f1dcd?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'file_copy', title: 'Print Copy Scan', description: 'High-quality B&W and color printing, high-speed copying, and document scanning.', image: 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'contact_mail', title: 'Invitations', description: 'Custom-designed invitations for events, including flat cards, folded cards, and pocket invitations.', image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'military_tech', title: 'Certificates', description: 'High-quality certificates for awards and recognitions with logos, seals, and borders.', image: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&q=80&w=800' },
-  { icon: 'badge', title: 'ID Cards', description: 'Durable, custom-printed ID cards for schools, businesses, and organizations.', image: 'https://images.unsplash.com/photo-1506784926709-22f1ec395907?auto=format&fit=crop&q=80&w=800' },
+  { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
+  { title: "Plan Printouts", icon: "print", image: "/images/services/plan-print-outs.jpg", description: "High quality large format plan printouts." },
+  { title: "Business Cards", icon: "badge", image: "/images/services/business-cards.jpg", description: "Premium customized business cards." },
+  { title: "A4 Printouts", icon: "file_copy", image: "/images/services/a4-printouts.jpg", description: "Crisp and clear A4 document printing." },
+  { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.webp", description: "Book-like perfect binding for a premium finish." },
+  { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.webp", description: "Eye-catching tri-fold and bi-fold brochures." },
+  { title: "Certificates", icon: "military_tech", image: "/images/services/certificates.jpg", description: "High-quality award and certificate printing." },
+  { title: "Wiro Binding", icon: "library_books", image: "/images/services/wiro-binding.webp", description: "Durable and flexible wiro binding." },
+  { title: "Soft Binding", icon: "book", image: "/images/services/soft-binding.webp", description: "Clean soft binding for presentations." },
+  { title: "Document OCR", icon: "document_scanner", image: "/images/services/document-ocr.webp", description: "Scan and convert documents into editable text." },
+  { title: "Rexin Binding", icon: "bookmark", image: "/images/services/rexin-binding.webp", description: "Classic rexin binding for thesis and reports." },
+  { title: "Moroccan Hard Binding", icon: "book_4", image: "/images/services/moroccan-hard-binding.webp", description: "Premium Moroccan hard binding." },
+  { title: "Hard Binding", icon: "library_books", image: "/images/services/hard-binding.webp", description: "Standard hard binding for maximum durability." }
 ];
 
 const HOW_IT_WORKS = [
@@ -132,7 +139,7 @@ export default function Home() {
         <div className="container">
           <div className="services-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 40 }}>
             <div>
-              <h2 className="headline-md" style={{ marginBottom: 8 }}>Our Services</h2>
+              <h2 className="headline-md" style={{ marginBottom: 8 }}>Quick Pick</h2>
               <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Everything you need under one roof</p>
             </div>
             <Link to="/services" className="btn btn-outline">

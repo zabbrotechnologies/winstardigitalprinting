@@ -39,3 +39,70 @@ export const WHOLESALE_PRICE_LIST = [
   { id: 38, gsm: '90/130', media: 'PVC STICKER - FOIL SILVER', size: '13X19', single_1st: 70, single_add: 40, double_1st: null, double_add: null },
   { id: 39, gsm: '90/130', media: 'PVC STICKER - GOLD (A)', size: '13X19', single_1st: 70, single_add: 45, double_1st: null, double_add: null },
 ];
+
+// --- NORMAL RETAIL CUSTOMER PRICING ---
+export const NORMAL_PRINT_PRICES = {
+  'A4': {
+    'Normal Sheet': {
+      'Single Side': { print: 1.20, xerox: 1.00 },
+      'Front & Back': { print: 0.80, xerox: 0.60 },
+    },
+    'Green Sheet': {
+      'Single Side': { print: 3.00, xerox: 2.00 },
+      'Front & Back': { print: 3.00, xerox: 2.00 }, // No F&B rate given for Green sheet, using single rate logic or fallback
+    }
+  },
+  'FS': {
+    'Normal Sheet': {
+      'Single Side': { print: 2.00, xerox: 1.50 },
+      'Front & Back': { print: 1.50, xerox: 1.00 },
+    },
+    'Green Sheet': {
+      'Single Side': { print: 3.00, xerox: 2.50 },
+      'Front & Back': { print: 3.00, xerox: 2.50 },
+    }
+  },
+  'A3': {
+    'Normal Sheet': {
+      'Single Side': { print: 5.00, xerox: 3.00 },
+      'Front & Back': { print: 3.00, xerox: 2.50 },
+    }
+  }
+};
+
+export const WIDE_FORMAT_PRICES = {
+  'A2': { 'B&W': 40, 'Color': 200, 'B&W_Xerox': 30, 'Color_Xerox': 150 },
+  'A1': { 'B&W': 80, 'Color': 300, 'B&W_Xerox': 60, 'Color_Xerox': 250 },
+  'A0': { 'B&W': 160, 'Color': 400, 'B&W_Xerox': 120, 'Color_Xerox': 350 },
+};
+
+export const BINDING_PRICES = {
+  'Chat Binding': { 'A4': 8, 'FS': 10 },
+  'Spiral Binding': {
+    'A4': [
+      { min: 1, max: 49, price: 25 },
+      { min: 50, max: 99, price: 30 },
+      { min: 100, max: 199, price: 40 },
+      { min: 200, max: 299, price: 50 },
+      { min: 300, max: 500, price: 70 },
+    ],
+    'FS': [
+      { min: 1, max: 99, price: 50 },
+      { min: 100, max: Infinity, price: 70 },
+    ]
+  }
+};
+
+export const LAMINATION_PRICES = {
+  'ID': 20,
+  'A4': 25,
+  'FS': 35,
+  'A3': 50,
+};
+
+// Top-level service base prices (For items like Certificates, Visiting Cards, Brochures)
+export const FLAT_SERVICE_PRICES = {
+  'Certificates': { print: 50.00, xerox: 50.00 }, // Hardcoded base prices from old logic
+  'Visiting Cards': { print: 250.00, xerox: 250.00 },
+  'Brochures': { print: 15.00, xerox: 15.00 }
+};

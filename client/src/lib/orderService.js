@@ -60,7 +60,7 @@ export function updateOrderStatus(orderId, newStatus) {
   });
 }
 
-export function deleteOrder(orderId, isWholesale = false) {
+export async function deleteOrder(orderId, isWholesale = false) {
   try {
     const orders = getLocalOrders();
     const newOrders = orders.filter(o => o.id !== orderId && o.request_id !== orderId);
@@ -70,18 +70,29 @@ export function deleteOrder(orderId, isWholesale = false) {
   }
 
   const tableName = isWholesale ? 'wholesale_orders' : 'orders';
-  return supabase
-    .from(tableName)
-    .delete()
-    .eq('id', orderId)
-    .then(({ error }) => {
-      if (error) throw error;
-      return true;
-    })
-    .catch(err => {
-      console.warn('Supabase delete error:', err);
-      return false;
-    });
+  
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId);
+  let query = supabase.from(tableName).delete();
+  
+  if (isUuid) {
+    query = query.eq('id', orderId);
+  } else {
+    query = query.eq('request_id', orderId);
+  }
+
+  try {
+    const { error } = await query;
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.warn('Supabase delete error:', err);
+    // Fallback: try by request_id if it failed
+    try {
+      const { error: err2 } = await supabase.from(tableName).delete().eq('request_id', orderId);
+      if (!err2) return true;
+    } catch(e) {}
+    return false;
+  }
 }
 
 export function getLocalAgencies() {

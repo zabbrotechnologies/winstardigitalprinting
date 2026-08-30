@@ -39,6 +39,9 @@ create policy "Allow insert on signup" on public.profiles for insert with check 
 drop policy if exists "Allow update by owner or admin" on public.profiles;
 create policy "Allow update by owner or admin" on public.profiles for update using (true);
 
+drop policy if exists "Allow delete on profiles" on public.profiles;
+create policy "Allow delete on profiles" on public.profiles for delete using (true);
+
 
 -- ============================================================
 -- 2. wholesale_applications table (DEDICATED INDEPENDENT TABLE)
@@ -69,6 +72,9 @@ create policy "Allow public insert of wholesale_applications" on public.wholesal
 
 drop policy if exists "Allow public update of wholesale_applications" on public.wholesale_applications;
 create policy "Allow public update of wholesale_applications" on public.wholesale_applications for update using (true);
+
+drop policy if exists "Allow public delete of wholesale_applications" on public.wholesale_applications;
+create policy "Allow public delete of wholesale_applications" on public.wholesale_applications for delete using (true);
 
 
 -- ============================================================
@@ -109,6 +115,9 @@ create policy "Allow public select on orders" on public.orders for select using 
 
 drop policy if exists "Allow public update on orders" on public.orders;
 create policy "Allow public update on orders" on public.orders for update using (true);
+
+drop policy if exists "Allow public delete on orders" on public.orders;
+create policy "Allow public delete on orders" on public.orders for delete using (true);
 
 
 -- ============================================================

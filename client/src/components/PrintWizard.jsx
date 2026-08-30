@@ -1,45 +1,31 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { createOrder, uploadPrintFile } from '../lib/orderService';
-import { WHOLESALE_PRICE_LIST } from '../lib/priceList';
+import { 
+  WHOLESALE_PRICE_LIST, 
+  NORMAL_PRINT_PRICES, 
+  WIDE_FORMAT_PRICES, 
+  BINDING_PRICES, 
+  LAMINATION_PRICES, 
+  FLAT_SERVICE_PRICES 
+} from '../lib/priceList';
 
-const WINSTAR_PHONE = '919345046665'; // Winstar WhatsApp support number
+const WINSTAR_PHONE = '919345046665'; 
 
-const PRINT_TYPES = [
-  { value: 'bw', label: 'B&W Printing', icon: 'description', price: 2.00, wholesalePrice: 1.20 },
-  { value: 'color', label: 'Full HD Colour', icon: 'palette', price: 10.00, wholesalePrice: 6.00 },
-  { value: 'business_card', label: 'Visiting / Business Cards', icon: 'badge', price: 250.00, wholesalePrice: 180.00 },
-  { value: 'brochure', label: 'Brochures / Flyers', icon: 'auto_stories', price: 15.00, wholesalePrice: 9.00 },
-  { value: 'photo', label: 'Photo Printing', icon: 'photo_library', price: 25.00, wholesalePrice: 16.00 },
-  { value: 'xerox', label: 'Xerox / Photocopy', icon: 'print', price: 1.50, wholesalePrice: 0.90 },
-  { value: 'lamination', label: 'Lamination', icon: 'layers', price: 15.00, wholesalePrice: 10.00 },
-  { value: 'stickers', label: 'Stickers & Labels', icon: 'style', price: 25.00, wholesalePrice: 18.00 },
-  { value: 'wide_format', label: 'Wide Format', icon: 'print', price: 150.00, wholesalePrice: 110.00 },
-  { value: 'invitations', label: 'Invitations', icon: 'contact_mail', price: 40.00, wholesalePrice: 28.00 },
-  { value: 'certificates', label: 'Certificates', icon: 'military_tech', price: 50.00, wholesalePrice: 35.00 },
-  { value: 'id_cards', label: 'ID Cards', icon: 'badge', price: 60.00, wholesalePrice: 45.00 },
-  { value: 'menu_cards', label: 'Menu Cards', icon: 'restaurant_menu', price: 35.00, wholesalePrice: 25.00 },
-  { value: 'letter_head', label: 'Letter Head', icon: 'draft', price: 8.00, wholesalePrice: 5.00 },
-  { value: 'magazines', label: 'Magazines', icon: 'menu_book', price: 200.00, wholesalePrice: 140.00 },
+const TOP_LEVEL_SERVICES = [
+  { value: 'printing', label: 'Document & Wide Format Printing', icon: 'print' },
+  { value: 'binding', label: 'Spiral & Chat Binding', icon: 'auto_stories' },
+  { value: 'lamination', label: 'Lamination', icon: 'layers' },
+  { value: 'certificates', label: 'Certificates', icon: 'military_tech' },
+  { value: 'visiting_cards', label: 'Visiting / Business Cards', icon: 'badge' },
+  { value: 'brochures', label: 'Brochures / Flyers', icon: 'menu_book' },
 ];
 
-const PAPER_SIZES = ['A4', 'A3', 'A5', '12x18 (Digital)', 'Letter', 'Legal'];
-const GSM_OPTIONS = [
-  { value: '70 GSM', label: '70 GSM (Economy)', mult: 1.0 },
-  { value: '80 GSM', label: '80 GSM (Standard)', mult: 1.1 },
-  { value: '100 GSM', label: '100 GSM (Executive)', mult: 1.3 },
-  { value: '130 GSM', label: '130 GSM (Gloss/Matte Art)', mult: 1.6 },
-  { value: '250 GSM', label: '250 GSM (Cardstock)', mult: 2.2 },
-  { value: '300 GSM', label: '300 GSM (Premium Board)', mult: 2.6 },
-];
-
-const BINDINGS = [
-  { value: 'none', label: 'No Binding', price: 0 },
-  { value: 'staple', label: 'Corner Staple (+₹5)', price: 5 },
-  { value: 'spiral', label: 'Spiral Binding (+₹35)', price: 35 },
-  { value: 'wiro', label: 'Wiro Binding (+₹50)', price: 50 },
-  { value: 'hardcover', label: 'Hardcover Book (+₹150)', price: 150 },
-];
+const DOC_PRINT_SIZES = ['A4', 'FS', 'A3', 'A2', 'A1', 'A0'];
+const SHEET_TYPES = ['Normal Sheet', 'Green Sheet'];
+const COLOR_OPTIONS = ['B&W', 'Color'];
+const BINDING_OPTIONS = ['No Binding', 'Chat Binding', 'Spiral Binding'];
+const LAMINATION_SIZES = ['ID', 'A4', 'FS', 'A3'];
 
 export default function PrintWizard({ isWholesale = false }) {
   const { user, profile, getAccessToken } = useAuth();
@@ -54,32 +40,33 @@ export default function PrintWizard({ isWholesale = false }) {
   const [createdOrder, setCreatedOrder] = useState(null);
   const [error, setError] = useState('');
 
-  // Customer contact info (guest or auto-filled)
   const [customerName, setCustomerName] = useState(profile?.full_name || '');
   const [customerPhone, setCustomerPhone] = useState(profile?.mobile || '');
   const [deliveryType, setDeliveryType] = useState('pickup');
   const [deliveryAddress, setDeliveryAddress] = useState(profile?.business_address || '');
 
   const [config, setConfig] = useState({
-    print_type: 'bw', // For retail
-    media: 'COATED', // For wholesale
-    copies: 1,
+    service: 'printing',
     paper_size: 'A4',
-    paper_gsm: '80 GSM',
-    binding: 'none',
+    sheet_type: 'Normal Sheet',
+    color: 'B&W',
     double_sided: false,
-    finish: 'Standard',
+    pages: 1,
+    copies: 1,
+    binding: 'No Binding',
+    lami_size: 'A4',
+    
+    // Wholesale fields
+    media: 'COATED',
+    paper_gsm: '100',
   });
 
   const isWholesaleActive = isWholesale || (profile?.isWholesale && profile?.isApproved);
 
-  // Helper for dynamic wholesale dropdowns
   const availableWholesaleItems = WHOLESALE_PRICE_LIST.filter(item => item.media === config.media);
   const availableWholesaleSizes = [...new Set(availableWholesaleItems.map(item => item.size))];
-  // Filter GSM based on media AND size
   const availableWholesaleGsm = [...new Set(availableWholesaleItems.filter(item => item.size === config.paper_size).map(item => item.gsm))];
 
-  // Auto-select valid size/gsm when media changes
   const handleMediaChange = (newMedia) => {
     const items = WHOLESALE_PRICE_LIST.filter(i => i.media === newMedia);
     if (items.length > 0) {
@@ -96,51 +83,111 @@ export default function PrintWizard({ isWholesale = false }) {
     setConfig(c => ({ ...c, paper_size: newSize, paper_gsm: items.length > 0 ? items[0].gsm : '' }));
   };
 
+  // UI Rules enforcement
+  useEffect(() => {
+    if (!isWholesaleActive && config.service === 'printing') {
+      const isWideFormat = ['A0', 'A1', 'A2'].includes(config.paper_size);
+      setConfig(c => {
+        let newC = { ...c };
+        if (isWideFormat) {
+          newC.sheet_type = 'Normal Sheet';
+          newC.binding = 'No Binding';
+          newC.double_sided = false;
+        } else if (c.paper_size === 'A3') {
+          newC.sheet_type = 'Normal Sheet';
+          newC.binding = 'No Binding';
+        }
+        return newC;
+      });
+    }
+  }, [config.paper_size, config.service, isWholesaleActive]);
+
   function getCalculatedPrice() {
     let subtotal = 0;
     
     if (isWholesaleActive) {
-      // Find the specific wholesale item
       const item = WHOLESALE_PRICE_LIST.find(i => 
         i.media === config.media && 
         i.size === config.paper_size && 
         i.gsm === config.paper_gsm
       );
-      
       if (item) {
-        // Handle missing double sided pricing for stickers/mirrors by falling back to single
         const isDouble = config.double_sided && item.double_1st !== null;
         const rate1st = isDouble ? item.double_1st : item.single_1st;
         const rateAdd = isDouble ? item.double_add : item.single_add;
-        
         if (config.copies > 10) {
-          // NO FIRST COPY CHARGE MORE THAN 10 COPY (assuming all are at add rate)
           subtotal = config.copies * rateAdd;
         } else {
-          // 1st copy at rate1st, remaining at rateAdd
           subtotal = rate1st + ((config.copies - 1) * rateAdd);
         }
       }
     } else {
-      // Retail Pricing Logic
-      const item = PRINT_TYPES.find(t => t.value === config.print_type) || PRINT_TYPES[0];
-      const baseUnitRate = item.price;
-      const gsmMult = GSM_OPTIONS.find(g => g.value === config.paper_gsm)?.mult || 1.0;
-      const sideMult = config.double_sided ? 1.8 : 1.0;
-      subtotal = (baseUnitRate * gsmMult * sideMult * config.copies);
-    }
+      if (config.service === 'printing') {
+        const isWideFormat = ['A0', 'A1', 'A2'].includes(config.paper_size);
+        let printRate = 0;
+        let xeroxRate = 0;
+        let bindingRate = 0;
 
-    const bindingCost = BINDINGS.find(b => b.value === config.binding)?.price || 0;
-    subtotal += bindingCost;
+        if (isWideFormat) {
+          const rates = WIDE_FORMAT_PRICES[config.paper_size];
+          if (rates) {
+            printRate = config.color === 'Color' ? rates['Color'] : rates['B&W'];
+            xeroxRate = config.color === 'Color' ? rates['Color_Xerox'] : rates['B&W_Xerox'];
+          }
+        } else {
+          const sizeRates = NORMAL_PRINT_PRICES[config.paper_size];
+          const typeRates = sizeRates?.[config.sheet_type] || sizeRates?.['Normal Sheet'];
+          const sideKey = config.double_sided ? 'Front & Back' : 'Single Side';
+          const rates = typeRates?.[sideKey] || typeRates?.['Single Side'];
+          
+          printRate = rates?.print || 0;
+          xeroxRate = rates?.xerox || 0;
+
+          if (config.binding === 'Chat Binding') {
+            bindingRate = BINDING_PRICES['Chat Binding'][config.paper_size] || 0;
+          } else if (config.binding === 'Spiral Binding') {
+            const tiers = BINDING_PRICES['Spiral Binding'][config.paper_size] || [];
+            const tier = tiers.find(t => config.pages >= t.min && config.pages <= t.max);
+            bindingRate = tier ? tier.price : 0;
+          }
+        }
+
+        const printingTotal = config.copies === 1 
+          ? (config.pages * printRate) 
+          : (config.pages * printRate) + (config.pages * xeroxRate * (config.copies - 1));
+        
+        const bindingTotal = bindingRate * config.copies;
+        subtotal = printingTotal + bindingTotal;
+
+      } else if (config.service === 'binding') {
+        let bindingRate = 0;
+        if (config.binding === 'Chat Binding') {
+          bindingRate = BINDING_PRICES['Chat Binding'][config.paper_size] || 0;
+        } else if (config.binding === 'Spiral Binding') {
+          const tiers = BINDING_PRICES['Spiral Binding'][config.paper_size] || [];
+          const tier = tiers.find(t => config.pages >= t.min && config.pages <= t.max);
+          bindingRate = tier ? tier.price : 0;
+        }
+        subtotal = bindingRate * config.copies;
+
+      } else if (config.service === 'lamination') {
+        const rate = LAMINATION_PRICES[config.lami_size] || 0;
+        subtotal = rate * config.pages * config.copies;
+
+      } else {
+        const keyMap = { 'certificates': 'Certificates', 'visiting_cards': 'Visiting Cards', 'brochures': 'Brochures' };
+        const rates = FLAT_SERVICE_PRICES[keyMap[config.service]];
+        if (rates) {
+          subtotal = config.copies === 1 
+            ? (rates.print) 
+            : (rates.print) + (rates.xerox * (config.copies - 1));
+        }
+      }
+    }
 
     const gst = subtotal * 0.18;
     const grandTotal = Math.round(subtotal + gst);
-    
-    return {
-      subtotal: subtotal.toFixed(2),
-      gst: gst.toFixed(2),
-      grandTotal: grandTotal.toFixed(2),
-    };
+    return { subtotal: subtotal.toFixed(2), gst: gst.toFixed(2), grandTotal: grandTotal.toFixed(2) };
   }
 
   async function handleFileSelect(selectedFile) {
@@ -166,16 +213,27 @@ export default function PrintWizard({ isWholesale = false }) {
       return;
     }
 
+    const prices = getCalculatedPrice();
+    if (prices.grandTotal <= 0) {
+      setError('Price unavailable for this specification. Please check your inputs or contact support.');
+      return;
+    }
+
+    if (!isWholesaleActive && config.service === 'printing' && config.binding === 'Spiral Binding' && config.pages > 500) {
+      setError('Spiral Binding is not available for documents over 500 pages.');
+      return;
+    }
+
     setSubmitting(true);
     setError('');
     try {
       const token = await getAccessToken();
-      const prices = getCalculatedPrice();
-
+      let serviceName = isWholesaleActive ? config.media : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label;
+      
       const payload = {
         customer_name: customerName,
         customer_phone: customerPhone,
-        service_name: isWholesaleActive ? config.media : PRINT_TYPES.find(t => t.value === config.print_type)?.label,
+        service_name: serviceName,
         file_name: uploadedFile?.fileName || file?.name || 'print-file.pdf',
         file_url: uploadedFile?.publicUrl || '',
         file_id: uploadedFile?.fileId || '',
@@ -197,12 +255,13 @@ export default function PrintWizard({ isWholesale = false }) {
 
   function openWhatsApp(order) {
     const reqId = order.request_id || order.id || 'WSR-GEN';
+    let sizeDetails = isWholesaleActive ? `${order.paper_size} (${order.paper_gsm})` : order.service === 'lamination' ? order.lami_size : order.paper_size;
     const text = encodeURIComponent(
       `🖨️ *WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
       `👤 *Customer:* ${order.customer_name} (${order.customer_phone})\n` +
-      `📄 *Service:* ${order.service_name || order.print_type}\n` +
+      `📄 *Service:* ${order.service_name}\n` +
       `📂 *File:* ${order.file_name}\n` +
-      `🔢 *Copies:* ${order.copies} | *Size:* ${order.paper_size} (${order.paper_gsm})\n` +
+      `🔢 *Copies:* ${order.copies} | *Pages:* ${order.pages} | *Size:* ${sizeDetails}\n` +
       `🔗 *Binding:* ${order.binding}\n` +
       `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + order.delivery_address : 'Store Pickup'}\n` +
       `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n` +
@@ -215,7 +274,6 @@ export default function PrintWizard({ isWholesale = false }) {
 
   return (
     <div id="quick-print" className="card animate-fade-in" style={{ padding: 32, borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-modal)' }}>
-      {/* Wholesale Banner if active */}
       {isWholesaleActive && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
@@ -227,7 +285,6 @@ export default function PrintWizard({ isWholesale = false }) {
         </div>
       )}
 
-      {/* Step Tabs */}
       <div className="wizard-tabs" style={{ display: 'flex', gap: 12, marginBottom: 32, borderBottom: '1px solid var(--surface-container)' }}>
         {[
           { stepNum: 1, label: '1. Upload File', icon: 'cloud_upload' },
@@ -259,9 +316,8 @@ export default function PrintWizard({ isWholesale = false }) {
       )}
 
       <div className="print-wizard-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 32 }}>
-        {/* LEFT COLUMN: STEPS */}
         <div>
-          {/* STEP 1: Upload */}
+          {/* STEP 1 */}
           {step === 1 && (
             <div>
               <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 1: Upload Your Print File</h3>
@@ -312,12 +368,11 @@ export default function PrintWizard({ isWholesale = false }) {
             </div>
           )}
 
-          {/* STEP 2: Configure Specs */}
+          {/* STEP 2 */}
           {step === 2 && (
             <div>
-              <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 16 }}>Step 2: Print Specifications</h3>
+              <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 16 }}>Step 2: Specifications</h3>
 
-              {/* Service Type / Media Selection */}
               {isWholesaleActive ? (
                 <>
                   <div style={{ marginBottom: 20 }}>
@@ -328,8 +383,6 @@ export default function PrintWizard({ isWholesale = false }) {
                       ))}
                     </select>
                   </div>
-
-                  {/* Size & GSM for Wholesale */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                     <div className="form-group">
                       <label className="label">Size</label>
@@ -344,97 +397,151 @@ export default function PrintWizard({ isWholesale = false }) {
                       </select>
                     </div>
                   </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                    <div className="form-group">
+                      <label className="label">Copies</label>
+                      <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: 24 }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+                      <input type="checkbox" checked={config.double_sided} onChange={e => setConfig(c => ({ ...c, double_sided: e.target.checked }))} style={{ width: 18, height: 18 }} />
+                      Print on Both Sides
+                    </label>
+                  </div>
                 </>
               ) : (
                 <>
                   <div style={{ marginBottom: 20 }}>
-                    <label className="label">Print Type / Service</label>
+                    <label className="label">Top-Level Service</label>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                      {PRINT_TYPES.map(pt => (
+                      {TOP_LEVEL_SERVICES.map(ts => (
                         <button
-                          key={pt.value}
+                          key={ts.value}
                           type="button"
-                          onClick={() => setConfig(c => ({ ...c, print_type: pt.value }))}
+                          onClick={() => setConfig(c => ({ ...c, service: ts.value }))}
                           style={{
                             padding: '12px 14px', borderRadius: 'var(--radius-md)', textAlign: 'left',
-                            border: config.print_type === pt.value ? '2px solid var(--primary-container)' : '1px solid var(--surface-container-high)',
-                            background: config.print_type === pt.value ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
+                            border: config.service === ts.value ? '2px solid var(--primary-container)' : '1px solid var(--surface-container-high)',
+                            background: config.service === ts.value ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
                             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
                           }}
                         >
-                          <span className="material-symbols-outlined" style={{ color: 'var(--primary-container)' }}>{pt.icon}</span>
-                          <div>
-                            <div style={{ fontSize: 13, fontWeight: 700 }}>{pt.label}</div>
-                            <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>
-                              ₹{pt.price.toFixed(2)} / unit
-                            </div>
-                          </div>
+                          <span className="material-symbols-outlined" style={{ color: 'var(--primary-container)' }}>{ts.icon}</span>
+                          <div style={{ fontSize: 13, fontWeight: 700 }}>{ts.label}</div>
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* Size & GSM for Retail */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                    <div className="form-group">
-                      <label className="label">Paper Size</label>
-                      <select className="select" value={config.paper_size} onChange={e => setConfig(c => ({ ...c, paper_size: e.target.value }))}>
-                        {PAPER_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                  {config.service === 'printing' && (
+                    <>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                        <div className="form-group">
+                          <label className="label">Sheet Size</label>
+                          <select className="select" value={config.paper_size} onChange={e => setConfig(c => ({ ...c, paper_size: e.target.value }))}>
+                            {DOC_PRINT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </div>
+                        {['A4', 'FS'].includes(config.paper_size) && (
+                          <div className="form-group">
+                            <label className="label">Sheet Type</label>
+                            <select className="select" value={config.sheet_type} onChange={e => setConfig(c => ({ ...c, sheet_type: e.target.value }))}>
+                              {SHEET_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                        <div className="form-group">
+                          <label className="label">Color Mode</label>
+                          <select className="select" value={config.color} onChange={e => setConfig(c => ({ ...c, color: e.target.value }))}>
+                            {COLOR_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
+                          </select>
+                        </div>
+                        {!['A0', 'A1', 'A2'].includes(config.paper_size) && (
+                          <div className="form-group">
+                            <label className="label">Printing Side</label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: '100%' }}>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
+                                <input type="radio" checked={!config.double_sided} onChange={() => setConfig(c => ({ ...c, double_sided: false }))} />
+                                Single Side
+                              </label>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 14 }}>
+                                <input type="radio" checked={config.double_sided} onChange={() => setConfig(c => ({ ...c, double_sided: true }))} />
+                                Front & Back
+                              </label>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {config.service === 'lamination' && (
+                    <div className="form-group" style={{ marginBottom: 16 }}>
+                      <label className="label">Lamination Size</label>
+                      <select className="select" value={config.lami_size} onChange={e => setConfig(c => ({ ...c, lami_size: e.target.value }))}>
+                        {LAMINATION_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
+                  )}
+
+                  {config.service === 'binding' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div className="form-group">
+                        <label className="label">Sheet Size</label>
+                        <select className="select" value={config.paper_size} onChange={e => setConfig(c => ({ ...c, paper_size: e.target.value }))}>
+                          {['A4', 'FS'].includes(config.paper_size) ? null : <option value="A4">A4</option>}
+                          <option value="A4">A4</option>
+                          <option value="FS">FS</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label className="label">Binding Add-on</label>
+                        <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
+                          <option value="Chat Binding">Chat Binding</option>
+                          <option value="Spiral Binding">Spiral Binding</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                    {['printing', 'binding', 'lamination'].includes(config.service) && (
+                      <div className="form-group">
+                        <label className="label">Number of Pages</label>
+                        <input type="number" min="1" className="input" value={config.pages} onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} />
+                      </div>
+                    )}
                     <div className="form-group">
-                      <label className="label">Paper Weight / GSM</label>
-                      <select className="select" value={config.paper_gsm} onChange={e => setConfig(c => ({ ...c, paper_gsm: e.target.value }))}>
-                        {GSM_OPTIONS.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
-                      </select>
+                      <label className="label">Number of Copies</label>
+                      <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
                     </div>
                   </div>
+
+                  {config.service === 'printing' && ['A4', 'FS'].includes(config.paper_size) && (
+                    <div className="form-group" style={{ marginBottom: 16 }}>
+                      <label className="label">Binding Add-on</label>
+                      <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
+                        {BINDING_OPTIONS.map(b => <option key={b} value={b}>{b}</option>)}
+                      </select>
+                    </div>
+                  )}
                 </>
               )}
 
-              {/* Copies & Binding */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                <div className="form-group">
-                  <label className="label">Number of Copies / Quantity</label>
-                  <input
-                    type="number"
-                    min="1"
-                    className="input"
-                    value={config.copies}
-                    onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="label">Binding Option</label>
-                  <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
-                    {BINDINGS.map(b => <option key={b.value} value={b.value}>{b.label}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              {/* Double Sided */}
-              <div style={{ marginBottom: 24 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
-                  <input
-                    type="checkbox"
-                    checked={config.double_sided}
-                    onChange={e => setConfig(c => ({ ...c, double_sided: e.target.checked }))}
-                    style={{ width: 18, height: 18 }}
-                  />
-                  Print on Both Sides (Double-Sided)
-                </label>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
                 <button className="btn btn-outline" onClick={() => setStep(1)}>Back</button>
                 <button className="btn btn-primary" onClick={() => setStep(3)}>
-                  Next: WhatsApp Details <span className="material-symbols-outlined">arrow_forward</span>
+                  Next: Delivery <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* STEP 3: Customer Info & Submission */}
+          {/* STEP 3 */}
           {step === 3 && (
             <div>
               <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 3: Contact & Delivery</h3>
@@ -446,25 +553,11 @@ export default function PrintWizard({ isWholesale = false }) {
                 <div className="responsive-form-grid" style={{ display: 'grid', gap: 16 }}>
                   <div className="form-group">
                     <label className="label">Full Name *</label>
-                    <input
-                      type="text"
-                      className="input"
-                      placeholder="e.g. Gowshigan"
-                      required
-                      value={customerName}
-                      onChange={e => setCustomerName(e.target.value)}
-                    />
+                    <input type="text" className="input" placeholder="e.g. Gowshigan" required value={customerName} onChange={e => setCustomerName(e.target.value)} />
                   </div>
                   <div className="form-group">
                     <label className="label">WhatsApp Number *</label>
-                    <input
-                      type="tel"
-                      className="input"
-                      placeholder="e.g. 9876543210"
-                      required
-                      value={customerPhone}
-                      onChange={e => setCustomerPhone(e.target.value)}
-                    />
+                    <input type="tel" className="input" placeholder="e.g. 9876543210" required value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
                   </div>
                 </div>
 
@@ -472,21 +565,11 @@ export default function PrintWizard({ isWholesale = false }) {
                   <label className="label">Delivery Method</label>
                   <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
-                      <input
-                        type="radio"
-                        name="delivery"
-                        checked={deliveryType === 'pickup'}
-                        onChange={() => setDeliveryType('pickup')}
-                      />
+                      <input type="radio" name="delivery" checked={deliveryType === 'pickup'} onChange={() => setDeliveryType('pickup')} />
                       Store Pickup (Winstar Printing)
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
-                      <input
-                        type="radio"
-                        name="delivery"
-                        checked={deliveryType === 'courier'}
-                        onChange={() => setDeliveryType('courier')}
-                      />
+                      <input type="radio" name="delivery" checked={deliveryType === 'courier'} onChange={() => setDeliveryType('courier')} />
                       Courier Delivery
                     </label>
                   </div>
@@ -495,14 +578,7 @@ export default function PrintWizard({ isWholesale = false }) {
                 {deliveryType === 'courier' && (
                   <div className="form-group animate-fade-in">
                     <label className="label">Complete Courier Address *</label>
-                    <textarea
-                      className="textarea"
-                      rows={2}
-                      placeholder="Street, City, Postal Pin Code..."
-                      required
-                      value={deliveryAddress}
-                      onChange={e => setDeliveryAddress(e.target.value)}
-                    />
+                    <textarea className="textarea" rows={2} placeholder="Street, City, Postal Pin Code..." required value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} />
                   </div>
                 )}
 
@@ -526,7 +602,7 @@ export default function PrintWizard({ isWholesale = false }) {
           )}
         </div>
 
-        {/* RIGHT COLUMN: STICKY ORDER SUMMARY BOX */}
+        {/* RIGHT COLUMN */}
         <div>
           <div style={{
             background: 'var(--surface-container-low)', padding: 24,
@@ -541,20 +617,40 @@ export default function PrintWizard({ isWholesale = false }) {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, marginBottom: 16 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: 'var(--on-surface-variant)' }}>Service:</span>
-                <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.media : PRINT_TYPES.find(t => t.value === config.print_type)?.label}</span>
+                <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.media : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}</span>
               </div>
+              
+              {!isWholesaleActive && config.service === 'printing' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Type & Color:</span>
+                  <span style={{ fontWeight: 600 }}>{config.sheet_type}, {config.color}</span>
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--on-surface-variant)' }}>Paper & GSM:</span>
-                <span style={{ fontWeight: 600 }}>{config.paper_size} ({config.paper_gsm})</span>
+                <span style={{ color: 'var(--on-surface-variant)' }}>Size:</span>
+                <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.paper_size : config.service === 'lamination' ? config.lami_size : config.paper_size}</span>
               </div>
+
+              {['printing', 'binding', 'lamination'].includes(config.service) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Pages:</span>
+                  <span style={{ fontWeight: 600 }}>{config.pages}</span>
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ color: 'var(--on-surface-variant)' }}>Copies:</span>
                 <span style={{ fontWeight: 600 }}>{config.copies}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--on-surface-variant)' }}>Binding:</span>
-                <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{config.binding}</span>
-              </div>
+              
+              {(config.service === 'printing' || config.service === 'binding') && config.binding !== 'No Binding' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Binding Add-on:</span>
+                  <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{config.binding}</span>
+                </div>
+              )}
+
               {file && (
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: 'var(--on-surface-variant)' }}>File Attached:</span>
@@ -577,6 +673,12 @@ export default function PrintWizard({ isWholesale = false }) {
                 <span style={{ color: 'var(--primary-container)' }}>₹{prices.grandTotal}</span>
               </div>
             </div>
+            
+            {Number(prices.grandTotal) <= 0 && (
+              <div style={{ fontSize: 12, color: 'var(--error-container)', textAlign: 'center', background: 'rgba(255,0,0,0.1)', padding: 8, borderRadius: 4, marginBottom: 8 }}>
+                Price unavailable for this specification.
+              </div>
+            )}
 
             <div style={{ fontSize: 11, color: 'var(--on-surface-variant)', textAlign: 'center' }}>
               Final invoice and instant confirmation sent via WhatsApp.
@@ -585,7 +687,6 @@ export default function PrintWizard({ isWholesale = false }) {
         </div>
       </div>
 
-      {/* WHATSAPP CONFIRMATION POPUP MODAL */}
       {createdOrder && (
         <div style={{
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1100,
@@ -598,12 +699,10 @@ export default function PrintWizard({ isWholesale = false }) {
             }}>
               <span className="material-symbols-outlined icon-fill" style={{ color: '#16a34a', fontSize: 36 }}>task_alt</span>
             </div>
-
             <h3 className="headline-sm" style={{ marginBottom: 4 }}>ORDER DETAILS READY!</h3>
             <p style={{ color: 'var(--on-surface-variant)', fontSize: 14, marginBottom: 20 }}>
               Your unique print request ID has been created.
             </p>
-
             <div style={{ background: 'var(--surface-container-low)', padding: 18, borderRadius: 'var(--radius-lg)', marginBottom: 24, textAlign: 'left' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>REQUEST ID</span>
@@ -618,7 +717,6 @@ export default function PrintWizard({ isWholesale = false }) {
                 <div><strong>Total Amount:</strong> ₹{createdOrder.total_price} (Incl. GST)</div>
               </div>
             </div>
-
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <button
                 className="btn btn-full"

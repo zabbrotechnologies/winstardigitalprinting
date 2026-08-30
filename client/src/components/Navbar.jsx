@@ -107,7 +107,7 @@ export default function Navbar() {
                 Login
               </Link>
               <Link to="/#quick-print" className="btn btn-primary btn-pill" style={{ padding: '8px 18px', fontSize: 13 }}>
-                Start Project
+                Start Print
               </Link>
             </div>
           )}
@@ -165,7 +165,7 @@ export default function Navbar() {
                 Login / Register
               </Link>
               <Link to="/#quick-print" className="btn btn-primary" onClick={() => setMobileOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
-                Start Project
+                Start Print
               </Link>
             </div>
           )}

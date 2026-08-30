@@ -137,6 +137,8 @@ export default function Admin() {
       if (selectedOrder?.id === ord.id || selectedOrder?.request_id === ord.id) {
         setSelectedOrder(null);
       }
+      // Re-fetch data to update top stats immediately
+      fetchAdminData(false);
     } catch (err) {
       console.error('Delete order notice:', err);
     } finally {

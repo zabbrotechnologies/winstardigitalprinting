@@ -5,12 +5,12 @@ import PrintWizard from '../components/PrintWizard';
 import ServiceCard from '../components/ServiceCard';
 
 const SERVICES = [
-  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.' },
-  { icon: 'print', title: 'Wide Format Printing', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.' },
-  { icon: 'file_copy', title: 'Print Copy Scan', description: 'High-quality B&W and color printing, high-speed copying, and document scanning.' },
-  { icon: 'contact_mail', title: 'Invitations', description: 'Custom-designed invitations for events, including flat cards, folded cards, and pocket invitations.' },
-  { icon: 'military_tech', title: 'Certificates', description: 'High-quality certificates for awards and recognitions with logos, seals, and borders.' },
-  { icon: 'badge', title: 'ID Cards', description: 'Durable, custom-printed ID cards for schools, businesses, and organizations.' },
+  { icon: 'style', title: 'Stickers & Labels', description: 'PVC, glossy, art, and metallic stickers for packaging, branding, and outdoor use.', image: 'https://images.unsplash.com/photo-1628424075191-233de8e79cb2?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'print', title: 'Wide Format Printing', description: 'Prints and scans up to 36 inches (A0) wide. Suitable for blueprints and posters.', image: 'https://images.unsplash.com/photo-1598522325010-0925dbdb81ba?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'file_copy', title: 'Print Copy Scan', description: 'High-quality B&W and color printing, high-speed copying, and document scanning.', image: 'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'contact_mail', title: 'Invitations', description: 'Custom-designed invitations for events, including flat cards, folded cards, and pocket invitations.', image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'military_tech', title: 'Certificates', description: 'High-quality certificates for awards and recognitions with logos, seals, and borders.', image: 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&q=80&w=800' },
+  { icon: 'badge', title: 'ID Cards', description: 'Durable, custom-printed ID cards for schools, businesses, and organizations.', image: 'https://images.unsplash.com/photo-1506784926709-22f1ec395907?auto=format&fit=crop&q=80&w=800' },
 ];
 
 const HOW_IT_WORKS = [
@@ -65,7 +65,7 @@ export default function Home() {
             {[
               { value: '50,000+', label: 'Orders Completed', icon: 'task_alt' },
               { value: '99.8%', label: 'Quality Rate', icon: 'star' },
-              { value: '4hr', label: 'Avg. Turnaround', icon: 'schedule' },
+              { value: '16+ years', label: 'Since 2010', icon: 'schedule' },
             ].map(s => (
               <div key={s.label} className="card-glass" style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
                 <span className="material-symbols-outlined icon-fill" style={{ color: 'var(--primary-container)', fontSize: 28 }}>{s.icon}</span>

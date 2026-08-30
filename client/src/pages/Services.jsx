@@ -238,51 +238,65 @@ export default function Services() {
                     key={card.title} 
                     className="card animate-fade-in" 
                     style={{ 
-                      padding: 24, 
                       borderRadius: 'var(--radius-xl)', 
-                      backgroundImage: `linear-gradient(to bottom, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.98)), url(${card.image})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      boxShadow: 'var(--shadow-lg)',
+                      overflow: 'hidden',
+                      boxShadow: 'var(--shadow-hover)',
                       border: '1px solid var(--outline-variant)',
                       display: 'flex',
                       flexDirection: 'column'
                     }}
                   >
-                    <div style={{ marginBottom: 16 }}>
-                      <h3 className="headline-sm" style={{ color: 'var(--primary)', marginBottom: 6, fontSize: 19 }}>{card.title}</h3>
-                      <p style={{ fontSize: 12, color: 'var(--on-surface-variant)', lineHeight: 1.4 }}>{card.desc}</p>
+                    {/* BG Image Banner */}
+                    <div style={{
+                      height: 140,
+                      backgroundImage: `url(${card.image})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      position: 'relative',
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                    }}>
+                      <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'linear-gradient(to top, rgba(10,10,20,0.75) 0%, rgba(10,10,20,0.1) 100%)',
+                      }} />
+                      <div style={{ position: 'relative', zIndex: 1, padding: '12px 18px' }}>
+                        <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 17, marginBottom: 2, textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}>{card.title}</h3>
+                        <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', lineHeight: 1.4 }}>{card.desc}</p>
+                      </div>
                     </div>
 
                     {/* Table */}
-                    <div style={{ overflowX: 'auto', background: 'rgba(255, 255, 255, 0.7)', borderRadius: 'var(--radius-md)', padding: 12, border: '1px solid var(--surface-container)' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                        <thead>
-                          <tr style={{ borderBottom: '1.5px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
-                            <th style={{ padding: '8px 4px' }}>Qty</th>
-                            <th style={{ padding: '8px 4px' }}>Single Side</th>
-                            <th style={{ padding: '8px 4px' }}>Front & Back</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {card.prices.map((p, idx) => {
-                            const cutoff = p.qty <= 510 ? 60 : 120;
-                            return (
-                              <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
-                                <td style={{ padding: '8px 4px', fontWeight: 600 }}>{p.qty}</td>
-                                <td style={{ padding: '8px 4px' }}>
-                                  <div style={{ fontSize: 10, opacity: 0.7 }}>₹{p.single} + ₹{cutoff}</div>
-                                  <div style={{ fontWeight: 700, color: 'var(--on-surface)' }}>₹{p.single + cutoff}</div>
-                                </td>
-                                <td style={{ padding: '8px 4px' }}>
-                                  <div style={{ fontSize: 10, opacity: 0.7 }}>₹{p.double} + ₹{cutoff}</div>
-                                  <div style={{ fontWeight: 700, color: 'var(--on-surface)' }}>₹{p.double + cutoff}</div>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                    <div style={{ padding: 16, flex: 1 }}>
+                      <div style={{ overflowX: 'auto', background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-md)', padding: 12, border: '1px solid var(--surface-container)' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1.5px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
+                              <th style={{ padding: '8px 4px' }}>Qty</th>
+                              <th style={{ padding: '8px 4px' }}>Single Side</th>
+                              <th style={{ padding: '8px 4px' }}>Front & Back</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {card.prices.map((p, idx) => {
+                              const cutoff = p.qty <= 510 ? 60 : 120;
+                              return (
+                                <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
+                                  <td style={{ padding: '8px 4px', fontWeight: 600 }}>{p.qty}</td>
+                                  <td style={{ padding: '8px 4px' }}>
+                                    <div style={{ fontSize: 10, opacity: 0.7 }}>₹{p.single} + ₹{cutoff}</div>
+                                    <div style={{ fontWeight: 700, color: 'var(--on-surface)' }}>₹{p.single + cutoff}</div>
+                                  </td>
+                                  <td style={{ padding: '8px 4px' }}>
+                                    <div style={{ fontSize: 10, opacity: 0.7 }}>₹{p.double} + ₹{cutoff}</div>
+                                    <div style={{ fontWeight: 700, color: 'var(--on-surface)' }}>₹{p.double + cutoff}</div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 ))}

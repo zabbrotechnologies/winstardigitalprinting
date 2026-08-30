@@ -48,11 +48,8 @@ export function updateOrderStatus(orderId, newStatus) {
     console.warn('Local order status update notice:', err);
   }
 
-  // Attempt Supabase update on both tables
-  return Promise.all([
-    supabase.from('orders').update({ status: newStatus }).or(`id.eq.${orderId},request_id.eq.${orderId}`),
-    supabase.from('wholesale_orders').update({ status: newStatus }).or(`id.eq.${orderId},request_id.eq.${orderId}`)
-  ])
+  // Attempt Supabase update
+  return supabase.from('orders').update({ status: newStatus }).or(`id.eq.${orderId},request_id.eq.${orderId}`)
   .then(() => true)
   .catch(err => {
     console.warn('Supabase status update fallback:', err);
@@ -69,7 +66,7 @@ export async function deleteOrder(orderId, isWholesale = false) {
     console.warn('Local order delete notice:', err);
   }
 
-  const tableName = isWholesale ? 'wholesale_orders' : 'orders';
+  const tableName = 'orders';
   
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orderId);
   let query = supabase.from(tableName).delete();
@@ -194,7 +191,7 @@ export async function uploadPrintFile(file) {
  */
 export async function createOrder(orderPayload, currentUser = null) {
   const isWholesale = orderPayload.order_type === 'wholesale';
-  const tableName = isWholesale ? 'wholesale_orders' : 'orders';
+  const tableName = 'orders';
   const randomNum = Math.floor(100000 + Math.random() * 900000);
   const requestId = isWholesale ? `WG-WSR-${randomNum}` : `WSR-${randomNum}`;
   const now = new Date().toISOString();
@@ -225,25 +222,36 @@ export async function createOrder(orderPayload, currentUser = null) {
   };
 
   const dbPayload = { ...orderData };
-  delete dbPayload.order_type; // Remove column that might not exist in Supabase schema
 
   // Ensure user_id is a valid UUID for the original orders table, otherwise set it to null to prevent crash.
-  // The wholesale_orders table is explicitly designed to handle text strings, so we don't nullify it there.
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(dbPayload.user_id || '');
-  if (tableName === 'orders' && dbPayload.user_id && !isUuid) {
+  if (dbPayload.user_id && !isUuid) {
     dbPayload.user_id = null;
   }
 
   // 1. Save in Supabase
   try {
-    const { data, error } = await supabase
+    let payloadToInsert = { ...dbPayload };
+    let { data, error } = await supabase
       .from(tableName)
-      .insert([dbPayload])
+      .insert([payloadToInsert])
       .select()
       .single();
 
+    // If it fails because message_text doesn't exist in the schema, retry without it
+    if (error && error.message && error.message.includes('message_text')) {
+      delete payloadToInsert.message_text;
+      const retry = await supabase
+        .from(tableName)
+        .insert([payloadToInsert])
+        .select()
+        .single();
+      data = retry.data;
+      error = retry.error;
+    }
+
     if (!error && data) {
-      // Restore the original string user_id so the user can still see it in their local dashboard
+      // Restore the original string user_id and message_text so the user can still see it in their local dashboard
       data.user_id = orderData.user_id;
       saveLocalOrder(data);
       return data;
@@ -279,20 +287,6 @@ export async function fetchUserOrders(userId) {
     console.warn('Orders fetch notice:', err);
   }
 
-  try {
-    const { data: wholesaleData, error: err2 } = await supabase
-      .from('wholesale_orders')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
-
-    if (!err2 && wholesaleData) {
-      remoteOrders.push(...wholesaleData.map(o => ({ ...o, order_type: 'wholesale' })));
-    }
-  } catch (err) {
-    console.warn('Wholesale orders fetch notice:', err);
-  }
-
   const localOrders = getLocalOrders().filter(o => o.user_id === userId || o.user_id === 'guest');
   const seen = new Set();
   const merged = [];
@@ -323,19 +317,6 @@ export async function fetchAllAdminOrders() {
     if (!err1 && normalData) remoteOrders.push(...normalData);
   } catch (err) {
     console.warn('Admin orders fetch notice:', err);
-  }
-
-  try {
-    const { data: wholesaleData, error: err2 } = await supabase
-      .from('wholesale_orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!err2 && wholesaleData) {
-      remoteOrders.push(...wholesaleData.map(o => ({ ...o, order_type: 'wholesale' })));
-    }
-  } catch (err) {
-    console.warn('Admin wholesale orders fetch notice:', err);
   }
 
   const localOrders = getLocalOrders();

@@ -74,7 +74,7 @@ export default function Admin() {
       let totalRevenue = 0;
 
       allOrders.forEach(doc => {
-        const isWholesale = doc.order_type === 'wholesale' || (doc.request_id && doc.request_id.startsWith('WS-'));
+        const isWholesale = doc.order_type === 'wholesale' || (doc.request_id && doc.request_id.startsWith('WG-WS'));
         if (isWholesale) wholesaleOrders += 1;
         else normalOrders += 1;
         if (doc.status === 'Pending') pendingOrders += 1;
@@ -129,7 +129,7 @@ export default function Admin() {
 
   async function handleDelete(ord) {
     if (!window.confirm(`Are you sure you want to delete order ${ord.request_id || ord.id}?`)) return;
-    const isWholesale = ord.order_type === 'wholesale' || (ord.request_id && ord.request_id.startsWith('WS-'));
+    const isWholesale = ord.order_type === 'wholesale' || (ord.request_id && ord.request_id.startsWith('WG-WS'));
     setUpdatingId(ord.id);
     try {
       await deleteOrder(ord.id, isWholesale);
@@ -161,8 +161,8 @@ export default function Admin() {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const normalOrders = orders.filter(o => o.order_type !== 'wholesale' && !(o.request_id && o.request_id.startsWith('WS-')));
-  const wholesaleOrders = orders.filter(o => o.order_type === 'wholesale' || (o.request_id && o.request_id.startsWith('WS-')));
+  const normalOrders = orders.filter(o => o.order_type !== 'wholesale' && !(o.request_id && o.request_id.startsWith('WG-WS')));
+  const wholesaleOrders = orders.filter(o => o.order_type === 'wholesale' || (o.request_id && o.request_id.startsWith('WG-WS')));
 
   const currentList = activeTab === 'normal' ? normalOrders : activeTab === 'wholesale' ? wholesaleOrders : agencies;
 

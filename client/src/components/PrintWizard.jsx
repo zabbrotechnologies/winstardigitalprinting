@@ -705,11 +705,11 @@ export default function PrintWizard({ isWholesale = false }) {
                 <div className="responsive-form-grid" style={{ display: 'grid', gap: 16 }}>
                   <div className="form-group">
                     <label className="label">Full Name *</label>
-                    <input type="text" className="input" placeholder="e.g. Gowshigan" required value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                    <input type="text" className="input" placeholder="e.g. John Doe" required value={customerName} onChange={e => setCustomerName(e.target.value)} />
                   </div>
                   <div className="form-group">
                     <label className="label">WhatsApp Number *</label>
-                    <input type="tel" className="input" placeholder="e.g. 9876543210" required value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+                    <input type="tel" className="input" placeholder="e.g. 1234567890" required value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
                   </div>
                 </div>
 

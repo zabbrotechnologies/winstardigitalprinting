@@ -187,14 +187,14 @@ export default function RegisterWholesale() {
                   <div className="form-group">
                     <label className="label">Full Name *</label>
                     <input
-                      type="text" className="input" placeholder="e.g. Rahul Sharma" required autoComplete="off"
+                      type="text" className="input" placeholder="e.g. John Doe" required autoComplete="off"
                       value={formData.full_name} onChange={e => setFormData(d => ({ ...d, full_name: e.target.value }))}
                     />
                   </div>
                   <div className="form-group">
                     <label className="label">Mobile Number *</label>
                     <input
-                      type="tel" className="input" placeholder="e.g. 9876543210" required autoComplete="off"
+                      type="tel" className="input" placeholder="e.g. 1234567890" required autoComplete="off"
                       value={formData.mobile} onChange={e => setFormData(d => ({ ...d, mobile: e.target.value }))}
                     />
                   </div>
@@ -245,7 +245,7 @@ export default function RegisterWholesale() {
                   <div className="form-group">
                     <label className="label">Company / Agency Name *</label>
                     <input
-                      type="text" className="input" placeholder="e.g. Bright Star Graphics Pvt Ltd" required
+                      type="text" className="input" placeholder="e.g. Acme Corporation" required
                       value={formData.company_name} onChange={e => setFormData(d => ({ ...d, company_name: e.target.value }))}
                     />
                   </div>

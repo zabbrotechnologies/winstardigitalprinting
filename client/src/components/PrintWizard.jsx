@@ -700,9 +700,18 @@ export default function PrintWizard({ isWholesale = false }) {
               <span className="material-symbols-outlined icon-fill" style={{ color: '#16a34a', fontSize: 36 }}>task_alt</span>
             </div>
             <h3 className="headline-sm" style={{ marginBottom: 4 }}>ORDER DETAILS READY!</h3>
-            <p style={{ color: 'var(--on-surface-variant)', fontSize: 14, marginBottom: 20 }}>
+            <p style={{ color: 'var(--on-surface-variant)', fontSize: 14, marginBottom: 12 }}>
               Your unique print request ID has been created.
             </p>
+            <div style={{
+              background: '#fffbeb', border: '1px dashed #f59e0b', color: '#b45309',
+              padding: '10px 14px', borderRadius: 'var(--radius-lg)', fontSize: 13,
+              marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              fontWeight: 600
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>screenshot</span>
+              <span>Please take a screenshot of these details for reference!</span>
+            </div>
             <div style={{ background: 'var(--surface-container-low)', padding: 18, borderRadius: 'var(--radius-lg)', marginBottom: 24, textAlign: 'left' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>REQUEST ID</span>

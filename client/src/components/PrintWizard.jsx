@@ -14,7 +14,7 @@ const WINSTAR_PHONE = '919345046665';
 
 const TOP_LEVEL_SERVICES = [
   { value: 'printing', label: 'Document & Wide Format Printing', icon: 'print' },
-  { value: 'binding', label: 'Spiral & Chat Binding', icon: 'auto_stories' },
+  { value: 'message', label: 'Message / Special Notes', icon: 'chat' },
   { value: 'lamination', label: 'Lamination', icon: 'layers' },
   { value: 'certificates', label: 'Certificates', icon: 'military_tech' },
   { value: 'visiting_cards', label: 'Visiting / Business Cards', icon: 'badge' },
@@ -57,6 +57,11 @@ export default function PrintWizard({ isWholesale = false }) {
     copies: 1,
     binding: 'No Binding',
     lami_size: 'A4',
+    
+    // Visiting Card & custom message fields
+    card_type: 'Art Board',
+    card_side: 'Single Side',
+    message_text: '',
     
     // Wholesale fields
     media: 'COATED',
@@ -109,6 +114,22 @@ export default function PrintWizard({ isWholesale = false }) {
       setConfig(c => ({ ...c, binding: 'No Binding' }));
     }
   }, [config.pages, config.paper_size, isWholesaleActive, config.binding]);
+
+  useEffect(() => {
+    if (config.service === 'visiting_cards') {
+      setConfig(c => ({
+        ...c,
+        card_type: c.card_type || 'Art Board',
+        card_side: c.card_side || 'Single Side',
+        copies: [120, 150, 200, 300, 510, 720, 1020].includes(c.copies) ? c.copies : 120
+      }));
+    } else if (config.service === 'message') {
+      setConfig(c => ({
+        ...c,
+        message_text: c.message_text || ''
+      }));
+    }
+  }, [config.service]);
 
   function getCalculatedPrice() {
     let subtotal = 0;
@@ -188,6 +209,68 @@ export default function PrintWizard({ isWholesale = false }) {
         const rate = LAMINATION_PRICES[config.lami_size] || 0;
         subtotal = rate * config.pages * config.copies;
         printingTotal = subtotal;
+
+      } else if (config.service === 'visiting_cards') {
+        const cardPrices = {
+          'Art Board': [
+            { qty: 120, single: 130, double: 180 },
+            { qty: 150, single: 150, double: 200 },
+            { qty: 200, single: 175, double: 250 },
+            { qty: 300, single: 225, double: 325 },
+            { qty: 510, single: 340, double: 490 },
+            { qty: 720, single: 450, double: 660 },
+            { qty: 1020, single: 600, double: 900 }
+          ],
+          'Art Board with Lamination': [
+            { qty: 120, single: 180, double: 230 },
+            { qty: 150, single: 200, double: 250 },
+            { qty: 200, single: 225, double: 335 },
+            { qty: 300, single: 285, double: 445 },
+            { qty: 510, single: 450, double: 700 },
+            { qty: 720, single: 600, double: 950 },
+            { qty: 1020, single: 800, double: 1300 }
+          ],
+          'Metallic & Special Boards': [
+            { qty: 120, single: 190, double: 260 },
+            { qty: 150, single: 225, double: 300 },
+            { qty: 200, single: 275, double: 375 },
+            { qty: 300, single: 375, double: 500 },
+            { qty: 510, single: 575, double: 775 },
+            { qty: 720, single: 785, double: 1055 },
+            { qty: 1020, single: 1100, double: 1455 }
+          ],
+          'Synthetic White 125 Micron': [
+            { qty: 120, single: 200, double: 285 },
+            { qty: 150, single: 235, double: 335 },
+            { qty: 200, single: 305, double: 435 },
+            { qty: 300, single: 410, double: 585 },
+            { qty: 510, single: 655, double: 935 },
+            { qty: 720, single: 900, double: 1285 },
+            { qty: 1020, single: 1250, double: 1785 }
+          ],
+          'Syn. White 200 Mic / Syn. Gold & Silver 125 Mic': [
+            { qty: 120, single: 290, double: 435 },
+            { qty: 150, single: 345, double: 445 },
+            { qty: 200, single: 455, double: 675 },
+            { qty: 300, single: 620, double: 915 },
+            { qty: 510, single: 1000, double: 1475 },
+            { qty: 720, single: 1400, double: 2050 },
+            { qty: 1020, single: 1950, double: 2850 }
+          ]
+        };
+
+        const typePrices = cardPrices[config.card_type] || cardPrices['Art Board'];
+        const copiesVal = parseInt(config.copies) || 120;
+        const priceObj = typePrices.find(p => p.qty === copiesVal) || typePrices[0];
+        const baseRate = config.card_side === 'Front & Back' ? priceObj.double : priceObj.single;
+        const cutoff = priceObj.qty <= 510 ? 60 : 120;
+        
+        subtotal = baseRate + cutoff;
+        printingTotal = subtotal;
+
+      } else if (config.service === 'message') {
+        subtotal = 0;
+        printingTotal = 0;
 
       } else {
         const keyMap = { 'certificates': 'Certificates', 'visiting_cards': 'Visiting Cards', 'brochures': 'Brochures' };
@@ -279,18 +362,34 @@ export default function PrintWizard({ isWholesale = false }) {
 
   function openWhatsApp(order) {
     const reqId = order.request_id || order.id || 'WSR-GEN';
-    let sizeDetails = isWholesaleActive ? `${order.paper_size} (${order.paper_gsm})` : order.service === 'lamination' ? order.lami_size : order.paper_size;
-    const text = encodeURIComponent(
-      `🖨️ *WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
+    let textStr = `🖨️ *WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
       `👤 *Customer:* ${order.customer_name} (${order.customer_phone})\n` +
-      `📄 *Service:* ${order.service_name}\n` +
-      `📂 *File:* ${order.file_name}\n` +
-      `🔢 *Copies:* ${order.copies} | *Pages:* ${order.pages} | *Size:* ${sizeDetails}\n` +
-      `🔗 *Binding:* ${order.binding}\n` +
-      `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + order.delivery_address : 'Store Pickup'}\n` +
-      `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n` +
-      `Please confirm my print job! Request ID: ${reqId}`
-    );
+      `📄 *Service:* ${order.service_name}\n`;
+
+    if (order.service === 'message') {
+      textStr += `📝 *Instructions:* ${order.message_text || ''}\n`;
+    } else if (order.service === 'visiting_cards') {
+      textStr += `🪪 *Card Type:* ${order.card_type}\n` +
+                 `📐 *Side:* ${order.card_side}\n` +
+                 `🔢 *Quantity:* ${order.copies} cards\n`;
+    } else {
+      let sizeDetails = isWholesaleActive ? `${order.paper_size} (${order.paper_gsm})` : order.service === 'lamination' ? order.lami_size : order.paper_size;
+      textStr += `📂 *File:* ${order.file_name}\n` +
+                 `🔢 *Copies:* ${order.copies} | *Pages:* ${order.pages} | *Size:* ${sizeDetails}\n` +
+                 `🔗 *Binding:* ${order.binding}\n`;
+    }
+
+    textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + order.delivery_address : 'Store Pickup'}\n`;
+    
+    if (order.service === 'message') {
+      textStr += `💰 *Total Amount:* Estimation on WhatsApp\n\n`;
+    } else {
+      textStr += `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n`;
+    }
+    
+    textStr += `Please confirm my print job! Request ID: ${reqId}`;
+
+    const text = encodeURIComponent(textStr);
     window.open(`https://wa.me/${WINSTAR_PHONE}?text=${text}`, '_blank');
   }
 
@@ -512,40 +611,75 @@ export default function PrintWizard({ isWholesale = false }) {
                     </div>
                   )}
 
-                  {config.service === 'binding' && (
-                    <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                      <div className="form-group">
-                        <label className="label">Sheet Size</label>
-                        <select className="select" value={config.paper_size} onChange={e => setConfig(c => ({ ...c, paper_size: e.target.value }))}>
-                          {['A4', 'FS'].includes(config.paper_size) ? null : <option value="A4">A4</option>}
-                          <option value="A4">A4</option>
-                          <option value="FS">FS</option>
-                        </select>
+                   {config.service === 'message' && (
+                    <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
+                      <label className="label">Instructions / Message *</label>
+                      <textarea 
+                        className="textarea" 
+                        rows={4} 
+                        placeholder="Write details about your custom printing request (e.g. spiral binding, green sheets, custom sizes)..." 
+                        required 
+                        value={config.message_text} 
+                        onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                      />
+                    </div>
+                  )}
+
+                  {config.service === 'visiting_cards' && (
+                    <div className="animate-fade-in">
+                      <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                        <div className="form-group">
+                          <label className="label">Card Type</label>
+                          <select className="select" value={config.card_type} onChange={e => setConfig(c => ({ ...c, card_type: e.target.value }))}>
+                            <option value="Art Board">Art Board</option>
+                            <option value="Art Board with Lamination">Art Board with Lamination</option>
+                            <option value="Metallic & Special Boards">Metallic & Special Boards</option>
+                            <option value="Synthetic White 125 Micron">Synthetic White 125 Micron</option>
+                            <option value="Syn. White 200 Mic / Syn. Gold & Silver 125 Mic">Syn. White 200 Mic / Syn. Gold & Silver 125 Mic</option>
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label className="label">Printing Side</label>
+                          <select className="select" value={config.card_side} onChange={e => setConfig(c => ({ ...c, card_side: e.target.value }))}>
+                            <option value="Single Side">Single Side</option>
+                            <option value="Front & Back">Front & Back</option>
+                          </select>
+                        </div>
                       </div>
-                      <div className="form-group">
-                        <label className="label">Binding Add-on</label>
-                        <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
-                          <option value="Chat Binding">Chat Binding</option>
-                          <option value="Spiral Binding" disabled={config.paper_size === 'A4' && config.pages > 500}>
-                            Spiral Binding {config.paper_size === 'A4' && config.pages > 500 ? ' (Unavailable > 500 pages)' : ''}
-                          </option>
-                        </select>
+                      
+                      <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                        <div className="form-group">
+                          <label className="label">Quantity (Cards)</label>
+                          <select className="select" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: parseInt(e.target.value) }))}>
+                            <option value="120">120 cards</option>
+                            <option value="150">150 cards</option>
+                            <option value="200">200 cards</option>
+                            <option value="300">300 cards</option>
+                            <option value="510">510 cards</option>
+                            <option value="720">720 cards</option>
+                            <option value="1020">1020 cards</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                    {['printing', 'binding', 'lamination'].includes(config.service) && (
-                      <div className="form-group">
-                        <label className="label">Number of Pages</label>
-                        <input type="number" min="1" className="input" value={config.pages} onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} />
-                      </div>
-                    )}
-                    <div className="form-group">
-                      <label className="label">Number of Copies</label>
-                      <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
+                  {['printing', 'lamination'].includes(config.service) || (!['visiting_cards', 'message'].includes(config.service)) ? (
+                    <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                      {['printing', 'lamination'].includes(config.service) && (
+                        <div className="form-group">
+                          <label className="label">Number of Pages</label>
+                          <input type="number" min="1" className="input" value={config.pages} onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} />
+                        </div>
+                      )}
+                      {!['visiting_cards', 'message'].includes(config.service) && (
+                        <div className="form-group">
+                          <label className="label">Number of Copies</label>
+                          <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
+                        </div>
+                      )}
                     </div>
-                  </div>
+                  ) : null}
 
                   {config.service === 'printing' && ['A4', 'FS'].includes(config.paper_size) && (
                     <div className="form-group" style={{ marginBottom: 16 }}>
@@ -653,29 +787,55 @@ export default function PrintWizard({ isWholesale = false }) {
                 <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.media : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}</span>
               </div>
               
-              {!isWholesaleActive && config.service === 'printing' && (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--on-surface-variant)' }}>Type & Color:</span>
-                  <span style={{ fontWeight: 600 }}>{config.sheet_type}, {config.color}</span>
+              {config.service === 'message' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'var(--surface-container-high)', padding: '10px 14px', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--outline-variant)' }}>
+                  <span style={{ color: 'var(--on-surface-variant)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Custom Instructions:</span>
+                  <span style={{ fontWeight: 600, fontSize: 12.5, color: 'var(--on-surface)', wordBreak: 'break-word', whiteSpace: 'pre-wrap', lineHeight: 1.3 }}>
+                    {config.message_text || 'No message provided.'}
+                  </span>
                 </div>
+              ) : config.service === 'visiting_cards' ? (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Card Type:</span>
+                    <span style={{ fontWeight: 600 }}>{config.card_type}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Printing Side:</span>
+                    <span style={{ fontWeight: 600 }}>{config.card_side}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Quantity:</span>
+                    <span style={{ fontWeight: 600 }}>{config.copies} cards</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {!isWholesaleActive && config.service === 'printing' && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Type & Color:</span>
+                      <span style={{ fontWeight: 600 }}>{config.sheet_type}, {config.color}</span>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Size:</span>
+                    <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.paper_size : config.service === 'lamination' ? config.lami_size : config.paper_size}</span>
+                  </div>
+
+                  {['printing', 'binding', 'lamination'].includes(config.service) && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Pages:</span>
+                      <span style={{ fontWeight: 600 }}>{config.pages}</span>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Copies:</span>
+                    <span style={{ fontWeight: 600 }}>{config.copies}</span>
+                  </div>
+                </>
               )}
-
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--on-surface-variant)' }}>Size:</span>
-                <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.paper_size : config.service === 'lamination' ? config.lami_size : config.paper_size}</span>
-              </div>
-
-              {['printing', 'binding', 'lamination'].includes(config.service) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--on-surface-variant)' }}>Pages:</span>
-                  <span style={{ fontWeight: 600 }}>{config.pages}</span>
-                </div>
-              )}
-
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--on-surface-variant)' }}>Copies:</span>
-                <span style={{ fontWeight: 600 }}>{config.copies}</span>
-              </div>
               
               {(config.service === 'printing' || config.service === 'binding') && config.binding !== 'No Binding' && (
                 <>
@@ -737,33 +897,42 @@ export default function PrintWizard({ isWholesale = false }) {
             </div>
 
             <div style={{ borderTop: '1px dashed var(--surface-container-high)', paddingTop: 14, marginBottom: 16 }}>
-              {Number(prices.printingTotal) > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                  <span>Printing Cost</span>
-                  <span>₹{prices.printingTotal}</span>
+              {config.service === 'message' ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 15, fontWeight: 700, color: 'var(--primary)', padding: '4px 0' }}>
+                  <span>Estimated Total:</span>
+                  <span style={{ background: 'var(--primary-container)', color: 'var(--on-primary-container)', padding: '4px 10px', borderRadius: 6, fontSize: 13 }}>WhatsApp Confirm</span>
                 </div>
+              ) : (
+                <>
+                  {Number(prices.printingTotal) > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                      <span>Printing Cost</span>
+                      <span>₹{prices.printingTotal}</span>
+                    </div>
+                  )}
+                  {Number(prices.bindingTotal) > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                      <span>Binding Cost</span>
+                      <span>₹{prices.bindingTotal}</span>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                    <span>Subtotal</span>
+                    <span>₹{prices.subtotal}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                    <span>GST (18%)</span>
+                    <span>₹{prices.gst}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, fontWeight: 800, color: 'var(--on-surface)' }}>
+                    <span>Estimated Total</span>
+                    <span style={{ color: 'var(--primary-container)' }}>₹{prices.grandTotal}</span>
+                  </div>
+                </>
               )}
-              {Number(prices.bindingTotal) > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                  <span>Binding Cost</span>
-                  <span>₹{prices.bindingTotal}</span>
-                </div>
-              )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                <span>Subtotal</span>
-                <span>₹{prices.subtotal}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                <span>GST (18%)</span>
-                <span>₹{prices.gst}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, fontWeight: 800, color: 'var(--on-surface)' }}>
-                <span>Estimated Total</span>
-                <span style={{ color: 'var(--primary-container)' }}>₹{prices.grandTotal}</span>
-              </div>
             </div>
             
-            {Number(prices.grandTotal) <= 0 && (
+            {config.service !== 'message' && Number(prices.grandTotal) <= 0 && (
               <div style={{ fontSize: 12, color: 'var(--error-container)', textAlign: 'center', background: 'rgba(255,0,0,0.1)', padding: 8, borderRadius: 4, marginBottom: 8 }}>
                 Price unavailable for this specification.
               </div>

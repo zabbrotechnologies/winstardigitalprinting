@@ -18,7 +18,7 @@ export default function Navbar() {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/services', label: 'Services' },
-    { to: '/bulk-order', label: 'Wholesale B2B' },
+    { to: '/bulk-order', label: 'B2B' },
     { to: '/services#tracking', label: 'Track Order' },
   ];
 

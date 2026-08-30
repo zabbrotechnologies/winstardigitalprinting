@@ -65,24 +65,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Floating Stats */}
-          <div style={{
-            display: 'flex', gap: 16, marginTop: 64, flexWrap: 'wrap',
-          }}>
-            {[
-              { value: '50,000+', label: 'Orders Completed', icon: 'task_alt' },
-              { value: '99.8%', label: 'Quality Rate', icon: 'star' },
-              { value: '16+ years', label: 'Since 2010', icon: 'schedule' },
-            ].map(s => (
-              <div key={s.label} className="card-glass" style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
-                <span className="material-symbols-outlined icon-fill" style={{ color: 'var(--primary-container)', fontSize: 28 }}>{s.icon}</span>
-                <div>
-                  <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, color: 'var(--on-surface)' }}>{s.value}</div>
-                  <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>{s.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+
         </div>
       </section>
 

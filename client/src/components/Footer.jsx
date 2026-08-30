@@ -3,6 +3,27 @@ import { Link } from 'react-router-dom';
 export default function Footer() {
   return (
     <footer className="footer">
+      {/* Footer Stats Block */}
+      <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto 48px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 40 }}>
+        <div style={{
+          display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center'
+        }}>
+          {[
+            { value: '50,000+', label: 'Orders Completed', icon: 'task_alt' },
+            { value: '99.8%', label: 'Quality Rate', icon: 'star' },
+            { value: '16+ years', label: 'Since 2010', icon: 'schedule' },
+          ].map(s => (
+            <div key={s.label} className="card-glass" style={{ padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 16, minWidth: 240, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <span className="material-symbols-outlined icon-fill" style={{ color: 'var(--secondary-container)', fontSize: 32 }}>{s.icon}</span>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 800, color: 'var(--inverse-on-surface)' }}>{s.value}</div>
+                <div style={{ fontSize: 13, color: 'var(--surface-variant)', fontWeight: 500 }}>{s.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', display: 'flex', flexWrap: 'wrap', gap: 48, justifyContent: 'space-between', alignItems: 'flex-start' }}>
         {/* Brand */}
         <div style={{ maxWidth: 320 }}>

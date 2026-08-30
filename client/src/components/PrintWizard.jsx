@@ -38,6 +38,8 @@ export default function PrintWizard({ isWholesale = false }) {
   const [dragOver, setDragOver] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
+  const [successModalStep, setSuccessModalStep] = useState('details');
+  const [paymentMethod, setPaymentMethod] = useState('online');
   const [error, setError] = useState('');
 
   const [customerName, setCustomerName] = useState(profile?.full_name || '');
@@ -102,8 +104,16 @@ export default function PrintWizard({ isWholesale = false }) {
     }
   }, [config.paper_size, config.service, isWholesaleActive]);
 
+  useEffect(() => {
+    if (!isWholesaleActive && config.pages > 500 && config.binding === 'Spiral Binding') {
+      setConfig(c => ({ ...c, binding: 'No Binding' }));
+    }
+  }, [config.pages, isWholesaleActive, config.binding]);
+
   function getCalculatedPrice() {
     let subtotal = 0;
+    let printingTotal = 0;
+    let bindingTotal = 0;
     
     if (isWholesaleActive) {
       const item = WHOLESALE_PRICE_LIST.find(i => 
@@ -121,6 +131,7 @@ export default function PrintWizard({ isWholesale = false }) {
           subtotal = rate1st + ((config.copies - 1) * rateAdd);
         }
       }
+      printingTotal = subtotal;
     } else {
       if (config.service === 'printing') {
         const isWideFormat = ['A0', 'A1', 'A2'].includes(config.paper_size);
@@ -152,12 +163,14 @@ export default function PrintWizard({ isWholesale = false }) {
           }
         }
 
-        const printingTotal = config.copies === 1 
+        const printingTotalVal = config.copies === 1 
           ? (config.pages * printRate) 
           : (config.pages * printRate) + (config.pages * xeroxRate * (config.copies - 1));
         
-        const bindingTotal = bindingRate * config.copies;
-        subtotal = printingTotal + bindingTotal;
+        const bindingTotalVal = bindingRate * config.copies;
+        subtotal = printingTotalVal + bindingTotalVal;
+        printingTotal = printingTotalVal;
+        bindingTotal = bindingTotalVal;
 
       } else if (config.service === 'binding') {
         let bindingRate = 0;
@@ -169,10 +182,12 @@ export default function PrintWizard({ isWholesale = false }) {
           bindingRate = tier ? tier.price : 0;
         }
         subtotal = bindingRate * config.copies;
+        bindingTotal = subtotal;
 
       } else if (config.service === 'lamination') {
         const rate = LAMINATION_PRICES[config.lami_size] || 0;
         subtotal = rate * config.pages * config.copies;
+        printingTotal = subtotal;
 
       } else {
         const keyMap = { 'certificates': 'Certificates', 'visiting_cards': 'Visiting Cards', 'brochures': 'Brochures' };
@@ -182,12 +197,19 @@ export default function PrintWizard({ isWholesale = false }) {
             ? (rates.print) 
             : (rates.print) + (rates.xerox * (config.copies - 1));
         }
+        printingTotal = subtotal;
       }
     }
 
     const gst = subtotal * 0.18;
     const grandTotal = Math.round(subtotal + gst);
-    return { subtotal: subtotal.toFixed(2), gst: gst.toFixed(2), grandTotal: grandTotal.toFixed(2) };
+    return { 
+      subtotal: subtotal.toFixed(2), 
+      gst: gst.toFixed(2), 
+      grandTotal: grandTotal.toFixed(2),
+      printingTotal: printingTotal.toFixed(2),
+      bindingTotal: bindingTotal.toFixed(2)
+    };
   }
 
   async function handleFileSelect(selectedFile) {
@@ -246,6 +268,8 @@ export default function PrintWizard({ isWholesale = false }) {
 
       const data = await createOrder(payload, user, token);
       setCreatedOrder(data);
+      setSuccessModalStep('details');
+      setPaymentMethod('online');
     } catch (err) {
       setError(err.message || 'Order submission failed.');
     } finally {
@@ -502,7 +526,9 @@ export default function PrintWizard({ isWholesale = false }) {
                         <label className="label">Binding Add-on</label>
                         <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
                           <option value="Chat Binding">Chat Binding</option>
-                          <option value="Spiral Binding">Spiral Binding</option>
+                          <option value="Spiral Binding" disabled={config.pages > 500}>
+                            Spiral Binding {config.pages > 500 ? ' (Unavailable > 500 pages)' : ''}
+                          </option>
                         </select>
                       </div>
                     </div>
@@ -525,7 +551,14 @@ export default function PrintWizard({ isWholesale = false }) {
                     <div className="form-group" style={{ marginBottom: 16 }}>
                       <label className="label">Binding Add-on</label>
                       <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
-                        {BINDING_OPTIONS.map(b => <option key={b} value={b}>{b}</option>)}
+                        {BINDING_OPTIONS.map(b => {
+                          const disabled = b === 'Spiral Binding' && config.pages > 500;
+                          return (
+                            <option key={b} value={b} disabled={disabled}>
+                              {b} {disabled ? ' (Unavailable > 500 pages)' : ''}
+                            </option>
+                          );
+                        })}
                       </select>
                     </div>
                   )}
@@ -660,6 +693,18 @@ export default function PrintWizard({ isWholesale = false }) {
             </div>
 
             <div style={{ borderTop: '1px dashed var(--surface-container-high)', paddingTop: 14, marginBottom: 16 }}>
+              {Number(prices.printingTotal) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                  <span>Printing Cost</span>
+                  <span>₹{prices.printingTotal}</span>
+                </div>
+              )}
+              {Number(prices.bindingTotal) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                  <span>Binding Cost</span>
+                  <span>₹{prices.bindingTotal}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
                 <span>Subtotal</span>
                 <span>₹{prices.subtotal}</span>
@@ -692,55 +737,179 @@ export default function PrintWizard({ isWholesale = false }) {
           position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1100,
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
         }}>
-          <div className="card animate-fade-in" style={{ maxWidth: 520, width: '100%', padding: 32, borderRadius: 'var(--radius-xl)', textAlign: 'center' }}>
-            <div style={{
-              width: 64, height: 64, borderRadius: '50%', background: '#dcfce7',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
-            }}>
-              <span className="material-symbols-outlined icon-fill" style={{ color: '#16a34a', fontSize: 36 }}>task_alt</span>
-            </div>
-            <h3 className="headline-sm" style={{ marginBottom: 4 }}>ORDER DETAILS READY!</h3>
-            <p style={{ color: 'var(--on-surface-variant)', fontSize: 14, marginBottom: 12 }}>
-              Your unique print request ID has been created.
-            </p>
-            <div style={{
-              background: '#fffbeb', border: '1px dashed #f59e0b', color: '#b45309',
-              padding: '10px 14px', borderRadius: 'var(--radius-lg)', fontSize: 13,
-              marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              fontWeight: 600
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>screenshot</span>
-              <span>Please take a screenshot of these details for reference!</span>
-            </div>
-            <div style={{ background: 'var(--surface-container-low)', padding: 18, borderRadius: 'var(--radius-lg)', marginBottom: 24, textAlign: 'left' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--on-surface-variant)' }}>REQUEST ID</span>
-                <span style={{ fontFamily: 'monospace', fontSize: 16, fontWeight: 800, color: 'var(--primary-container)', background: 'var(--primary-fixed)', padding: '2px 8px', borderRadius: 4 }}>
-                  {createdOrder.request_id || createdOrder.id}
-                </span>
-              </div>
-              <div style={{ fontSize: 13, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div><strong>Customer:</strong> {createdOrder.customer_name} ({createdOrder.customer_phone})</div>
-                <div><strong>Service:</strong> {createdOrder.service_name}</div>
-                <div><strong>File:</strong> {createdOrder.file_name}</div>
-                <div><strong>Total Amount:</strong> ₹{createdOrder.total_price} (Incl. GST)</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button
-                className="btn btn-full"
-                onClick={() => openWhatsApp(createdOrder)}
-                style={{ height: 48, background: '#25D366', color: '#fff', fontWeight: 700, fontSize: 15 }}
-              >
-                <span className="material-symbols-outlined">chat</span> CONTINUE TO WHATSAPP 📲
-              </button>
-              <button
-                className="btn btn-outline btn-full"
-                onClick={() => { setCreatedOrder(null); setStep(1); setFile(null); setUploadedFile(null); }}
-              >
-                Place Another Print Request
-              </button>
-            </div>
+          <div className="card animate-fade-in" style={{ maxWidth: 520, width: '100%', padding: 28, borderRadius: 'var(--radius-xl)', textAlign: 'center', maxHeight: '90vh', overflowY: 'auto' }}>
+            
+            {successModalStep === 'details' ? (
+              <>
+                <div style={{
+                  width: 60, height: 60, borderRadius: '50%', background: '#dcfce7',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px',
+                }}>
+                  <span className="material-symbols-outlined icon-fill" style={{ color: '#16a34a', fontSize: 32 }}>task_alt</span>
+                </div>
+                <h3 className="headline-sm" style={{ marginBottom: 4 }}>ORDER DETAILS READY!</h3>
+                <p style={{ color: 'var(--on-surface-variant)', fontSize: 13, marginBottom: 12 }}>
+                  Your unique print request ID has been created.
+                </p>
+                <div style={{
+                  background: '#fffbeb', border: '1px dashed #f59e0b', color: '#b45309',
+                  padding: '10px 14px', borderRadius: 'var(--radius-lg)', fontSize: 13,
+                  marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                  fontWeight: 600
+                }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>screenshot</span>
+                  <span>Please take a screenshot of these details for reference!</span>
+                </div>
+                <div style={{ background: 'var(--surface-container-low)', padding: 18, borderRadius: 'var(--radius-lg)', marginBottom: 20, textAlign: 'left' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>REQUEST ID</span>
+                    <span style={{ fontFamily: 'monospace', fontSize: 15, fontWeight: 800, color: 'var(--primary-container)', background: 'var(--primary-fixed)', padding: '2px 8px', borderRadius: 4 }}>
+                      {createdOrder.request_id || createdOrder.id}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 13, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    <div><strong>Customer:</strong> {createdOrder.customer_name} ({createdOrder.customer_phone})</div>
+                    <div><strong>Service:</strong> {createdOrder.service_name}</div>
+                    <div><strong>File:</strong> {createdOrder.file_name}</div>
+                    <div><strong>Total Amount:</strong> ₹{createdOrder.total_price} (Incl. GST)</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <button
+                    className="btn btn-primary btn-full"
+                    onClick={() => setSuccessModalStep('payment')}
+                    style={{ height: 48, fontWeight: 700, fontSize: 15, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  >
+                    <span>Proceed to Payment 💳</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
+                  </button>
+                  <button
+                    className="btn btn-outline btn-full"
+                    onClick={() => { setCreatedOrder(null); setStep(1); setFile(null); setUploadedFile(null); }}
+                  >
+                    Place Another Print Request
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 className="headline-sm" style={{ marginBottom: 4 }}>CHOOSE PAYMENT METHOD</h3>
+                <p style={{ color: 'var(--on-surface-variant)', fontSize: 13, marginBottom: 16 }}>
+                  Select how you would like to pay for your print request.
+                </p>
+
+                {/* Toggles */}
+                <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+                  <button
+                    onClick={() => setPaymentMethod('online')}
+                    className="btn"
+                    style={{
+                      flex: 1,
+                      border: paymentMethod === 'online' ? '2.5px solid var(--primary)' : '1px solid var(--outline-variant)',
+                      background: paymentMethod === 'online' ? 'var(--primary-container)' : 'transparent',
+                      color: paymentMethod === 'online' ? 'var(--on-primary-container)' : 'var(--on-surface)',
+                      fontWeight: 700, fontSize: 13.5, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}
+                  >
+                    Online UPI / Bank
+                  </button>
+                  <button
+                    onClick={() => setPaymentMethod('cod')}
+                    className="btn"
+                    style={{
+                      flex: 1,
+                      border: paymentMethod === 'cod' ? '2.5px solid var(--primary)' : '1px solid var(--outline-variant)',
+                      background: paymentMethod === 'cod' ? 'var(--primary-container)' : 'transparent',
+                      color: paymentMethod === 'cod' ? 'var(--on-primary-container)' : 'var(--on-surface)',
+                      fontWeight: 700, fontSize: 13.5, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}
+                  >
+                    Cash on Delivery
+                  </button>
+                </div>
+
+                {/* Content based on toggle */}
+                {paymentMethod === 'online' ? (
+                  <div style={{ background: 'var(--surface-container-low)', padding: 16, borderRadius: 'var(--radius-lg)', marginBottom: 20, textAlign: 'left' }}>
+                    <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: 200, fontSize: 13, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--primary)', marginBottom: 4 }}>Account Details</div>
+                        <div><strong>Name:</strong> WINSTAR</div>
+                        <div><strong>A/C No:</strong> 1314 02 00 000 1510</div>
+                        <div><strong>IFSC Code:</strong> IOBA0001314</div>
+                        <div><strong>Bank:</strong> Indian Overseas Bank</div>
+                        <div><strong>Branch:</strong> FORT BRANCH, DINDIGUL</div>
+                      </div>
+                      
+                      {/* Generative Mock QR Code */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
+                        <svg viewBox="0 0 100 100" style={{ width: 100, height: 100, background: '#fff', padding: 6, border: '1px solid var(--outline-variant)', borderRadius: 6 }}>
+                          <rect x="0" y="0" width="22" height="22" fill="#000" />
+                          <rect x="3" y="3" width="16" height="16" fill="#fff" />
+                          <rect x="6" y="6" width="10" height="10" fill="#000" />
+                          
+                          <rect x="78" y="0" width="22" height="22" fill="#000" />
+                          <rect x="81" y="3" width="16" height="16" fill="#fff" />
+                          <rect x="84" y="6" width="10" height="10" fill="#000" />
+                          
+                          <rect x="0" y="78" width="22" height="22" fill="#000" />
+                          <rect x="3" y="81" width="16" height="16" fill="#fff" />
+                          <rect x="6" y="84" width="10" height="10" fill="#000" />
+                          
+                          <path d="M 28,3 H 40 V 12 H 28 Z M 48,0 H 68 V 3 H 48 Z M 28,18 H 36 V 26 H 28 Z M 48,14 H 62 V 22 H 48 Z" fill="#000" />
+                          <path d="M 0,32 H 10 V 42 H 0 Z M 14,32 H 32 V 46 H 14 Z M 38,32 H 56 V 42 H 38 Z M 68,28 H 76 V 46 H 68 Z M 82,32 H 98 V 42 H 82 Z" fill="#000" />
+                          <path d="M 0,50 H 18 V 60 H 0 Z M 28,50 H 46 V 64 H 28 Z M 56,50 H 70 V 60 H 56 Z M 76,50 H 98 V 64 H 76 Z" fill="#000" />
+                          <path d="M 32,68 H 42 V 82 H 32 Z M 46,68 H 60 V 86 H 46 Z M 64,68 H 82 V 78 H 64 Z M 78,82 H 98 V 98 H 78 Z" fill="#000" />
+                        </svg>
+                        <span style={{ fontSize: 10, color: 'var(--on-surface-variant)', marginTop: 4, fontWeight: 700 }}>Scan to Pay</span>
+                      </div>
+                    </div>
+
+                    {/* Terms T&C */}
+                    <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px dashed var(--outline-variant)', fontSize: 11, color: 'var(--on-surface-variant)', lineHeight: 1.4 }}>
+                      <div style={{ fontWeight: 700, marginBottom: 4 }}>Terms & Conditions:</div>
+                      <div>• 100% payment in advance.</div>
+                      <div>• Packing and forwarding charges extra.</div>
+                      <div>• Approved orders cannot be altered or changed.</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ background: 'var(--surface-container-low)', padding: 24, borderRadius: 'var(--radius-lg)', marginBottom: 20, textAlign: 'center' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--primary)', marginBottom: 12 }}>store</span>
+                    <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>Pay at Counter or Delivery</div>
+                    <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', lineHeight: 1.5 }}>
+                      Please keep cash or payment ready for pickup at our Winstar Printing store or pay upon courier arrival.
+                    </p>
+                  </div>
+                )}
+
+                {/* Instruction Warning */}
+                <div style={{
+                  background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#334155',
+                  padding: '10px 14px', borderRadius: 'var(--radius-md)', fontSize: 12.5,
+                  marginBottom: 20, textAlign: 'left', lineHeight: 1.4
+                }}>
+                  ℹ️ <strong>Instruction:</strong> Please send the <strong>payment screenshot</strong> along with your <strong>Request ID</strong> on WhatsApp to initiate your printing job.
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <button
+                    className="btn btn-full"
+                    onClick={() => openWhatsApp(createdOrder)}
+                    style={{ height: 48, background: '#25D366', color: '#fff', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  >
+                    <span className="material-symbols-outlined" style={{ color: '#fff' }}>chat</span> CONTINUE TO WHATSAPP 📲
+                  </button>
+                  <button
+                    className="btn btn-outline btn-full"
+                    onClick={() => setSuccessModalStep('details')}
+                    style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    Back to Order Details
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

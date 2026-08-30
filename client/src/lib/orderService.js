@@ -196,7 +196,7 @@ export async function createOrder(orderPayload, currentUser = null) {
   const isWholesale = orderPayload.order_type === 'wholesale';
   const tableName = isWholesale ? 'wholesale_orders' : 'orders';
   const randomNum = Math.floor(100000 + Math.random() * 900000);
-  const requestId = isWholesale ? `WS-WSR-${randomNum}` : `WSR-${randomNum}`;
+  const requestId = isWholesale ? `WG-WSR-${randomNum}` : `WSR-${randomNum}`;
   const now = new Date().toISOString();
   const userId = currentUser?.id || currentUser?.$id || null;
 

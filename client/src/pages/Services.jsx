@@ -25,7 +25,7 @@ const VISITING_CARD_TYPES = [
   {
     title: "Art Board",
     desc: "300 GSM Standard Card Board (Semi-gloss / Matte texture)",
-    image: "https://images.unsplash.com/photo-1549221530-56276904e248?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=800&auto=format&fit=crop&q=80",
     prices: [
       { qty: 120, single: 130, double: 180 },
       { qty: 150, single: 150, double: 200 },
@@ -39,7 +39,7 @@ const VISITING_CARD_TYPES = [
   {
     title: "Art Board with Lamination",
     desc: "Premium Laminated Art Board (Glossy or Matte finish for extra durability)",
-    image: "https://images.unsplash.com/photo-1606722590583-6951b5ea92ad?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&auto=format&fit=crop&q=80",
     prices: [
       { qty: 120, single: 180, double: 230 },
       { qty: 150, single: 200, double: 250 },
@@ -53,7 +53,7 @@ const VISITING_CARD_TYPES = [
   {
     title: "Metallic & Special Boards",
     desc: "Metallic Gold & Silver, Needle Point, Texture, Linen, and Special Boards",
-    image: "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&auto=format&fit=crop&q=80",
     prices: [
       { qty: 120, single: 190, double: 260 },
       { qty: 150, single: 225, double: 300 },
@@ -67,7 +67,7 @@ const VISITING_CARD_TYPES = [
   {
     title: "Synthetic White 125 Micron",
     desc: "Non-tearable Waterproof White Plastic Cards (Lightweight 125 mic)",
-    image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80",
     prices: [
       { qty: 120, single: 200, double: 285 },
       { qty: 150, single: 235, double: 335 },
@@ -81,7 +81,7 @@ const VISITING_CARD_TYPES = [
   {
     title: "Syn. White 200 Mic / Syn. Gold & Silver 125 Mic",
     desc: "Thicker 200 Mic Synthetic White or Premium 125 Mic Metallic Gold & Silver",
-    image: "https://images.unsplash.com/photo-1508289656422-b88a87f13c21?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=800&auto=format&fit=crop&q=80",
     prices: [
       { qty: 120, single: 290, double: 435 },
       { qty: 150, single: 345, double: 445 },

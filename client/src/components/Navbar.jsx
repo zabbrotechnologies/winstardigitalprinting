@@ -37,7 +37,7 @@ export default function Navbar() {
           <img src="/logo.png" alt="WINSTAR Logo" style={{ height: 36, width: 36, objectFit: 'contain' }} onError={(e) => { e.target.onerror = null; e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23b70011"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>'; }} />
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, justifyContent: 'center' }}>
             <span style={{ fontSize: 18, fontWeight: 900, color: 'var(--primary)', letterSpacing: '0.02em' }}>WINSTAR</span>
-            <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Digital Printing & Xerox</span>
+            <span className="hide-on-compact" style={{ fontSize: 10, fontWeight: 600, color: 'var(--on-surface-variant)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Digital Printing & Xerox</span>
           </div>
         </Link>
 
@@ -60,7 +60,7 @@ export default function Navbar() {
         {/* Actions */}
         <div className="navbar-actions">
           {user ? (
-            <div style={{ position: 'relative' }}>
+            <div className="desktop-actions" style={{ position: 'relative' }}>
               <button
                 className="btn btn-outline btn-pill"
                 style={{ gap: 6, padding: '6px 14px', fontSize: 13 }}
@@ -118,7 +118,7 @@ export default function Navbar() {
             aria-label="Toggle navigation menu"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 26 }}>{mobileOpen ? 'close' : 'menu'}</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 26 }}>{mobileOpen ? 'close' : 'more_vert'}</span>
           </button>
         </div>
       </div>

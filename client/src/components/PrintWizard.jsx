@@ -383,7 +383,7 @@ export default function PrintWizard({ isWholesale = false }) {
                       ))}
                     </select>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                     <div className="form-group">
                       <label className="label">Size</label>
                       <select className="select" value={config.paper_size} onChange={e => handleSizeChange(e.target.value)}>
@@ -397,7 +397,7 @@ export default function PrintWizard({ isWholesale = false }) {
                       </select>
                     </div>
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                     <div className="form-group">
                       <label className="label">Copies</label>
                       <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
@@ -414,7 +414,7 @@ export default function PrintWizard({ isWholesale = false }) {
                 <>
                   <div style={{ marginBottom: 20 }}>
                     <label className="label">Top-Level Service</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                    <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       {TOP_LEVEL_SERVICES.map(ts => (
                         <button
                           key={ts.value}
@@ -436,7 +436,7 @@ export default function PrintWizard({ isWholesale = false }) {
 
                   {config.service === 'printing' && (
                     <>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                       <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                         <div className="form-group">
                           <label className="label">Sheet Size</label>
                           <select className="select" value={config.paper_size} onChange={e => setConfig(c => ({ ...c, paper_size: e.target.value }))}>
@@ -453,7 +453,7 @@ export default function PrintWizard({ isWholesale = false }) {
                         )}
                       </div>
                       
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                      <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                         <div className="form-group">
                           <label className="label">Color Mode</label>
                           <select className="select" value={config.color} onChange={e => setConfig(c => ({ ...c, color: e.target.value }))}>
@@ -489,7 +489,7 @@ export default function PrintWizard({ isWholesale = false }) {
                   )}
 
                   {config.service === 'binding' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                    <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                       <div className="form-group">
                         <label className="label">Sheet Size</label>
                         <select className="select" value={config.paper_size} onChange={e => setConfig(c => ({ ...c, paper_size: e.target.value }))}>
@@ -508,7 +508,7 @@ export default function PrintWizard({ isWholesale = false }) {
                     </div>
                   )}
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                  <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                     {['printing', 'binding', 'lamination'].includes(config.service) && (
                       <div className="form-group">
                         <label className="label">Number of Pages</label>

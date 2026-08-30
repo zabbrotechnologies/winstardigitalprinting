@@ -93,11 +93,11 @@ export default function Home() {
             <h2 className="headline-md" style={{ marginBottom: 12 }}>How It Works</h2>
             <p className="body-lg" style={{ color: 'var(--on-surface-variant)' }}>From upload to pickup in 4 simple steps</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24 }}>
+          <div className="how-it-works-grid">
             {HOW_IT_WORKS.map((item, i) => (
               <div key={item.step} style={{ textAlign: 'center', position: 'relative' }}>
                 {i < HOW_IT_WORKS.length - 1 && (
-                  <div style={{
+                  <div className="hide-on-compact" style={{
                     position: 'absolute', top: 28, left: '60%', width: '80%',
                     height: 2, background: 'linear-gradient(90deg, var(--primary-container), var(--secondary-container))',
                     opacity: 0.3,
@@ -146,7 +146,7 @@ export default function Home() {
               View All <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
             </Link>
           </div>
-          <div className="services-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          <div className="services-grid">
             {SERVICES.map(s => (
               <ServiceCard key={s.title} {...s} />
             ))}

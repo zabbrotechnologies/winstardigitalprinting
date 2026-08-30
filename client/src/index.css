@@ -1555,6 +1555,11 @@ img {
 .responsive-form-grid { grid-template-columns: 1fr 1fr; }
 @media (max-width: 768px) { .responsive-form-grid { grid-template-columns: 1fr !important; } }
 
+.how-it-works-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+@media (max-width: 768px) { .how-it-works-grid { grid-template-columns: 1fr !important; gap: 32px !important; } }
+
+.services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+
 @media (max-width: 768px) {
   .admin-responsive-table, 
   .admin-responsive-table thead, 

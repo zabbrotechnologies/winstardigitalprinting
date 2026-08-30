@@ -336,6 +336,11 @@ export default function Admin() {
                           <div style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>
                             {ord.copies} copy(ies) • {ord.paper_size} ({ord.paper_gsm || 'Standard'})
                           </div>
+                          {ord.message_text && (
+                            <div style={{ fontSize: 11, color: 'var(--primary-container)', marginTop: 4, fontStyle: 'italic' }}>
+                              * Has Special Notes
+                            </div>
+                          )}
                         </td>
 
                         <td data-label="File / Document" style={{ padding: '16px 20px' }}>
@@ -535,6 +540,12 @@ export default function Admin() {
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>DELIVERY TYPE</div>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>{selectedOrder.delivery_type === 'courier' ? 'Courier: ' + selectedOrder.delivery_address : 'Store Pickup'}</div>
                 </div>
+                {selectedOrder.message_text && (
+                  <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)', gridColumn: 'span 2' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>SPECIAL INSTRUCTIONS / NOTES</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'pre-wrap' }}>{selectedOrder.message_text}</div>
+                  </div>
+                )}
               </div>
 
               {selectedOrder.file_url && (

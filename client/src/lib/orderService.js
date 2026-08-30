@@ -216,6 +216,7 @@ export async function createOrder(orderPayload, currentUser = null) {
     binding: orderPayload.binding || 'none',
     delivery_type: orderPayload.delivery_type || 'pickup',
     delivery_address: orderPayload.delivery_address || '',
+    message_text: orderPayload.message_text || '',
     order_type: orderPayload.order_type || 'normal',
     total_price: parseFloat(orderPayload.total_price) || 0,
     status: 'Pending',

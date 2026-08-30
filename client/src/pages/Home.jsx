@@ -33,8 +33,15 @@ export default function Home() {
       <Navbar />
 
       {/* Hero */}
-      <section className="hero">
-        <div className="container">
+      <section className="hero" style={{
+        position: 'relative',
+        backgroundImage: 'url("https://images.unsplash.com/photo-1557672172-298e090bd0f1?q=80&w=2000&auto=format&fit=crop")', // red/crimson themed artistic background
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        padding: '120px 0',
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(248, 249, 255, 0.98) 0%, rgba(248, 249, 255, 0.85) 45%, rgba(183, 0, 17, 0.25) 100%)' }} />
+        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ maxWidth: 700 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,

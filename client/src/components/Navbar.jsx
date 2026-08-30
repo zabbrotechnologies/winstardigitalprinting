@@ -118,7 +118,7 @@ export default function Navbar() {
             aria-label="Toggle navigation menu"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: 26 }}>{mobileOpen ? 'close' : 'more_vert'}</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 26 }}>{mobileOpen ? 'close' : 'menu'}</span>
           </button>
         </div>
       </div>

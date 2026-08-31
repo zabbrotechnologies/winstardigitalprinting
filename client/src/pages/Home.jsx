@@ -158,33 +158,60 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Side: Production Press Machine Seamlessly Blending with Hero Background */}
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {/* Right Side: Production Press Machine Full Width with Smooth Left-Side Fade */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
               <div style={{
                 position: 'relative',
                 width: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                overflow: 'hidden',
               }}>
                 <img
                   src="/images/hero-production-press.jpg"
                   alt="Winstar Digital Production Press Machine & Book Samples"
                   style={{
                     width: '100%',
-                    maxWidth: '560px',
+                    maxWidth: '640px',
                     height: 'auto',
                     display: 'block',
                     objectFit: 'contain',
                     mixBlendMode: 'multiply',
-                    filter: 'contrast(1.03) saturate(1.05)',
+                    filter: 'contrast(1.04) saturate(1.08)',
+                    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 6%, rgba(0,0,0,0.85) 20%, black 35%, black 88%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 6%, black 90%, transparent 100%)',
+                    maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 6%, rgba(0,0,0,0.85) 20%, black 35%, black 88%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 6%, black 90%, transparent 100%)',
+                    maskComposite: 'intersect',
+                    WebkitMaskComposite: 'destination-in',
                   }}
                 />
+
+                {/* Left Side Soft Radial / Linear Gradient Fade Overlay */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  width: '28%',
+                  background: 'linear-gradient(to right, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%)',
+                  pointerEvents: 'none',
+                }} />
+
+                {/* Bottom Soft Fade Overlay */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: '24px',
+                  background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 100%)',
+                  pointerEvents: 'none',
+                }} />
               </div>
 
               {/* Floating Quality Badge */}
               <div style={{
-                position: 'absolute', bottom: -8, right: 12,
+                position: 'absolute', bottom: -4, right: 8,
                 background: 'rgba(255, 255, 255, 0.96)',
                 backdropFilter: 'blur(8px)',
                 padding: '8px 18px',

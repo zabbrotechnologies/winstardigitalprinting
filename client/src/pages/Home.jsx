@@ -68,24 +68,41 @@ export default function Home() {
               </div>
 
               <h1 style={{
-                fontSize: 'clamp(38px, 5vw, 64px)',
-                fontWeight: 900,
-                lineHeight: 1.05,
-                letterSpacing: '-0.03em',
-                marginBottom: 16,
-                color: '#0F172A',
+                marginBottom: 20,
                 textTransform: 'uppercase',
+                lineHeight: 1,
               }}>
-                <div>DIGITAL</div>
                 <div style={{
-                  background: 'linear-gradient(90deg, #0284c7 0%, #ec4899 40%, #e11d48 70%, #f59e0b 100%)',
+                  fontSize: 'clamp(28px, 3.6vw, 44px)',
+                  fontWeight: 900,
+                  color: '#0F172A',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.1,
+                }}>
+                  DIGITAL
+                </div>
+                <div style={{
+                  fontSize: 'clamp(52px, 7vw, 92px)',
+                  fontWeight: 900,
+                  lineHeight: 0.95,
+                  letterSpacing: '-0.03em',
+                  background: 'linear-gradient(90deg, #009FE3 0%, #0072CE 18%, #7B2CBF 36%, #E6007E 54%, #FF0055 70%, #FF6B00 86%, #FFB600 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   display: 'inline-block',
+                  margin: '4px 0',
                 }}>
                   PRINTING
                 </div>
-                <div>MADE EASY</div>
+                <div style={{
+                  fontSize: 'clamp(28px, 3.6vw, 44px)',
+                  fontWeight: 900,
+                  color: '#0F172A',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.1,
+                }}>
+                  MADE EASY
+                </div>
               </h1>
 
               {/* Sub-headline line */}

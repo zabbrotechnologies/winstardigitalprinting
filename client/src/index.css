@@ -1642,3 +1642,17 @@ img {
     text-align: right;
   }
 }
+
+.hero-cmyk-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.3fr;
+  gap: 40px;
+  align-items: center;
+}
+
+@media (max-width: 960px) {
+  .hero-cmyk-grid {
+    grid-template-columns: 1fr !important;
+    gap: 36px !important;
+  }
+}

@@ -32,47 +32,171 @@ export default function Home() {
     <div className="page-content">
       <Navbar />
 
-      {/* Hero */}
+      {/* Hero Section (CMYK Print Production Layout) */}
       <section className="hero" style={{
         position: 'relative',
-        backgroundImage: 'url("https://images.unsplash.com/photo-1562240020-ce31ccb0fa7d?q=80&w=2000&auto=format&fit=crop")', // commercial printing press
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        padding: '120px 0',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8faff 50%, #fdf2f8 100%)',
+        padding: '110px 0 64px',
+        overflow: 'hidden',
+        borderBottom: '1px solid var(--surface-container-high)',
       }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(248, 249, 255, 0.98) 0%, rgba(248, 249, 255, 0.85) 45%, rgba(183, 0, 17, 0.25) 100%)' }} />
+        {/* Subtle Decorative Ambient Splashes */}
+        <div style={{
+          position: 'absolute', top: -40, right: -40, width: 340, height: 340,
+          borderRadius: '50%', background: 'radial-gradient(circle, rgba(236,72,153,0.1) 0%, rgba(255,255,255,0) 70%)',
+          pointerEvents: 'none', filter: 'blur(30px)'
+        }} />
+        <div style={{
+          position: 'absolute', bottom: -40, left: -40, width: 340, height: 340,
+          borderRadius: '50%', background: 'radial-gradient(circle, rgba(2,132,199,0.1) 0%, rgba(255,255,255,0) 70%)',
+          pointerEvents: 'none', filter: 'blur(30px)'
+        }} />
+
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ maxWidth: 700 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'var(--primary-fixed)', color: 'var(--on-primary-fixed-variant)',
-              padding: '6px 16px', borderRadius: 'var(--radius-full)',
-              fontSize: 13, fontWeight: 600, marginBottom: 24,
-              letterSpacing: '0.04em',
-            }}>
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
-              Professional Printing · Same Day Pickup
+          <div className="hero-cmyk-grid">
+            {/* Left Content */}
+            <div>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: '#fef3c7', color: '#b45309',
+                padding: '6px 16px', borderRadius: 'var(--radius-full)',
+                fontSize: 13, fontWeight: 700, marginBottom: 20,
+                letterSpacing: '0.04em',
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
+                High-Volume Production Press · Same Day Pickup
+              </div>
+
+              <h1 style={{
+                fontSize: 'clamp(38px, 5vw, 64px)',
+                fontWeight: 900,
+                lineHeight: 1.05,
+                letterSpacing: '-0.03em',
+                marginBottom: 16,
+                color: '#0F172A',
+                textTransform: 'uppercase',
+              }}>
+                <div>DIGITAL</div>
+                <div style={{
+                  background: 'linear-gradient(90deg, #0284c7 0%, #ec4899 40%, #e11d48 70%, #f59e0b 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  display: 'inline-block',
+                }}>
+                  PRINTING
+                </div>
+                <div>MADE EASY</div>
+              </h1>
+
+              {/* Sub-headline line */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                flexWrap: 'wrap',
+                fontSize: 'clamp(14px, 1.4vw, 17px)',
+                fontWeight: 700,
+                color: '#475569',
+                marginBottom: 24,
+              }}>
+                <span>High Quality Printing</span>
+                <span style={{ color: '#0284c7', fontSize: 18 }}>•</span>
+                <span>Fast Service</span>
+                <span style={{ color: '#ec4899', fontSize: 18 }}>•</span>
+                <span>Best Price</span>
+              </div>
+
+              <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: 500, marginBottom: 32, lineHeight: 1.6 }}>
+                Upload your files, configure your options, and get commercial-grade prints, binding, visiting cards, and plans ready on time.
+              </p>
+
+              {/* Action Buttons (WhatsApp Us + Start Print + View Our Services) */}
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+                <a
+                  href="https://wa.me/919345046665"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn"
+                  style={{
+                    background: '#25D366', color: '#ffffff',
+                    padding: '13px 24px', fontSize: 15, fontWeight: 700,
+                    borderRadius: 'var(--radius-full)', display: 'inline-flex',
+                    alignItems: 'center', gap: 8, boxShadow: '0 4px 14px rgba(37,211,102,0.3)',
+                    border: 'none'
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>chat</span>
+                  WhatsApp Us
+                </a>
+
+                <a
+                  href="#quick-print"
+                  className="btn btn-primary"
+                  style={{
+                    padding: '13px 24px', fontSize: 15, fontWeight: 700,
+                    borderRadius: 'var(--radius-full)', display: 'inline-flex',
+                    alignItems: 'center', gap: 8,
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>print</span>
+                  Start Print
+                </a>
+
+                <Link
+                  to="/services"
+                  className="btn btn-outline"
+                  style={{
+                    padding: '13px 22px', fontSize: 15, fontWeight: 700,
+                    borderRadius: 'var(--radius-full)', display: 'inline-flex',
+                    alignItems: 'center', gap: 8,
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>grid_view</span>
+                  View Our Services
+                </Link>
+              </div>
             </div>
-            <h1 className="display-lg" style={{ marginBottom: 24, color: 'var(--on-surface)' }}>
-              Digital Printing,<br />
-              <span style={{ color: 'var(--primary-container)' }}>Made Easy.</span>
-            </h1>
-            <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: 560, marginBottom: 40 }}>
-              Upload your files, configure your options, and get high-quality prints ready for pickup. Trusted by enterprise clients and creative professionals.
-            </p>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <a href="#quick-print" className="btn btn-primary btn-lg">
-                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>print</span>
-                Start Print
-              </a>
-              <Link to="/services" className="btn btn-outline btn-lg">
-                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>grid_view</span>
-                Browse Services
-              </Link>
+
+            {/* Right Side: High Quality Production Press & Print Products Image */}
+            <div style={{ position: 'relative' }}>
+              <div style={{
+                position: 'relative',
+                borderRadius: 'var(--radius-xl)',
+                overflow: 'hidden',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)',
+                border: '1px solid rgba(226,232,240,0.8)',
+                background: '#ffffff',
+                transition: 'transform 0.3s ease',
+              }}>
+                <img
+                  src="/images/hero-production-press.jpg"
+                  alt="Winstar Digital Production Press Machine & Book Samples"
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    display: 'block',
+                    objectFit: 'cover',
+                  }}
+                />
+              </div>
+
+              {/* Floating Quality Badge */}
+              <div style={{
+                position: 'absolute', bottom: -14, right: 16,
+                background: 'rgba(255, 255, 255, 0.95)',
+                backdropFilter: 'blur(8px)',
+                padding: '8px 16px',
+                borderRadius: 'var(--radius-full)',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                border: '1px solid #e2e8f0',
+                display: 'flex', alignItems: 'center', gap: 8,
+                fontSize: 12.5, fontWeight: 700, color: '#0F172A',
+              }}>
+                <span className="material-symbols-outlined" style={{ color: '#ec4899', fontSize: 17 }}>auto_awesome</span>
+                <span>Commercial Digital Press · Crisp 2400 DPI</span>
+              </div>
             </div>
           </div>
-
-
         </div>
       </section>
 

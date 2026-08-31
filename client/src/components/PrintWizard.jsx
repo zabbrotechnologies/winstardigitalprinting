@@ -41,8 +41,8 @@ export default function PrintWizard({ isWholesale = false }) {
   const [paymentMethod, setPaymentMethod] = useState('online');
   const [error, setError] = useState('');
 
-  const [customerName, setCustomerName] = useState(profile?.full_name || '');
-  const [customerPhone, setCustomerPhone] = useState(profile?.mobile || '');
+  const [customerName, setCustomerName] = useState(profile?.company_name || profile?.full_name || '');
+  const [customerPhone, setCustomerPhone] = useState(profile?.mobile || profile?.phone || '');
   const [deliveryType, setDeliveryType] = useState('pickup');
   const [deliveryAddress, setDeliveryAddress] = useState(profile?.business_address || '');
 
@@ -68,6 +68,18 @@ export default function PrintWizard({ isWholesale = false }) {
   });
 
   const isWholesaleActive = isWholesale || (profile?.isWholesale && profile?.isApproved);
+
+  // Sync B2B account details when profile loads
+  useEffect(() => {
+    if (isWholesaleActive && profile) {
+      const name = profile.company_name || profile.full_name || '';
+      const mobile = profile.mobile || profile.phone || '';
+      const address = profile.business_address || '';
+      if (name) setCustomerName(name);
+      if (mobile) setCustomerPhone(mobile);
+      if (address) setDeliveryAddress(address);
+    }
+  }, [isWholesaleActive, profile]);
 
   const availableWholesaleItems = WHOLESALE_PRICE_LIST.filter(item => item.media === config.media);
   const availableWholesaleSizes = [...new Set(availableWholesaleItems.map(item => item.size))];
@@ -303,7 +315,17 @@ export default function PrintWizard({ isWholesale = false }) {
 
   async function handlePlaceOrder(e) {
     e?.preventDefault();
-    if (!customerName || !customerPhone) {
+    const effectiveName = isWholesaleActive
+      ? (profile?.company_name || profile?.full_name || customerName || user?.user_metadata?.full_name || 'B2B Client')
+      : customerName;
+    const effectivePhone = isWholesaleActive
+      ? (profile?.mobile || profile?.phone || customerPhone || user?.user_metadata?.mobile || '')
+      : customerPhone;
+    const effectiveEmail = isWholesaleActive
+      ? (profile?.email || user?.email || '')
+      : '';
+
+    if (!isWholesaleActive && (!customerName || !customerPhone)) {
       setError('Please provide your Name and WhatsApp Mobile Number.');
       return;
     }
@@ -326,8 +348,9 @@ export default function PrintWizard({ isWholesale = false }) {
       let serviceName = isWholesaleActive ? config.media : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label;
       
       const payload = {
-        customer_name: customerName,
-        customer_phone: customerPhone,
+        customer_name: effectiveName,
+        customer_phone: effectivePhone,
+        customer_email: effectiveEmail,
         service_name: serviceName,
         file_name: uploadedFile?.fileName || file?.name || 'print-file.pdf',
         file_url: uploadedFile?.publicUrl || '',
@@ -351,10 +374,24 @@ export default function PrintWizard({ isWholesale = false }) {
   }
 
   function openWhatsApp(order) {
-    const reqId = order.request_id || order.id || 'WSR-GEN';
-    let textStr = `🖨️ *WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
-      `👤 *Customer:* ${order.customer_name} (${order.customer_phone})\n` +
-      `📄 *Service:* ${order.service_name}\n`;
+    const reqId = order.request_id || order.id || (isWholesaleActive ? 'WG-WSR-GEN' : 'WSR-GEN');
+    let textStr = '';
+
+    if (order.order_type === 'wholesale' || isWholesaleActive) {
+      const agencyName = order.customer_name || profile?.company_name || profile?.full_name || 'B2B Client';
+      const registeredEmail = order.customer_email || profile?.email || user?.email || 'N/A';
+      const registeredPhone = order.customer_phone || profile?.mobile || 'N/A';
+
+      textStr = `🖨️ *WINSTAR B2B PRINT ORDER* - *${reqId}*\n\n` +
+        `🏢 *Agency / Client:* ${agencyName}\n` +
+        `📧 *Registered Email:* ${registeredEmail}\n` +
+        `📱 *Registered Phone:* ${registeredPhone}\n` +
+        `📄 *Service / Media:* ${order.service_name}\n`;
+    } else {
+      textStr = `🖨️ *WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
+        `👤 *Customer:* ${order.customer_name} (${order.customer_phone})\n` +
+        `📄 *Service:* ${order.service_name}\n`;
+    }
 
     if (order.service === 'visiting_cards') {
       textStr += `🪪 *Card Type:* ${order.card_type}\n` +
@@ -371,7 +408,7 @@ export default function PrintWizard({ isWholesale = false }) {
       textStr += `📝 *Instructions:* ${order.message_text}\n`;
     }
 
-    textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + order.delivery_address : 'Store Pickup'}\n`;
+    textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + (order.delivery_address || deliveryAddress) : 'Store Pickup'}\n`;
     textStr += `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n`;
     
     textStr += `Please confirm my print job! Request ID: ${reqId}`;
@@ -432,7 +469,7 @@ export default function PrintWizard({ isWholesale = false }) {
             <div>
               <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 1: Upload Your Print File</h3>
               <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
-                Supports PDF, DOCX, JPG, PNG, PSD, and AI up to 50MB.
+                Supports PDF, DOCX, CorelDRAW (.CDR), PSD, AI, JPG, and PNG up to 50MB.
               </p>
 
               <div
@@ -455,7 +492,7 @@ export default function PrintWizard({ isWholesale = false }) {
                   type="file"
                   ref={fileInputRef}
                   style={{ display: 'none' }}
-                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.psd,.ai"
+                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.psd,.ai,.cdr,application/x-cdr,application/cdr,application/vnd.corel-draw"
                   onChange={e => handleFileSelect(e.target.files?.[0])}
                 />
                 <span className="material-symbols-outlined icon-fill" style={{ fontSize: 54, color: 'var(--primary-container)', marginBottom: 12 }}>
@@ -465,7 +502,7 @@ export default function PrintWizard({ isWholesale = false }) {
                   {file ? file.name : 'Click to Browse or Drag & Drop File'}
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                  {uploading ? 'Uploading to Winstar Cloud...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & validation'}
+                  {uploading ? 'Uploading to Winstar Cloud...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & validation (PDF, CDR, DOCX, Images)'}
                 </div>
                 {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
               </div>
@@ -696,22 +733,57 @@ export default function PrintWizard({ isWholesale = false }) {
           {/* STEP 3 */}
           {step === 3 && (
             <div>
-              <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 3: Contact & Delivery</h3>
+              <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>
+                {isWholesaleActive ? 'Step 3: B2B Order & Delivery' : 'Step 3: Contact & Delivery'}
+              </h3>
               <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
-                No account required. An instant Request ID will be generated for WhatsApp tracking.
+                {isWholesaleActive 
+                  ? 'Your authenticated B2B account details will be automatically attached to this order.' 
+                  : 'No account required. An instant Request ID will be generated for WhatsApp tracking.'}
               </p>
 
               <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div className="responsive-form-grid" style={{ display: 'grid', gap: 16 }}>
-                  <div className="form-group">
-                    <label className="label">Full Name *</label>
-                    <input type="text" className="input" placeholder="e.g. John Doe" required value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                {isWholesaleActive ? (
+                  <div style={{
+                    background: 'var(--surface-container-low)',
+                    border: '1px solid #bbf7d0',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '16px 20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 10,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#166534', fontWeight: 800, fontSize: 13.5 }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>verified_user</span>
+                      AUTHENTICATED B2B ACCOUNT DETAILS
+                    </div>
+                    <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, fontSize: 13 }}>
+                      <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
+                        <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Agency</span>
+                        <strong style={{ color: 'var(--on-surface)', wordBreak: 'break-word' }}>{profile?.company_name || profile?.full_name || customerName || 'B2B Agency'}</strong>
+                      </div>
+                      <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
+                        <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Email</span>
+                        <strong style={{ color: 'var(--on-surface)', wordBreak: 'break-all' }}>{profile?.email || user?.email || 'N/A'}</strong>
+                      </div>
+                      <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
+                        <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Phone</span>
+                        <strong style={{ color: 'var(--on-surface)' }}>{profile?.mobile || profile?.phone || customerPhone || user?.user_metadata?.mobile || 'N/A'}</strong>
+                      </div>
+                    </div>
                   </div>
-                  <div className="form-group">
-                    <label className="label">WhatsApp Number *</label>
-                    <input type="tel" className="input" placeholder="e.g. 1234567890" required value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+                ) : (
+                  <div className="responsive-form-grid" style={{ display: 'grid', gap: 16 }}>
+                    <div className="form-group">
+                      <label className="label">Full Name *</label>
+                      <input type="text" className="input" placeholder="e.g. John Doe" required value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                    </div>
+                    <div className="form-group">
+                      <label className="label">WhatsApp Number *</label>
+                      <input type="tel" className="input" placeholder="e.g. 1234567890" required value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="form-group">
                   <label className="label">Delivery Method</label>
@@ -959,7 +1031,8 @@ export default function PrintWizard({ isWholesale = false }) {
                     </span>
                   </div>
                   <div style={{ fontSize: 13, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    <div><strong>Customer:</strong> {createdOrder.customer_name} ({createdOrder.customer_phone})</div>
+                    <div><strong>Customer / Agency:</strong> {createdOrder.customer_name} ({createdOrder.customer_phone})</div>
+                    {createdOrder.customer_email && <div><strong>Email:</strong> {createdOrder.customer_email}</div>}
                     <div><strong>Service:</strong> {createdOrder.service_name}</div>
                     <div><strong>File:</strong> {createdOrder.file_name}</div>
                     <div><strong>Total Amount:</strong> ₹{createdOrder.total_price} (Incl. GST)</div>

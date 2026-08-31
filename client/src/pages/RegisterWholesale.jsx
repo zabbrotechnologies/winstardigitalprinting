@@ -275,29 +275,29 @@ export default function RegisterWholesale() {
                 </h3>
                 <div className="responsive-form-grid" style={{ display: 'grid', gap: 20 }}>
                   <div className="form-group">
-                    <label className="label">Visiting Card Photo / PDF *</label>
+                    <label className="label">Visiting Card Photo / PDF / CDR *</label>
                     <input
                       type="file"
                       className="input"
                       required
-                      accept=".pdf,.jpg,.jpeg,.png"
+                      accept=".pdf,.jpg,.jpeg,.png,.cdr"
                       onChange={e => setVisitingCardFile(e.target.files?.[0])}
                     />
                     <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 4 }}>
-                      Attach your business visiting card
+                      Attach your business visiting card (PDF, Image, or CorelDRAW .CDR)
                     </div>
                   </div>
 
                   <div className="form-group">
-                    <label className="label">Business Proof (GST / Shop Act / ID)</label>
+                    <label className="label">Business Proof (GST / Shop Act / ID / CDR)</label>
                     <input
                       type="file"
                       className="input"
-                      accept=".pdf,.jpg,.jpeg,.png"
+                      accept=".pdf,.jpg,.jpeg,.png,.cdr"
                       onChange={e => setBusinessProofFile(e.target.files?.[0])}
                     />
                     <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', marginTop: 4 }}>
-                      GST certificate or trade license
+                      GST certificate, trade license, or verification document
                     </div>
                   </div>
                 </div>

@@ -478,7 +478,20 @@ img {
   letter-spacing: -0.03em;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  height: 100%;
+}
+
+.navbar-brand-logo {
+  height: 56px;
+  max-height: 58px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.navbar-brand:hover .navbar-brand-logo {
+  transform: scale(1.03);
 }
 
 .navbar-nav {
@@ -1030,6 +1043,20 @@ img {
 
   .navbar-brand {
     font-size: 18px;
+    gap: 8px;
+  }
+
+  .navbar-brand-logo {
+    height: 48px;
+    max-height: 50px;
+  }
+
+  .navbar-brand-title {
+    font-size: 19px !important;
+  }
+
+  .navbar-brand-sub {
+    font-size: 9px !important;
   }
 
   .display-lg {

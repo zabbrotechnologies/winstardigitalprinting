@@ -21,7 +21,7 @@ const SERVICES = [
 ];
 
 const HOW_IT_WORKS = [
-  { step: '01', icon: 'cloud_upload', title: 'Upload Your File', desc: 'Drag & drop or browse for your PDF, DOCX, or image file.' },
+  { step: '01', icon: 'cloud_upload', title: 'Upload Your File', desc: 'Drag & drop or browse for your PDF, DOCX, CorelDRAW (.CDR), PSD, AI, or image file.' },
   { step: '02', icon: 'tune', title: 'Configure Options', desc: 'Choose paper size, quantity, binding, and finish type.' },
   { step: '03', icon: 'shopping_cart', title: 'Place Your Order', desc: 'Review pricing and confirm your print job online.' },
   { step: '04', icon: 'local_shipping', title: 'Ready for Pickup', desc: 'Get notified when your prints are ready.' },

@@ -194,6 +194,7 @@ export async function createOrder(orderPayload, currentUser = null) {
     user_id: userId,
     customer_name: orderPayload.customer_name || currentUser?.user_metadata?.full_name || 'Customer',
     customer_phone: orderPayload.customer_phone || '',
+    customer_email: orderPayload.customer_email || currentUser?.email || '',
     service_name: orderPayload.service_name || 'Print Service',
     file_name: orderPayload.file_name || 'print-file.pdf',
     file_url: orderPayload.file_url || '',

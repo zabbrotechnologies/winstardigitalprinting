@@ -9,17 +9,30 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
   fileFilter: (req, file, cb) => {
-    const allowed = [
+    const allowedMimes = [
       'application/pdf',
       'image/jpeg',
       'image/png',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/x-cdr',
+      'application/cdr',
+      'application/vnd.corel-draw',
+      'application/coreldraw',
+      'image/x-coreldraw',
+      'image/x-corelimage',
+      'image/vnd.adobe.photoshop',
+      'application/postscript',
+      'application/illustrator',
+      'application/octet-stream',
     ];
-    if (allowed.includes(file.mimetype)) {
+    const ext = file.originalname.split('.').pop().toLowerCase();
+    const allowedExts = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'psd', 'ai', 'cdr'];
+
+    if (allowedMimes.includes(file.mimetype) || allowedExts.includes(ext)) {
       cb(null, true);
     } else {
-      cb(new Error('Unsupported file type. Use PDF, DOCX, JPG, or PNG.'));
+      cb(new Error('Unsupported file type. Use PDF, DOCX, CorelDRAW (.CDR), PSD, AI, JPG, or PNG.'));
     }
   },
 });

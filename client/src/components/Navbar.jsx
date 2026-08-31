@@ -33,43 +33,55 @@ export default function Navbar() {
     <header className="navbar">
       <div className="navbar-inner">
         {/* Brand */}
-        <Link to="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', height: '100%' }}>
+        <Link to="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', height: '100%' }}>
           <img 
             src="/logo.png" 
             alt="WINSTAR Logo" 
             className="navbar-brand-logo"
             style={{ 
-              height: 56, 
-              maxHeight: 58, 
+              height: 52, 
+              maxHeight: 56, 
               width: 'auto', 
               objectFit: 'contain',
               display: 'block'
             }} 
             onError={(e) => { e.target.onerror = null; e.target.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23D4AF37"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>'; }} 
           />
-          <div className="navbar-brand-text" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.1, justifyContent: 'center' }}>
-            <span className="navbar-brand-title" style={{ 
-              fontSize: 23, 
-              fontWeight: 900, 
-              color: '#D4AF37', 
-              letterSpacing: '0.03em',
-              background: 'linear-gradient(135deg, #F59E0B 0%, #D4AF37 50%, #B45309 100%)',
+          <div className="navbar-brand-text" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
+              fontFamily: 'var(--font-display)',
+              fontSize: 25,
+              fontWeight: 900,
+              lineHeight: 1,
+              color: '#F59E0B',
+              background: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 40%, #D97706 70%, #B45309 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              textShadow: '0 1px 2px rgba(212,175,55,0.15)'
+              textShadow: '0 1px 2px rgba(245, 158, 11, 0.2)',
             }}>
-              WINSTAR
-            </span>
-            <span className="navbar-brand-sub" style={{ 
-              fontSize: 10.5, 
-              fontWeight: 700, 
+              <span>W</span>
+              <span>I</span>
+              <span>N</span>
+              <span>S</span>
+              <span>T</span>
+              <span>A</span>
+              <span>R</span>
+            </div>
+            <div style={{ 
+              fontSize: 10, 
+              fontWeight: 800, 
               color: 'var(--on-surface-variant)', 
               textTransform: 'uppercase', 
-              letterSpacing: '0.06em',
-              marginTop: 1
+              letterSpacing: '0.04em',
+              lineHeight: 1.1,
+              marginTop: 3,
+              whiteSpace: 'nowrap'
             }}>
               Digital Printing &amp; Xerox
-            </span>
+            </div>
           </div>
         </Link>
 

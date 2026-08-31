@@ -158,42 +158,44 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Side: High Quality Production Press & Print Products Image */}
-            <div style={{ position: 'relative' }}>
+            {/* Right Side: Production Press Machine Seamlessly Blending with Hero Background */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{
                 position: 'relative',
-                borderRadius: 'var(--radius-xl)',
-                overflow: 'hidden',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05)',
-                border: '1px solid rgba(226,232,240,0.8)',
-                background: '#ffffff',
-                transition: 'transform 0.3s ease',
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}>
                 <img
                   src="/images/hero-production-press.jpg"
                   alt="Winstar Digital Production Press Machine & Book Samples"
                   style={{
                     width: '100%',
+                    maxWidth: '560px',
                     height: 'auto',
                     display: 'block',
-                    objectFit: 'cover',
+                    objectFit: 'contain',
+                    mixBlendMode: 'multiply',
+                    filter: 'contrast(1.03) saturate(1.05)',
                   }}
                 />
               </div>
 
               {/* Floating Quality Badge */}
               <div style={{
-                position: 'absolute', bottom: -14, right: 16,
-                background: 'rgba(255, 255, 255, 0.95)',
+                position: 'absolute', bottom: -8, right: 12,
+                background: 'rgba(255, 255, 255, 0.96)',
                 backdropFilter: 'blur(8px)',
-                padding: '8px 16px',
+                padding: '8px 18px',
                 borderRadius: 'var(--radius-full)',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
                 border: '1px solid #e2e8f0',
                 display: 'flex', alignItems: 'center', gap: 8,
-                fontSize: 12.5, fontWeight: 700, color: '#0F172A',
+                fontSize: 13, fontWeight: 700, color: '#0F172A',
+                zIndex: 3
               }}>
-                <span className="material-symbols-outlined" style={{ color: '#ec4899', fontSize: 17 }}>auto_awesome</span>
+                <span className="material-symbols-outlined" style={{ color: '#ec4899', fontSize: 18 }}>auto_awesome</span>
                 <span>Commercial Digital Press · Crisp 2400 DPI</span>
               </div>
             </div>

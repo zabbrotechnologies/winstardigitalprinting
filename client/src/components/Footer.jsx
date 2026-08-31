@@ -53,7 +53,17 @@ export default function Footer() {
             <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--primary-fixed-dim)' }}>Legal</span>
             <a href="#" className="footer-link">Privacy Policy</a>
             <a href="#" className="footer-link">Terms of Service</a>
-            <a href="#" className="footer-link">Cookie Settings</a>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                window.dispatchEvent(new Event('open-cookie-settings'));
+              }}
+              className="footer-link"
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left', font: 'inherit' }}
+            >
+              Cookie Settings
+            </button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--primary-fixed-dim)' }}>Account</span>

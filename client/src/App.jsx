@@ -7,6 +7,7 @@ import Services from './pages/Services';
 import Admin from './pages/Admin';
 import BulkOrder from './pages/BulkOrder';
 import RegisterWholesale from './pages/RegisterWholesale';
+import CookieConsent from './components/CookieConsent';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             </div>
           } />
         </Routes>
+        <CookieConsent />
       </AuthProvider>
     </BrowserRouter>
   );

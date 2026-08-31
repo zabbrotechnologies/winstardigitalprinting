@@ -3,21 +3,22 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import PrintWizard from '../components/PrintWizard';
 import ServiceCard from '../components/ServiceCard';
+import EquipmentCarousel from '../components/EquipmentCarousel';
 
 const SERVICES = [
   { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
-  { title: "Plan Printouts", icon: "print", image: "/images/services/plan-print-outs.jpg", description: "High quality large format plan printouts." },
-  { title: "Visiting Cards", icon: "badge", image: "/images/services/business-cards.jpg", description: "Premium customized business cards." },
+  { title: "Plan Printouts", icon: "print", image: "/images/services/plan-printouts.jpg", description: "High quality large format plan printouts." },
+  { title: "Visiting Cards", icon: "badge", image: "/images/services/visiting-cards.png", description: "Premium customized business cards." },
   { title: "A4 Printouts", icon: "file_copy", image: "/images/services/a4-printouts.jpg", description: "Crisp and clear A4 document printing." },
-  { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.webp", description: "Book-like perfect binding for a premium finish." },
-  { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.webp", description: "Eye-catching tri-fold and bi-fold brochures." },
+  { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.jpg", description: "Book-like perfect binding for a premium finish." },
+  { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.jpg", description: "Eye-catching tri-fold and bi-fold brochures." },
   { title: "Certificates", icon: "military_tech", image: "/images/services/certificates.jpg", description: "High-quality award and certificate printing." },
-  { title: "Wiro Binding", icon: "library_books", image: "/images/services/wiro-binding.webp", description: "Durable and flexible wiro binding." },
-  { title: "Soft Binding", icon: "book", image: "/images/services/soft-binding.webp", description: "Clean soft binding for presentations." },
+  { title: "Wiro Binding", icon: "library_books", image: "/images/services/wiro-binding.jpg", description: "Durable and flexible wiro binding." },
+  { title: "Soft Binding", icon: "book", image: "/images/services/soft-binding.jpg", description: "Clean soft binding for presentations." },
   { title: "Document OCR", icon: "document_scanner", image: "/images/services/document-ocr.webp", description: "Scan and convert documents into editable text." },
-  { title: "Rexin Binding", icon: "bookmark", image: "/images/services/rexin-binding.webp", description: "Classic rexin binding for thesis and reports." },
-  { title: "Moroccan Hard Binding", icon: "book_4", image: "/images/services/moroccan-hard-binding.webp", description: "Premium Moroccan hard binding." },
-  { title: "Hard Binding", icon: "library_books", image: "/images/services/hard-binding.webp", description: "Standard hard binding for maximum durability." }
+  { title: "Rexin Binding", icon: "bookmark", image: "/images/services/rexin-binding.jpg", description: "Classic rexin binding for thesis and reports." },
+  { title: "Moroccan Hard Binding", icon: "book_4", image: "/images/services/moroccan-hard-binding.jpg", description: "Premium Moroccan hard binding." },
+  { title: "Hard Binding", icon: "library_books", image: "/images/services/hard-binding.jpg", description: "Standard hard binding for maximum durability." }
 ];
 
 const HOW_IT_WORKS = [
@@ -284,6 +285,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* State-of-the-Art Machinery Carousel (Auto Next) */}
+      <EquipmentCarousel />
 
       <Footer />
     </div>

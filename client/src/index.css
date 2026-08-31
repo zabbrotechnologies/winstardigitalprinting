@@ -1676,3 +1676,35 @@ img {
     gap: 8px !important;
   }
 }
+
+/* Machinery Carousel Styles */
+@keyframes progressAnim {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.carousel-container {
+  transition: all 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .carousel-container > div:nth-child(2) {
+    padding: 24px 16px !important;
+  }
+}
+

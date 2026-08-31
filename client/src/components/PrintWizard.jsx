@@ -446,8 +446,23 @@ async function detectFilePages(file) {
 
   async function handleFileSelect(selectedFile) {
     if (!selectedFile) return;
-    setFile(selectedFile);
     setError('');
+
+    const fileName = (selectedFile.name || '').toLowerCase();
+    const fileType = (selectedFile.type || '').toLowerCase();
+
+    // Rejection for audio & video file types
+    const isAudio = fileType.startsWith('audio/') || /\.(mp3|wav|ogg|m4a|aac|flac|wma|opus|amr|aiff|alac|mid|midi)$/i.test(fileName);
+    const isVideo = fileType.startsWith('video/') || /\.(mp4|mkv|avi|mov|wmv|flv|webm|3gp|m4v|mpg|mpeg|ts|vob|ogv)$/i.test(fileName);
+
+    if (isAudio || isVideo) {
+      setFile(null);
+      setUploadedFile(null);
+      setError('Audio and Video files are not supported. Please upload printable documents or images (PDF, CorelDRAW .CDR, DOCX, PSD, AI, JPG, PNG).');
+      return;
+    }
+
+    setFile(selectedFile);
     setUploading(true);
 
     try {
@@ -930,6 +945,17 @@ async function detectFilePages(file) {
                     {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
                   </div>
 
+                  {error && (
+                    <div className="animate-fade-in" style={{
+                      marginTop: 16, padding: '14px 16px', borderRadius: 'var(--radius-md)',
+                      background: '#fee2e2', border: '1px solid #f87171', color: '#991b1b',
+                      fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 10
+                    }}>
+                      <span className="material-symbols-outlined icon-fill" style={{ color: '#ef4444', fontSize: 22, flexShrink: 0 }}>error</span>
+                      <span>{error}</span>
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
                     <button className="btn btn-outline" onClick={() => setStep(1)}>
                       <span className="material-symbols-outlined">arrow_back</span> Back to Print Spec
@@ -1071,6 +1097,17 @@ async function detectFilePages(file) {
                     </div>
                     {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
                   </div>
+
+                  {error && (
+                    <div className="animate-fade-in" style={{
+                      marginTop: 16, padding: '14px 16px', borderRadius: 'var(--radius-md)',
+                      background: '#fee2e2', border: '1px solid #f87171', color: '#991b1b',
+                      fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 10
+                    }}>
+                      <span className="material-symbols-outlined icon-fill" style={{ color: '#ef4444', fontSize: 22, flexShrink: 0 }}>error</span>
+                      <span>{error}</span>
+                    </div>
+                  )}
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
                     <button className="btn btn-primary" onClick={() => setStep(2)}>

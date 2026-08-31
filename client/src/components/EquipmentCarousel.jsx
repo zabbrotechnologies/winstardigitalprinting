@@ -4,32 +4,37 @@ const SLIDES = [
   {
     id: 1,
     image: '/images/carousel/machine-1.png',
+    badge: 'Unit 01 · Production Press',
     title: 'Industrial Digital Production Press',
-    description: 'High-speed laser production press for heavy bulk printing, corporate catalogs, and commercial publications.'
+    description: 'Heavy duty high-speed laser production press for commercial publications, corporate catalogs, and large volume book printing.'
   },
   {
     id: 2,
     image: '/images/carousel/machine-2.png',
-    title: 'High-Speed Commercial Color Laser Printer',
-    description: 'Commercial digital workhorse delivering sharp text and vibrant CMYK color accuracy for reports and manuals.'
+    badge: 'Unit 02 · Laser Workhorse',
+    title: 'Commercial High-Speed Color Laser Printer',
+    description: 'Precision digital printing system delivering high-density black and vibrant CMYK color accuracy for business reports and manuals.'
   },
   {
     id: 3,
     image: '/images/carousel/machine-3.png',
+    badge: 'Unit 03 · Precision Trimmer',
     title: 'Precision Hydraulic Paper Trimmer & Guillotine',
-    description: 'Laser-guided heavy duty paper cutter with millimeter accuracy for clean, crisp book and paper trimming.'
+    description: 'Laser-guided heavy duty hydraulic paper guillotine with millimeter-accurate trimming for clean, crisp book and paper edges.'
   },
   {
     id: 4,
     image: '/images/carousel/machine-4.png',
+    badge: 'Unit 04 · Digital Press Engine',
     title: 'Commercial Digital Production Press Engine',
-    description: 'Advanced digital press engine designed for high-resolution graphics, marketing flyers, brochures, and certificates.'
+    description: 'State-of-the-art digital press engine engineered for high-resolution marketing flyers, certificates, and presentation collaterals.'
   },
   {
     id: 5,
     image: '/images/carousel/machine-5.png',
+    badge: 'Unit 05 · Automated Press',
     title: 'Automated Document Printing System',
-    description: 'Heavy duty commercial printing system with multi-tray automated feed and rapid turnaround for bulk print orders.'
+    description: 'High performance printing system with multi-tray automated continuous feed for rapid same-day bulk order turnaround.'
   }
 ];
 
@@ -63,53 +68,47 @@ export default function EquipmentCarousel() {
   }, [isPaused, activeIndex]);
 
   return (
-    <section className="section carousel-showcase-section" style={{ background: '#0F172A', color: '#ffffff', padding: '64px 0 80px' }}>
-      <div className="container">
+    <section
+      className="section equipment-carousel-section"
+      style={{
+        background: 'linear-gradient(180deg, #ffffff 0%, #f8faff 50%, #fdf2f8 100%)',
+        padding: '72px 0 84px',
+        borderTop: '1px solid var(--surface-container-high)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
+      <div className="container" style={{ maxWidth: 1040 }}>
         {/* Section Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'rgba(255, 255, 255, 0.1)', color: '#38bdf8',
+            background: 'var(--primary-fixed)', color: 'var(--on-primary-fixed-variant)',
             padding: '6px 18px', borderRadius: 'var(--radius-full)',
             fontSize: 13, fontWeight: 700, marginBottom: 14, letterSpacing: '0.04em',
-            border: '1px solid rgba(56, 189, 248, 0.2)'
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: 17 }}>precision_manufacturing</span>
             Our Printing Machinery & Infrastructure
           </div>
-          <h2 className="headline-lg" style={{ color: '#ffffff', marginBottom: 12, fontWeight: 800 }}>
+          <h2 className="headline-lg" style={{ marginBottom: 12, fontWeight: 800 }}>
             State-of-the-Art <span style={{
-              background: 'linear-gradient(90deg, #38bdf8 0%, #ec4899 50%, #fbbf24 100%)',
+              background: 'linear-gradient(90deg, #009FE3 0%, #E6007E 50%, #FFB600 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent'
             }}>Machinery & Technology</span>
           </h2>
-          <p className="body-lg" style={{ color: '#94a3b8', maxWidth: 620, margin: '0 auto' }}>
-            Powered by high-capacity digital production presses and laser-guided finishing systems.
+          <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: 620, margin: '0 auto' }}>
+            Powered by high-capacity digital production presses, laser-guided cutters, and professional finishing systems.
           </p>
         </div>
 
-        {/* Bootstrap Captions Carousel Layout */}
+        {/* Bootstrap Captions Carousel (Light Theme Optimized) */}
         <div
           id="carouselExampleCaptions"
-          className="carousel slide"
+          className="carousel slide carousel-light-theme"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          {/* Carousel Indicators */}
-          <div className="carousel-indicators">
-            {SLIDES.map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                className={activeIndex === index ? 'active' : ''}
-                aria-current={activeIndex === index ? 'true' : undefined}
-                aria-label={`Slide ${index + 1}`}
-                onClick={() => goToSlide(index)}
-              />
-            ))}
-          </div>
-
           {/* Carousel Inner Items */}
           <div className="carousel-inner">
             {SLIDES.map((slide, index) => {
@@ -120,9 +119,13 @@ export default function EquipmentCarousel() {
                   className={`carousel-item ${isActive ? 'active' : ''}`}
                 >
                   <div className="carousel-media-box">
+                    <div className="carousel-unit-badge">
+                      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>verified</span>
+                      {slide.badge}
+                    </div>
                     <img
                       src={slide.image}
-                      className="d-block w-100"
+                      className="d-block w-100 carousel-machine-img"
                       alt={slide.title}
                     />
                   </div>
@@ -154,6 +157,20 @@ export default function EquipmentCarousel() {
             <span className="carousel-control-next-icon" aria-hidden="true"></span>
             <span className="visually-hidden">Next</span>
           </button>
+
+          {/* Carousel Indicators */}
+          <div className="carousel-indicators">
+            {SLIDES.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                className={activeIndex === index ? 'active' : ''}
+                aria-current={activeIndex === index ? 'true' : undefined}
+                aria-label={`Slide ${index + 1}`}
+                onClick={() => goToSlide(index)}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

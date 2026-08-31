@@ -26,6 +26,79 @@ const COLOR_OPTIONS = ['B&W', 'Color'];
 const BINDING_OPTIONS = ['No Binding', 'Chat Binding', 'Spiral Binding'];
 const LAMINATION_SIZES = ['ID', 'A4', 'FS', 'A3'];
 
+// ==========================================
+// B2B PRINT SPECIFICATION DATA STRUCTURES
+// ==========================================
+export const B2B_MEDIA_TYPES = [
+  { id: 'art_board', label: 'Art Board / Art Sheet', icon: 'layers' },
+  { id: 'metallic', label: 'Metallic', icon: 'auto_awesome' },
+  { id: 'texture', label: 'Texture', icon: 'texture' },
+  { id: 'synthetic', label: 'Synthetic', icon: 'water_drop' },
+  { id: 'sticker', label: 'Sticker', icon: 'label' },
+  { id: 'pvc_sticker', label: 'PVC Sticker', icon: 'sticky_note_2' },
+];
+
+export const B2B_MEDIA_CATEGORIES = {
+  'Art Board / Art Sheet': [
+    'Coated',
+    'Bond',
+    'Uncoated Art Sheet',
+    'Art Board 300 GSM',
+    'Art Board 350 GSM',
+  ],
+  'Metallic': [
+    'Metallic Gold',
+    'Metallic Silver',
+    'Metallic Copper',
+    'Metallic Pearl',
+    'Metallic Special Board',
+  ],
+  'Texture': [
+    'Needle Point',
+    'Linen Texture',
+    'Canvas Texture',
+    'Stucco Texture',
+    'Texture Special Board',
+  ],
+  'Synthetic': [
+    'Synthetic White 125 Micron',
+    'Synthetic White 200 Micron',
+    'Synthetic Gold 125 Micron',
+    'Synthetic Silver 125 Micron',
+    'Synthetic Non-Tearable 250 Micron',
+  ],
+  'Sticker': [
+    'Mirror Coat Sticker',
+    'Standard Matte Sticker',
+    'Glossy Paper Sticker',
+    'Kraft Paper Sticker',
+  ],
+  'PVC Sticker': [
+    'PVC Sticker - White',
+    'PVC Sticker - Clear',
+    'PVC Sticker - Silver',
+    'PVC Sticker - Foil Silver',
+    'PVC Sticker - Gold',
+  ],
+};
+
+export function getB2BAvailableSizes(mediaType, mediaCategory) {
+  if (!mediaType || !mediaCategory) return [];
+
+  // CONDITION 1 — IF Media Type = “Art Board / Art Sheet” AND Media Category = “Coated” → Available sizes: A4, A3.
+  if (mediaType === 'Art Board / Art Sheet' && mediaCategory === 'Coated') {
+    return ['A4', 'A3'];
+  }
+
+  // CONDITION 2 — IF Media Type = “Art Board / Art Sheet” AND Media Category = “Bond” → Available sizes: A4, 12×17.
+  if (mediaType === 'Art Board / Art Sheet' && mediaCategory === 'Bond') {
+    return ['A4', '12×17'];
+  }
+
+  // CONDITION 3 — For every other Media Type + Media Category combination → Available size: 13×19.
+  return ['13×19'];
+}
+
 export default function PrintWizard({ isWholesale = false }) {
   const { user, profile, getAccessToken } = useAuth();
   const fileInputRef = useRef(null);
@@ -45,6 +118,14 @@ export default function PrintWizard({ isWholesale = false }) {
   const [customerPhone, setCustomerPhone] = useState(profile?.mobile || profile?.phone || '');
   const [deliveryType, setDeliveryType] = useState('pickup');
   const [deliveryAddress, setDeliveryAddress] = useState(profile?.business_address || '');
+
+  // B2B specific states
+  const [b2bMediaType, setB2bMediaType] = useState('');
+  const [b2bMediaCategory, setB2bMediaCategory] = useState('');
+  const [b2bSize, setB2bSize] = useState('');
+  const [b2bBothSides, setB2bBothSides] = useState(false);
+  const [b2bCopies, setB2bCopies] = useState(1);
+  const [b2bInstructions, setB2bInstructions] = useState('');
 
   const [config, setConfig] = useState({
     service: 'printing',
@@ -82,24 +163,25 @@ export default function PrintWizard({ isWholesale = false }) {
     }
   }, [isWholesaleActive, profile]);
 
-  const availableWholesaleItems = WHOLESALE_PRICE_LIST.filter(item => item.media === config.media);
-  const availableWholesaleSizes = [...new Set(availableWholesaleItems.map(item => item.size))];
-  const availableWholesaleGsm = [...new Set(availableWholesaleItems.filter(item => item.size === config.paper_size).map(item => item.gsm))];
-
-  const handleMediaChange = (newMedia) => {
-    const items = WHOLESALE_PRICE_LIST.filter(i => i.media === newMedia);
-    if (items.length > 0) {
-      const newSize = items[0].size;
-      const newGsmItems = items.filter(i => i.size === newSize);
-      setConfig(c => ({ ...c, media: newMedia, paper_size: newSize, paper_gsm: newGsmItems.length > 0 ? newGsmItems[0].gsm : '' }));
-    } else {
-      setConfig(c => ({ ...c, media: newMedia }));
-    }
+  const handleB2BMediaTypeSelect = (typeLabel) => {
+    setB2bMediaType(typeLabel);
+    setB2bMediaCategory('');
+    setB2bSize('');
+    setError('');
   };
 
-  const handleSizeChange = (newSize) => {
-    const items = WHOLESALE_PRICE_LIST.filter(i => i.media === config.media && i.size === newSize);
-    setConfig(c => ({ ...c, paper_size: newSize, paper_gsm: items.length > 0 ? items[0].gsm : '' }));
+  const handleB2BMediaCategoryChange = (category) => {
+    setB2bMediaCategory(category);
+    const validSizes = getB2BAvailableSizes(b2bMediaType, category);
+    if (!validSizes.includes(b2bSize)) {
+      setB2bSize('');
+    }
+    setError('');
+  };
+
+  const handleB2BSizeChange = (sz) => {
+    setB2bSize(sz);
+    setError('');
   };
 
   // UI Rules enforcement
@@ -399,17 +481,25 @@ async function detectFilePages(file) {
     setError('');
     try {
       const token = await getAccessToken();
-      let serviceName = isWholesaleActive ? config.media : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label;
+      let serviceName = isWholesaleActive 
+        ? `${b2bMediaType || 'B2B Printing'}${b2bMediaCategory ? ' - ' + b2bMediaCategory : ''}`
+        : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label;
       
       const payload = {
         customer_name: effectiveName,
         customer_phone: effectivePhone,
         customer_email: effectiveEmail,
         service_name: serviceName,
+        media_type: isWholesaleActive ? b2bMediaType : '',
+        media_category: isWholesaleActive ? b2bMediaCategory : '',
+        paper_size: isWholesaleActive ? b2bSize : config.paper_size,
+        double_sided: isWholesaleActive ? b2bBothSides : config.double_sided,
+        copies: isWholesaleActive ? b2bCopies : config.copies,
+        message_text: isWholesaleActive ? b2bInstructions : config.message_text,
         file_name: uploadedFile?.fileName || file?.name || 'print-file.pdf',
         file_url: uploadedFile?.publicUrl || '',
         file_id: uploadedFile?.fileId || '',
-        ...config,
+        ...(!isWholesaleActive ? config : {}),
         delivery_type: deliveryType,
         delivery_address: deliveryType === 'courier' ? deliveryAddress : '',
         order_type: isWholesaleActive ? 'wholesale' : 'normal',
@@ -440,26 +530,34 @@ async function detectFilePages(file) {
         `🏢 *Agency / Client:* ${agencyName}\n` +
         `📧 *Registered Email:* ${registeredEmail}\n` +
         `📱 *Registered Phone:* ${registeredPhone}\n` +
-        `📄 *Service / Media:* ${order.service_name}\n`;
+        `📦 *Media Type:* ${order.media_type || b2bMediaType}\n` +
+        `📄 *Media Category:* ${order.media_category || b2bMediaCategory}\n` +
+        `📐 *Size:* ${order.paper_size || b2bSize}\n` +
+        `🔄 *Print Side:* ${(order.double_sided ?? b2bBothSides) ? 'Both Sides' : 'Single Side'}\n` +
+        `🔢 *Copies:* ${order.copies || b2bCopies}\n` +
+        (order.file_name ? `📂 *File Attached:* ${order.file_name}\n` : '') +
+        ((order.message_text || b2bInstructions) ? `📝 *Customer Instructions:* ${order.message_text || b2bInstructions}\n` : '');
     } else {
       textStr = `🖨️ *WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
         `👤 *Customer:* ${order.customer_name} (${order.customer_phone})\n` +
         `📄 *Service:* ${order.service_name}\n`;
     }
 
-    if (order.service === 'visiting_cards') {
-      textStr += `🪪 *Card Type:* ${order.card_type}\n` +
-                 `📐 *Side:* ${order.card_side}\n` +
-                 `🔢 *Quantity:* ${order.copies} cards\n`;
-    } else {
-      let sizeDetails = isWholesaleActive ? `${order.paper_size} (${order.paper_gsm})` : order.service === 'lamination' ? order.lami_size : order.paper_size;
-      textStr += `📂 *File:* ${order.file_name}\n` +
-                 `🔢 *Copies:* ${order.copies} | *Pages:* ${order.pages} | *Size:* ${sizeDetails}\n` +
-                 `🔗 *Binding:* ${order.binding}\n`;
-    }
+    if (!isWholesaleActive) {
+      if (order.service === 'visiting_cards') {
+        textStr += `🪪 *Card Type:* ${order.card_type}\n` +
+                   `📐 *Side:* ${order.card_side}\n` +
+                   `🔢 *Quantity:* ${order.copies} cards\n`;
+      } else {
+        let sizeDetails = order.service === 'lamination' ? order.lami_size : order.paper_size;
+        textStr += `📂 *File:* ${order.file_name}\n` +
+                   `🔢 *Copies:* ${order.copies} | *Pages:* ${order.pages} | *Size:* ${sizeDetails}\n` +
+                   `🔗 *Binding:* ${order.binding}\n`;
+      }
 
-    if (order.message_text) {
-      textStr += `📝 *Instructions:* ${order.message_text}\n`;
+      if (order.message_text) {
+        textStr += `📝 *Instructions:* ${order.message_text}\n`;
+      }
     }
 
     textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + (order.delivery_address || deliveryAddress) : 'Store Pickup'}\n`;
@@ -482,15 +580,15 @@ async function detectFilePages(file) {
           borderRadius: 'var(--radius-md)', marginBottom: 24, fontSize: 14, fontWeight: 700,
         }}>
           <span className="material-symbols-outlined">verified</span>
-          WHOLESALE AGENCY RATE ACTIVE — Special Volume Pricing Applied
+          B2B PRINTING ORDER PORTAL — High Quality Commercial Press
         </div>
       )}
 
       <div className="wizard-tabs" style={{ display: 'flex', gap: 12, marginBottom: 32, borderBottom: '1px solid var(--surface-container)' }}>
         {(isWholesaleActive ? [
-          { stepNum: 1, label: '1. Spec Selection', icon: 'tune' },
-          { stepNum: 2, label: '2. File Upload', icon: 'cloud_upload' },
-          { stepNum: 3, label: '3. Order Placement', icon: 'chat' },
+          { stepNum: 1, label: '1. Print Spec.', icon: 'tune' },
+          { stepNum: 2, label: '2. Upload', icon: 'cloud_upload' },
+          { stepNum: 3, label: '3. WhatsApp', icon: 'chat' },
         ] : [
           { stepNum: 1, label: '1. Upload File', icon: 'cloud_upload' },
           { stepNum: 2, label: '2. Print Specs', icon: 'tune' },
@@ -498,7 +596,24 @@ async function detectFilePages(file) {
         ]).map(s => (
           <button
             key={s.stepNum}
-            onClick={() => setStep(s.stepNum)}
+            onClick={() => {
+              if (isWholesaleActive && s.stepNum > 1) {
+                if (!b2bMediaType) {
+                  setError('Please select a Media Type first.');
+                  return;
+                }
+                if (!b2bMediaCategory) {
+                  setError('Please select a Media Category.');
+                  return;
+                }
+                if (!b2bSize) {
+                  setError('Please select a Size.');
+                  return;
+                }
+              }
+              setStep(s.stepNum);
+              setError('');
+            }}
             style={{
               padding: '12px 18px', border: 'none', background: 'none', cursor: 'pointer',
               fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8,
@@ -523,71 +638,228 @@ async function detectFilePages(file) {
       <div className="print-wizard-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 32 }}>
         <div>
           {/* ========================================================================= */}
-          {/* B2B FLOW: 1. Spec Selection -> 2. File Upload -> 3. Order Placement       */}
+          {/* B2B FLOW: 1. Print Spec. -> 2. Upload -> 3. WhatsApp                      */}
           {/* ========================================================================= */}
           {isWholesaleActive ? (
             <>
-              {/* B2B STEP 1: SPEC SELECTION */}
+              {/* B2B STEP 1: PRINT SPECIFICATION */}
               {step === 1 && (
-                <div>
-                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 16 }}>Step 1: Select Print Specifications</h3>
-                  
+                <div className="animate-fade-in">
                   <div style={{ marginBottom: 20 }}>
-                    <label className="label">Select Media Type</label>
-                    <select className="select" value={config.media} onChange={e => handleMediaChange(e.target.value)} style={{ padding: '14px', fontSize: 16 }}>
-                      {[...new Set(WHOLESALE_PRICE_LIST.map(i => i.media))].map(media => (
-                        <option key={media} value={media}>{media}</option>
+                    <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 4, color: 'var(--on-surface)' }}>
+                      Step 1: Print Specifications
+                    </h3>
+                    <p className="body-sm" style={{ color: 'var(--on-surface-variant)' }}>
+                      Configure your media type, category, size, and print options.
+                    </p>
+                  </div>
+
+                  {/* 1. MEDIA TYPE (3x2 Visual Tiles Grid) */}
+                  <div style={{ marginBottom: 24 }}>
+                    <label className="label" style={{ fontWeight: 700, fontSize: 14, marginBottom: 10, display: 'block' }}>
+                      1. Media Type <span style={{ color: 'var(--primary-container)' }}>*</span>
+                    </label>
+                    <div className="b2b-media-grid">
+                      {B2B_MEDIA_TYPES.map(type => {
+                        const isSelected = b2bMediaType === type.label;
+                        return (
+                          <button
+                            key={type.id}
+                            type="button"
+                            onClick={() => handleB2BMediaTypeSelect(type.label)}
+                            style={{
+                              padding: '18px 12px',
+                              borderRadius: 'var(--radius-lg)',
+                              border: isSelected ? '2px solid var(--primary-container)' : '1.5px solid var(--surface-container-high)',
+                              background: isSelected ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
+                              color: isSelected ? 'var(--on-primary-fixed-variant)' : 'var(--on-surface)',
+                              cursor: 'pointer',
+                              textAlign: 'center',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: 8,
+                              position: 'relative',
+                              boxShadow: isSelected ? '0 4px 14px rgba(183,0,17,0.12)' : 'var(--shadow-card)',
+                              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            }}
+                          >
+                            {isSelected && (
+                              <span
+                                className="material-symbols-outlined icon-fill"
+                                style={{
+                                  position: 'absolute',
+                                  top: 8,
+                                  right: 8,
+                                  fontSize: 18,
+                                  color: 'var(--primary-container)',
+                                }}
+                              >
+                                check_circle
+                              </span>
+                            )}
+                            <span
+                              className="material-symbols-outlined"
+                              style={{
+                                fontSize: 28,
+                                color: isSelected ? 'var(--primary-container)' : 'var(--on-surface-variant)',
+                              }}
+                            >
+                              {type.icon}
+                            </span>
+                            <span style={{ fontSize: 13.5, fontWeight: isSelected ? 800 : 600, lineHeight: 1.25 }}>
+                              {type.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 2. MEDIA CATEGORY (Horizontal Dropdown below tiles) */}
+                  <div className="form-group" style={{ marginBottom: 20 }}>
+                    <label className="label" style={{ fontWeight: 700 }}>
+                      2. Select Media <span style={{ color: 'var(--primary-container)' }}>*</span>
+                    </label>
+                    <select
+                      className="select"
+                      disabled={!b2bMediaType}
+                      value={b2bMediaCategory}
+                      onChange={e => handleB2BMediaCategoryChange(e.target.value)}
+                      style={{
+                        padding: '13px 14px',
+                        fontSize: 15,
+                        background: !b2bMediaType ? 'var(--surface-container-low)' : 'var(--surface-container-lowest)',
+                        cursor: !b2bMediaType ? 'not-allowed' : 'pointer',
+                        opacity: !b2bMediaType ? 0.6 : 1,
+                      }}
+                    >
+                      <option value="">Select Media</option>
+                      {(B2B_MEDIA_CATEGORIES[b2bMediaType] || []).map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
                   </div>
-                  
-                  <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                    <div className="form-group">
-                      <label className="label">Size</label>
-                      <select className="select" value={config.paper_size} onChange={e => handleSizeChange(e.target.value)}>
-                        {availableWholesaleSizes.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
-                    </div>
-                    <div className="form-group">
-                      <label className="label">GSM / Thickness</label>
-                      <select className="select" value={config.paper_gsm} onChange={e => setConfig(c => ({ ...c, paper_gsm: e.target.value }))}>
-                        {availableWholesaleGsm.map(g => <option key={g} value={g}>{g}</option>)}
-                      </select>
-                    </div>
+
+                  {/* 3. SIZE (Conditional Dropdown) */}
+                  <div className="form-group" style={{ marginBottom: 20 }}>
+                    <label className="label" style={{ fontWeight: 700 }}>
+                      3. Select Size <span style={{ color: 'var(--primary-container)' }}>*</span>
+                    </label>
+                    <select
+                      className="select"
+                      disabled={!b2bMediaCategory}
+                      value={b2bSize}
+                      onChange={e => handleB2BSizeChange(e.target.value)}
+                      style={{
+                        padding: '13px 14px',
+                        fontSize: 15,
+                        background: !b2bMediaCategory ? 'var(--surface-container-low)' : 'var(--surface-container-lowest)',
+                        cursor: !b2bMediaCategory ? 'not-allowed' : 'pointer',
+                        opacity: !b2bMediaCategory ? 0.6 : 1,
+                      }}
+                    >
+                      <option value="">Select Size</option>
+                      {getB2BAvailableSizes(b2bMediaType, b2bMediaCategory).map(sz => (
+                        <option key={sz} value={sz}>{sz}</option>
+                      ))}
+                    </select>
                   </div>
 
-                  <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                    <div className="form-group">
-                      <label className="label">Number of Pages {file && <span style={{ fontSize: 11, color: '#16a34a', fontWeight: 600 }}>(Detected: {config.pages})</span>}</label>
-                      <input type="number" min="1" className="input" value={config.pages} onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} />
-                    </div>
-                    <div className="form-group">
-                      <label className="label">Number of Copies</label>
-                      <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
-                    </div>
-                  </div>
-
+                  {/* 4. PRINT ON BOTH SIDES */}
                   <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
-                      <input type="checkbox" checked={config.double_sided} onChange={e => setConfig(c => ({ ...c, double_sided: e.target.checked }))} style={{ width: 18, height: 18 }} />
-                      Print on Both Sides
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={b2bBothSides}
+                        onChange={e => setB2bBothSides(e.target.checked)}
+                        style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
+                      />
+                      <span>Print on Both Sides</span>
                     </label>
                   </div>
 
-                  <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
-                    <label className="label">Special Instructions / Notes (Optional)</label>
-                    <textarea 
-                      className="textarea" 
-                      rows={2} 
-                      placeholder="e.g. Specific cutting, packaging, or urgent dispatch notes..." 
-                      value={config.message_text} 
-                      onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                  {/* 5. NUMBER OF COPIES (Numeric quantity with increment/decrement) */}
+                  <div className="form-group" style={{ marginBottom: 20, maxWidth: 260 }}>
+                    <label className="label" style={{ fontWeight: 700 }}>
+                      5. Number of Copies <span style={{ color: 'var(--primary-container)' }}>*</span>
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <button
+                        type="button"
+                        className="btn btn-outline"
+                        onClick={() => setB2bCopies(prev => Math.max(1, (parseInt(prev) || 1) - 1))}
+                        style={{ width: 44, height: 42, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, borderRadius: 'var(--radius-md)' }}
+                      >
+                        –
+                      </button>
+                      <input
+                        type="number"
+                        min="1"
+                        className="input"
+                        value={b2bCopies}
+                        onChange={e => {
+                          const val = parseInt(e.target.value);
+                          setB2bCopies(isNaN(val) || val < 1 ? 1 : val);
+                        }}
+                        style={{ textAlign: 'center', height: 42, fontSize: 16, fontWeight: 700 }}
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-outline"
+                        onClick={() => setB2bCopies(prev => (parseInt(prev) || 1) + 1)}
+                        style={{ width: 44, height: 42, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, borderRadius: 'var(--radius-md)' }}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 6. CUSTOMER INSTRUCTIONS (max 200 chars with live counter) */}
+                  <div className="form-group" style={{ marginBottom: 24 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <label className="label" style={{ fontWeight: 700, margin: 0 }}>
+                        6. Customer Instructions
+                      </label>
+                      <span style={{ fontSize: 12, color: b2bInstructions.length >= 200 ? 'var(--error)' : 'var(--on-surface-variant)', fontWeight: 600 }}>
+                        {b2bInstructions.length} / 200
+                      </span>
+                    </div>
+                    <textarea
+                      className="textarea"
+                      rows={3}
+                      maxLength={200}
+                      placeholder="Enter any special printing instructions..."
+                      value={b2bInstructions}
+                      onChange={e => setB2bInstructions(e.target.value.slice(0, 200))}
                     />
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
-                    <button className="btn btn-primary" onClick={() => setStep(2)}>
-                      Next: Upload File <span className="material-symbols-outlined">arrow_forward</span>
+                  {/* NEXT BUTTON */}
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 28 }}>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      onClick={() => {
+                        if (!b2bMediaType) {
+                          setError('Please select a Media Type.');
+                          return;
+                        }
+                        if (!b2bMediaCategory) {
+                          setError('Please select a Media Category.');
+                          return;
+                        }
+                        if (!b2bSize) {
+                          setError('Please select a Size.');
+                          return;
+                        }
+                        setError('');
+                        setStep(2);
+                      }}
+                      style={{ padding: '12px 24px', fontSize: 15, fontWeight: 700 }}
+                    >
+                      Next: Upload <span className="material-symbols-outlined">arrow_forward</span>
                     </button>
                   </div>
                 </div>
@@ -631,48 +903,28 @@ async function detectFilePages(file) {
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • ${config.pages} Page${config.pages > 1 ? 's' : ''} detected • Click to replace` : 'Instant automatic file upload & page count analysis (PDF, CorelDRAW .CDR, DOCX, Images)'}
+                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload (PDF, CorelDRAW .CDR, DOCX, Images)'}
                     </div>
                     {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
                   </div>
 
-                  {file && (
-                    <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-container-low)', padding: '10px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 700, color: 'var(--on-surface)' }}>
-                        <span className="material-symbols-outlined" style={{ color: '#16a34a', fontSize: 20 }}>auto_awesome</span>
-                        <span>Detected Pages in Document:</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <input 
-                          type="number" 
-                          min="1" 
-                          className="input" 
-                          style={{ width: 80, textAlign: 'center', padding: '6px 8px', height: 36, fontWeight: 700 }} 
-                          value={config.pages} 
-                          onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} 
-                        />
-                        <span style={{ fontSize: 13, color: 'var(--on-surface-variant)', fontWeight: 600 }}>Pages</span>
-                      </div>
-                    </div>
-                  )}
-
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
                     <button className="btn btn-outline" onClick={() => setStep(1)}>
-                      <span className="material-symbols-outlined">arrow_back</span> Back to Specs
+                      <span className="material-symbols-outlined">arrow_back</span> Back to Print Spec
                     </button>
                     <button className="btn btn-primary" onClick={() => setStep(3)}>
-                      Next: Order Placement <span className="material-symbols-outlined">arrow_forward</span>
+                      Next: WhatsApp <span className="material-symbols-outlined">arrow_forward</span>
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* B2B STEP 3: ORDER PLACEMENT */}
+              {/* B2B STEP 3: WHATSAPP & ORDER PLACEMENT */}
               {step === 3 && (
                 <div>
-                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 3: B2B Order Placement</h3>
+                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 3: WhatsApp Order Submission</h3>
                   <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
-                    Your authenticated B2B account details will be automatically attached to this order.
+                    Your authenticated B2B account details will be attached to this order and submitted via WhatsApp.
                   </p>
 
                   <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -741,7 +993,7 @@ async function detectFilePages(file) {
                         ) : (
                           <>
                             <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>chat</span>
-                            <span>SUBMIT PRINT ORDER & OPEN WHATSAPP</span>
+                            <span>SUBMIT B2B ORDER & OPEN WHATSAPP</span>
                           </>
                         )}
                       </button>
@@ -1056,154 +1308,195 @@ async function detectFilePages(file) {
           }}>
             <h4 className="headline-sm" style={{ fontSize: 16, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--primary-container)' }}>receipt</span>
-              Order Estimation Summary
+              {isWholesaleActive ? 'B2B Order Specification' : 'Order Estimation Summary'}
             </h4>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--on-surface-variant)' }}>Service:</span>
-                <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.media : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}</span>
-              </div>
-              
-              {config.service === 'visiting_cards' ? (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--on-surface-variant)' }}>Card Type:</span>
-                    <span style={{ fontWeight: 600 }}>{config.card_type}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--on-surface-variant)' }}>Printing Side:</span>
-                    <span style={{ fontWeight: 600 }}>{config.card_side}</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--on-surface-variant)' }}>Quantity:</span>
-                    <span style={{ fontWeight: 600 }}>{config.copies} cards</span>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {!isWholesaleActive && config.service === 'printing' && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--on-surface-variant)' }}>Type & Color:</span>
-                      <span style={{ fontWeight: 600 }}>{config.sheet_type}, {config.color}</span>
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--on-surface-variant)' }}>Size:</span>
-                    <span style={{ fontWeight: 600 }}>{isWholesaleActive ? config.paper_size : config.service === 'lamination' ? config.lami_size : config.paper_size}</span>
-                  </div>
-
-                  {['printing', 'binding', 'lamination'].includes(config.service) && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--on-surface-variant)' }}>Pages:</span>
-                      <span style={{ fontWeight: 600 }}>{config.pages}</span>
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--on-surface-variant)' }}>Copies:</span>
-                    <span style={{ fontWeight: 600 }}>{config.copies}</span>
-                  </div>
-                </>
-              )}
-
-              {config.message_text && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'var(--surface-container-high)', padding: '10px 14px', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--outline-variant)' }}>
-                  <span style={{ color: 'var(--on-surface-variant)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Special Notes:</span>
-                  <span style={{ fontWeight: 600, fontSize: 12.5, color: 'var(--on-surface)', wordBreak: 'break-word', whiteSpace: 'pre-wrap', lineHeight: 1.3 }}>
-                    {config.message_text}
-                  </span>
-                </div>
-              )}
-              
-              {(config.service === 'printing' || config.service === 'binding') && config.binding !== 'No Binding' && (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--on-surface-variant)' }}>Binding Add-on:</span>
-                    <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{config.binding}</span>
-                  </div>
-                  {config.binding === 'Spiral Binding' && (
-                    <div style={{
-                      marginTop: 8, padding: 12, background: 'var(--surface-container-high)',
-                      borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)',
-                      fontSize: 11.5, color: 'var(--on-surface-variant)', display: 'flex', flexDirection: 'column', gap: 4
-                    }}>
-                      <div style={{ fontWeight: 700, color: 'var(--primary)', marginBottom: 2 }}>
-                        📖 {config.paper_size} Spiral Binding Rates:
-                      </div>
-                      {config.paper_size === 'A4' ? (
-                        <>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 1 && config.pages <= 49 ? 1 : 0.6, fontWeight: config.pages >= 1 && config.pages <= 49 ? 700 : 400 }}>
-                            <span>1–49 pages</span> <span>₹25</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 50 && config.pages <= 99 ? 1 : 0.6, fontWeight: config.pages >= 50 && config.pages <= 99 ? 700 : 400 }}>
-                            <span>50–99 pages</span> <span>₹30</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 100 && config.pages <= 199 ? 1 : 0.6, fontWeight: config.pages >= 100 && config.pages <= 199 ? 700 : 400 }}>
-                            <span>100–199 pages</span> <span>₹40</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 200 && config.pages <= 299 ? 1 : 0.6, fontWeight: config.pages >= 200 && config.pages <= 299 ? 700 : 400 }}>
-                            <span>200–299 pages</span> <span>₹50</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 300 && config.pages <= 500 ? 1 : 0.6, fontWeight: config.pages >= 300 && config.pages <= 500 ? 700 : 400 }}>
-                            <span>300–500 pages</span> <span>₹70</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages > 500 ? 1 : 0.6, fontWeight: config.pages > 500 ? 700 : 400, color: 'var(--error)' }}>
-                            <span>501+ pages</span> <span>Not Available</span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 1 && config.pages <= 99 ? 1 : 0.6, fontWeight: config.pages >= 1 && config.pages <= 99 ? 700 : 400 }}>
-                            <span>1–99 pages</span> <span>₹50</span>
-                          </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 100 ? 1 : 0.6, fontWeight: config.pages >= 100 ? 700 : 400 }}>
-                            <span>100+ pages</span> <span>₹70</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-
-              {file && (
+            {isWholesaleActive ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--on-surface-variant)' }}>File Attached:</span>
-                  <span style={{ fontWeight: 600, color: 'var(--primary-container)' }}>{file.name.slice(0, 16)}…</span>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Media Type:</span>
+                  <span style={{ fontWeight: 700, textAlign: 'right' }}>{b2bMediaType || '—'}</span>
                 </div>
-              )}
-            </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Category:</span>
+                  <span style={{ fontWeight: 700, textAlign: 'right' }}>{b2bMediaCategory || '—'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Size:</span>
+                  <span style={{ fontWeight: 700 }}>{b2bSize || '—'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Print Side:</span>
+                  <span style={{ fontWeight: 700 }}>{b2bBothSides ? 'Both Sides' : 'Single Side'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Copies:</span>
+                  <span style={{ fontWeight: 700 }}>{b2bCopies}</span>
+                </div>
+                {file && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>File Attached:</span>
+                    <span style={{ fontWeight: 700, color: 'var(--primary-container)', fontSize: 13, wordBreak: 'break-all', textAlign: 'right' }}>
+                      {file.name.length > 20 ? file.name.slice(0, 18) + '...' : file.name}
+                    </span>
+                  </div>
+                )}
+                {b2bInstructions && (
+                  <div style={{ marginTop: 6, padding: '8px 10px', background: 'var(--surface-container-lowest)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--surface-container-high)', fontSize: 12.5 }}>
+                    <span style={{ fontWeight: 700, color: 'var(--on-surface-variant)', display: 'block', marginBottom: 2 }}>Instructions:</span>
+                    <span style={{ color: 'var(--on-surface)' }}>{b2bInstructions}</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>Service:</span>
+                  <span style={{ fontWeight: 600 }}>{TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}</span>
+                </div>
+                
+                {config.service === 'visiting_cards' ? (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Card Type:</span>
+                      <span style={{ fontWeight: 600 }}>{config.card_type}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Printing Side:</span>
+                      <span style={{ fontWeight: 600 }}>{config.card_side}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Quantity:</span>
+                      <span style={{ fontWeight: 600 }}>{config.copies} cards</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {config.service === 'printing' && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: 'var(--on-surface-variant)' }}>Type & Color:</span>
+                        <span style={{ fontWeight: 600 }}>{config.sheet_type}, {config.color}</span>
+                      </div>
+                    )}
 
-            <div style={{ borderTop: '1px dashed var(--surface-container-high)', paddingTop: 14, marginBottom: 16 }}>
-              {Number(prices.printingTotal) > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Size:</span>
+                      <span style={{ fontWeight: 600 }}>{config.service === 'lamination' ? config.lami_size : config.paper_size}</span>
+                    </div>
+
+                    {['printing', 'binding', 'lamination'].includes(config.service) && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span style={{ color: 'var(--on-surface-variant)' }}>Pages:</span>
+                        <span style={{ fontWeight: 600 }}>{config.pages}</span>
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Copies:</span>
+                      <span style={{ fontWeight: 600 }}>{config.copies}</span>
+                    </div>
+                  </>
+                )}
+
+                {config.message_text && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'var(--surface-container-high)', padding: '10px 14px', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--outline-variant)' }}>
+                    <span style={{ color: 'var(--on-surface-variant)', fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>Special Notes:</span>
+                    <span style={{ fontWeight: 600, fontSize: 12.5, color: 'var(--on-surface)', wordBreak: 'break-word', whiteSpace: 'pre-wrap', lineHeight: 1.3 }}>
+                      {config.message_text}
+                    </span>
+                  </div>
+                )}
+                
+                {(config.service === 'printing' || config.service === 'binding') && config.binding !== 'No Binding' && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Binding Add-on:</span>
+                      <span style={{ fontWeight: 600, textTransform: 'capitalize' }}>{config.binding}</span>
+                    </div>
+                    {config.binding === 'Spiral Binding' && (
+                      <div style={{
+                        marginTop: 8, padding: 12, background: 'var(--surface-container-high)',
+                        borderRadius: 'var(--radius-lg)', border: '1px solid var(--outline-variant)',
+                        fontSize: 11.5, color: 'var(--on-surface-variant)', display: 'flex', flexDirection: 'column', gap: 4
+                      }}>
+                        <div style={{ fontWeight: 700, color: 'var(--primary)', marginBottom: 2 }}>
+                          📖 {config.paper_size} Spiral Binding Rates:
+                        </div>
+                        {config.paper_size === 'A4' ? (
+                          <>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 1 && config.pages <= 49 ? 1 : 0.6, fontWeight: config.pages >= 1 && config.pages <= 49 ? 700 : 400 }}>
+                              <span>1–49 pages</span> <span>₹25</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 50 && config.pages <= 99 ? 1 : 0.6, fontWeight: config.pages >= 50 && config.pages <= 99 ? 700 : 400 }}>
+                              <span>50–99 pages</span> <span>₹30</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 100 && config.pages <= 199 ? 1 : 0.6, fontWeight: config.pages >= 100 && config.pages <= 199 ? 700 : 400 }}>
+                              <span>100–199 pages</span> <span>₹40</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 200 && config.pages <= 299 ? 1 : 0.6, fontWeight: config.pages >= 200 && config.pages <= 299 ? 700 : 400 }}>
+                              <span>200–299 pages</span> <span>₹50</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 300 && config.pages <= 500 ? 1 : 0.6, fontWeight: config.pages >= 300 && config.pages <= 500 ? 700 : 400 }}>
+                              <span>300–500 pages</span> <span>₹70</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages > 500 ? 1 : 0.6, fontWeight: config.pages > 500 ? 700 : 400, color: 'var(--error)' }}>
+                              <span>501+ pages</span> <span>Not Available</span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 1 && config.pages <= 99 ? 1 : 0.6, fontWeight: config.pages >= 1 && config.pages <= 99 ? 700 : 400 }}>
+                              <span>1–99 pages</span> <span>₹50</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: config.pages >= 100 ? 1 : 0.6, fontWeight: config.pages >= 100 ? 700 : 400 }}>
+                              <span>100+ pages</span> <span>₹70</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {file && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>File Attached:</span>
+                    <span style={{ fontWeight: 600, color: 'var(--primary-container)' }}>{file.name.slice(0, 16)}…</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!isWholesaleActive && (
+              <div style={{ borderTop: '1px dashed var(--surface-container-high)', paddingTop: 14, marginBottom: 16 }}>
+                {Number(prices.printingTotal) > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                    <span>Printing Cost</span>
+                    <span>₹{prices.printingTotal}</span>
+                  </div>
+                )}
+                {Number(prices.bindingTotal) > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                    <span>Binding Cost</span>
+                    <span>₹{prices.bindingTotal}</span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                  <span>Printing Cost</span>
-                  <span>₹{prices.printingTotal}</span>
+                  <span>Subtotal</span>
+                  <span>₹{prices.subtotal}</span>
                 </div>
-              )}
-              {Number(prices.bindingTotal) > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                  <span>Binding Cost</span>
-                  <span>₹{prices.bindingTotal}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                  <span>GST (18%)</span>
+                  <span>₹{prices.gst}</span>
                 </div>
-              )}
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                <span>Subtotal</span>
-                <span>₹{prices.subtotal}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--surface-container-high)', fontWeight: 800, fontSize: 18, color: 'var(--primary-container)' }}>
+                  <span>Estimated Total</span>
+                  <span>₹{prices.grandTotal}</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                <span>GST (18%)</span>
-                <span>₹{prices.gst}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, fontWeight: 800, color: 'var(--on-surface)' }}>
-                <span>Estimated Total</span>
-                <span style={{ color: 'var(--primary-container)' }}>₹{prices.grandTotal}</span>
-              </div>
-            </div>
+            )}
             
-            {Number(prices.grandTotal) <= 0 && (
+            {!isWholesaleActive && Number(prices.grandTotal) <= 0 && (
               <div style={{ fontSize: 12, color: 'var(--error-container)', textAlign: 'center', background: 'rgba(255,0,0,0.1)', padding: 8, borderRadius: 4, marginBottom: 8 }}>
                 Price unavailable for this specification.
               </div>

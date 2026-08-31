@@ -8,7 +8,7 @@ import { getLocalOrders } from '../lib/orderService';
 const ALL_SERVICES = [
   { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
   { title: "Plan Printouts", icon: "print", image: "/images/services/plan-print-outs.jpg", description: "High quality large format plan printouts." },
-  { title: "Visiting Cards", icon: "badge", image: "/images/services/business-cards.jpg", description: "Premium customized business cards." },
+  { title: "Visiting Cards", icon: "badge", image: "/images/services/business-cards.jpg", description: "Premium customized business and visiting cards with matte, gloss, spot UV, or textured finishes." },
   { title: "A4 Printouts", icon: "file_copy", image: "/images/services/a4-printouts.jpg", description: "Crisp and clear A4 document printing." },
   { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.webp", description: "Book-like perfect binding for a premium finish." },
   { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.webp", description: "Eye-catching tri-fold and bi-fold brochures." },
@@ -19,79 +19,6 @@ const ALL_SERVICES = [
   { title: "Rexin Binding", icon: "bookmark", image: "/images/services/rexin-binding.webp", description: "Classic rexin binding for thesis and reports." },
   { title: "Moroccan Hard Binding", icon: "book_4", image: "/images/services/moroccan-hard-binding.webp", description: "Premium Moroccan hard binding." },
   { title: "Hard Binding", icon: "library_books", image: "/images/services/hard-binding.webp", description: "Standard hard binding for maximum durability." }
-];
-
-const VISITING_CARD_TYPES = [
-  {
-    title: "Art Board",
-    desc: "300 GSM Standard Card Board (Semi-gloss / Matte texture)",
-    image: "https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=800&auto=format&fit=crop&q=80",
-    prices: [
-      { qty: 120, single: 130, double: 180 },
-      { qty: 150, single: 150, double: 200 },
-      { qty: 200, single: 175, double: 250 },
-      { qty: 300, single: 225, double: 325 },
-      { qty: 510, single: 340, double: 490 },
-      { qty: 720, single: 450, double: 660 },
-      { qty: 1020, single: 600, double: 900 }
-    ]
-  },
-  {
-    title: "Art Board with Lamination",
-    desc: "Premium Laminated Art Board (Glossy or Matte finish for extra durability)",
-    image: "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&auto=format&fit=crop&q=80",
-    prices: [
-      { qty: 120, single: 180, double: 230 },
-      { qty: 150, single: 200, double: 250 },
-      { qty: 200, single: 225, double: 335 },
-      { qty: 300, single: 285, double: 445 },
-      { qty: 510, single: 450, double: 700 },
-      { qty: 720, single: 600, double: 950 },
-      { qty: 1020, single: 800, double: 1300 }
-    ]
-  },
-  {
-    title: "Metallic & Special Boards",
-    desc: "Metallic Gold & Silver, Needle Point, Texture, Linen, and Special Boards",
-    image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&auto=format&fit=crop&q=80",
-    prices: [
-      { qty: 120, single: 190, double: 260 },
-      { qty: 150, single: 225, double: 300 },
-      { qty: 200, single: 275, double: 375 },
-      { qty: 300, single: 375, double: 500 },
-      { qty: 510, single: 575, double: 775 },
-      { qty: 720, single: 785, double: 1055 },
-      { qty: 1020, single: 1100, double: 1455 }
-    ]
-  },
-  {
-    title: "Synthetic White 125 Micron",
-    desc: "Non-tearable Waterproof White Plastic Cards (Lightweight 125 mic)",
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&auto=format&fit=crop&q=80",
-    prices: [
-      { qty: 120, single: 200, double: 285 },
-      { qty: 150, single: 235, double: 335 },
-      { qty: 200, single: 305, double: 435 },
-      { qty: 300, single: 410, double: 585 },
-      { qty: 510, single: 655, double: 935 },
-      { qty: 720, single: 900, double: 1285 },
-      { qty: 1020, single: 1250, double: 1785 }
-    ]
-  },
-  {
-    title: "Syn. White 200 Mic / Syn. Gold & Silver 125 Mic",
-    desc: "Thicker 200 Mic Synthetic White or Premium 125 Mic Metallic Gold & Silver",
-    image: "https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=800&auto=format&fit=crop&q=80",
-    prices: [
-      { qty: 120, single: 290, double: 435 },
-      { qty: 150, single: 345, double: 445 },
-      { qty: 200, single: 455, double: 675 },
-      { qty: 300, single: 620, double: 915 },
-      { qty: 510, single: 1000, double: 1475 },
-      { qty: 720, single: 1400, double: 2050 },
-      { qty: 1020, single: 1950, double: 2850 }
-    ]
-  }
 ];
 
 const STATUS_TIMELINE = [
@@ -107,8 +34,6 @@ export default function Services() {
   const [trackResult, setTrackResult] = useState(null);
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState('');
-  const [selectedService, setSelectedService] = useState(null);
-  const [activePriceTab, setActivePriceTab] = useState('documents');
 
   // Scroll to tracking section if #tracking hash
   useEffect(() => {
@@ -185,318 +110,27 @@ export default function Services() {
             fontSize: 13, fontWeight: 600, marginBottom: 20, letterSpacing: '0.04em',
           }}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>grid_view</span>
-            {selectedService === 'Visiting Cards' ? "Visiting Card Material Range" : "13 Professional Services"}
+            Complete Printing Solutions
           </div>
           <h1 className="display-lg-mobile" style={{ marginBottom: 16 }}>
-            {selectedService === 'Visiting Cards' ? (
-              <>Visiting Card <span style={{ color: 'var(--primary-container)' }}>Price List</span></>
-            ) : (
-              <>Our Printing <span style={{ color: 'var(--primary-container)' }}>Services</span></>
-            )}
+            Our Printing <span style={{ color: 'var(--primary-container)' }}>Services</span>
           </h1>
-          <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: 520, margin: '0 auto' }}>
-            {selectedService === 'Visiting Cards' 
-              ? "Select from our premium selection of Art Boards, Metallic layers, and Synthetic waterproof options."
-              : "From quick photocopies to premium photo prints — we cover all your document needs."
-            }
+          <p className="body-lg" style={{ color: 'var(--on-surface-variant)', maxWidth: 540, margin: '0 auto' }}>
+            Explore our comprehensive range of high-precision digital printing, Xerox, document binding, and corporate stationery solutions.
           </p>
         </div>
       </section>
 
-      {/* Dynamic Services / Visiting Cards Grid */}
+      {/* Services Grid */}
       <section className="section">
         <div className="container">
-          {selectedService === 'Visiting Cards' ? (
-            <div>
-              {/* Back Button */}
-              <button 
-                onClick={() => setSelectedService(null)}
-                className="btn btn-outline"
-                style={{ marginBottom: 32, gap: 8, display: 'inline-flex', alignItems: 'center' }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_back</span>
-                Back to All Services
-              </button>
-
-              {/* Cut-off Charges Banner */}
-              <div style={{
-                background: '#fff9db', border: '1px solid #fce8a6', color: '#b7791f',
-                padding: '12px 16px', borderRadius: 'var(--radius-lg)', fontSize: 14,
-                marginBottom: 32, display: 'flex', alignItems: 'center', gap: 10,
-                fontWeight: 600
-              }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>cut</span>
-                <span>
-                  ✂️ <strong>Additional Cut-off (Finishing) Charges:</strong> ₹60 applies for quantities up to 510 cards. ₹120 applies for 720 and 1020 cards. (Pricing below shows the calculation).
-                </span>
-              </div>
-
-              {/* Visiting Cards Sub-Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 24 }}>
-                {VISITING_CARD_TYPES.map(card => (
-                  <div 
-                    key={card.title} 
-                    className="animate-fade-in" 
-                    style={{ 
-                      borderRadius: 'var(--radius-xl)', 
-                      overflow: 'hidden',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      background: 'var(--surface-container-lowest)',
-                      border: '1px solid var(--outline-variant)',
-                    }}
-                  >
-                    {/* Service Card Style Image */}
-                    <div style={{
-                      backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.78)), url(${card.image})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',
-                      minHeight: 200,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
-                      padding: 20,
-                    }}>
-                      {/* Top label */}
-                      <div style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        background: 'var(--primary-container)', color: '#fff',
-                        padding: '4px 10px', borderRadius: 4,
-                        fontSize: 11, fontWeight: 700, letterSpacing: '0.08em',
-                        textTransform: 'uppercase', width: 'fit-content',
-                      }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>badge</span>
-                        VISITING CARD
-                      </div>
-                      {/* Icon + Title at bottom */}
-                      <div>
-                        <div style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(4px)', borderRadius: 8, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
-                          <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: 22 }}>style</span>
-                        </div>
-                        <h3 style={{ color: '#fff', fontWeight: 800, fontSize: 18, marginBottom: 4, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}>{card.title}</h3>
-                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.82)', lineHeight: 1.5 }}>{card.desc}</p>
-                      </div>
-                    </div>
-
-                    {/* Table */}
-                    <div style={{ padding: '14px 16px', flex: 1 }}>
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-                          <thead>
-                            <tr style={{ borderBottom: '1.5px solid var(--outline-variant)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface-variant)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                              <th style={{ padding: '8px 4px' }}>Qty</th>
-                              <th style={{ padding: '8px 4px' }}>Single Side</th>
-                              <th style={{ padding: '8px 4px' }}>Front & Back</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {card.prices.map((p, idx) => {
-                              const cutoff = p.qty <= 510 ? 60 : 120;
-                              return (
-                                <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
-                                  <td style={{ padding: '7px 4px', fontWeight: 700, color: 'var(--on-surface)' }}>{p.qty}</td>
-                                  <td style={{ padding: '7px 4px' }}>
-                                    <div style={{ fontSize: 10, opacity: 0.6 }}>₹{p.single} + ₹{cutoff}</div>
-                                    <div style={{ fontWeight: 700, color: 'var(--primary-container)' }}>₹{p.single + cutoff}</div>
-                                  </td>
-                                  <td style={{ padding: '7px 4px' }}>
-                                    <div style={{ fontSize: 10, opacity: 0.6 }}>₹{p.double} + ₹{cutoff}</div>
-                                    <div style={{ fontWeight: 700, color: 'var(--primary-container)' }}>₹{p.double + cutoff}</div>
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="services-grid">
-              {ALL_SERVICES.map(service => (
-                <ServiceCard 
-                  key={service.title} 
-                  {...service} 
-                  onClick={() => service.title === 'Visiting Cards' ? setSelectedService('Visiting Cards') : null}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section style={{ background: 'var(--surface-container-low)', padding: '64px 20px' }}>
-        <div className="container" style={{ maxWidth: 900 }}>
-          <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <h2 className="headline-md" style={{ marginBottom: 12 }}>Transparent Standard Pricing</h2>
-            <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: 520, margin: '0 auto' }}>
-              No hidden fees. Pay only for what you print. Volume discounts are calculated automatically.
-            </p>
-          </div>
-
-          {/* Pricing Tabs */}
-          <div style={{
-            display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap',
-            marginBottom: 32, background: 'var(--surface-container)', padding: 6,
-            borderRadius: 'var(--radius-lg)', maxWidth: 'fit-content', margin: '0 auto 32px'
-          }}>
-            {[
-              { id: 'documents', label: 'Documents & Xerox', icon: 'description' },
-              { id: 'binding', label: 'Binding Add-ons', icon: 'menu_book' },
-              { id: 'lamination', label: 'Lamination', icon: 'layers' },
-              { id: 'wide-format', label: 'Wide Format', icon: 'photo_size_select_actual' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActivePriceTab(tab.id)}
-                className="btn btn-pill"
-                style={{
-                  gap: 6,
-                  padding: '8px 16px',
-                  fontSize: 13,
-                  background: activePriceTab === tab.id ? 'var(--primary-container)' : 'transparent',
-                  color: activePriceTab === tab.id ? 'var(--on-primary-container)' : 'var(--on-surface-variant)',
-                  border: 'none',
-                  boxShadow: activePriceTab === tab.id ? 'var(--shadow-sm)' : 'none'
-                }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{tab.icon}</span>
-                {tab.label}
-              </button>
+          <div className="services-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24 }}>
+            {ALL_SERVICES.map(service => (
+              <ServiceCard 
+                key={service.title} 
+                {...service} 
+              />
             ))}
-          </div>
-
-          {/* Pricing Content */}
-          <div className="card" style={{ padding: 24, borderRadius: 'var(--radius-xl)', overflow: 'hidden' }}>
-            {activePriceTab === 'documents' && (
-              <div>
-                <div style={{ background: '#fff9db', border: '1px solid #ffe3e3', color: '#b71c1c', padding: '10px 14px', borderRadius: 'var(--radius)', fontSize: 13, marginBottom: 20, fontWeight: 600 }}>
-                  💡 First 10 copies of A4 size and document prints are ₹1.00 per copy.
-                </div>
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-                    <thead>
-                      <tr style={{ borderBottom: '2px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
-                        <th style={{ padding: 12 }}>Paper Size / Type</th>
-                        <th style={{ padding: 12 }}>Xerox Rate</th>
-                        <th style={{ padding: 12 }}>Print Rate</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        { name: "A4 f&b per side", xerox: "₹0.60", print: "₹0.80" },
-                        { name: "A4 single", xerox: "₹1.00", print: "₹1.20" },
-                        { name: "FS f&b per side", xerox: "₹1.00", print: "₹1.50" },
-                        { name: "FS single", xerox: "₹1.50", print: "₹2.00" },
-                        { name: "A3 f&b per side", xerox: "₹2.50", print: "₹3.00" },
-                        { name: "A3 single side", xerox: "₹3.00", print: "₹5.00" },
-                        { name: "A4 GREEN SHEET", xerox: "₹2.00", print: "₹3.00" },
-                        { name: "FS GREEN SHEET", xerox: "₹2.50", print: "₹3.00" }
-                      ].map((row, idx) => (
-                        <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
-                          <td style={{ padding: 12, fontWeight: 600 }}>{row.name}</td>
-                          <td style={{ padding: 12 }}>{row.xerox}</td>
-                          <td style={{ padding: 12 }}>{row.print}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {activePriceTab === 'binding' && (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
-                      <th style={{ padding: 12 }}>Binding Type</th>
-                      <th style={{ padding: 12 }}>Paper Size / Pages</th>
-                      <th style={{ padding: 12 }}>Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { type: "Chat Binding", size: "A4", rate: "₹8" },
-                      { type: "Chat Binding", size: "FS", rate: "₹10" },
-                      { type: "Spiral Binding", size: "A4 BELOW 50 PAPER", rate: "₹25" },
-                      { type: "Spiral Binding", size: "A4 50 TO 99 PAPER", rate: "₹30" },
-                      { type: "Spiral Binding", size: "A4 100 TO 199 PAPER", rate: "₹40" },
-                      { type: "Spiral Binding", size: "A4 200 TO 300", rate: "₹50" },
-                      { type: "Spiral Binding", size: "FS BELOW 99 PAPER", rate: "₹50" },
-                      { type: "Spiral Binding", size: "FS ABOVE 100 PAPER", rate: "₹70" }
-                    ].map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
-                        <td style={{ padding: 12, fontWeight: 600 }}>{row.type}</td>
-                        <td style={{ padding: 12 }}>{row.size}</td>
-                        <td style={{ padding: 12 }}>{row.rate}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {activePriceTab === 'lamination' && (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
-                      <th style={{ padding: 12 }}>Sheet Size</th>
-                      <th style={{ padding: 12 }}>Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { size: "ID Size", rate: "₹20" },
-                      { size: "A4 Size", rate: "₹25" },
-                      { size: "FS Size", rate: "₹35" },
-                      { size: "A3 Size", rate: "₹50" }
-                    ].map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
-                        <td style={{ padding: 12, fontWeight: 600 }}>{row.size}</td>
-                        <td style={{ padding: 12 }}>{row.rate}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {activePriceTab === 'wide-format' && (
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-                  <thead>
-                    <tr style={{ borderBottom: '2px solid var(--outline)', textAlign: 'left', fontWeight: 700, color: 'var(--on-surface)' }}>
-                      <th style={{ padding: 12 }}>Size / Print Type</th>
-                      <th style={{ padding: 12 }}>Xerox Rate</th>
-                      <th style={{ padding: 12 }}>Print Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[
-                      { name: "A2 B&W", xerox: "₹30", print: "₹40" },
-                      { name: "A1 B&W", xerox: "₹60", print: "₹80" },
-                      { name: "A0 B&W", xerox: "₹120", print: "₹160" },
-                      { name: "A2 Color", xerox: "₹150", print: "₹200" },
-                      { name: "A1 Color", xerox: "₹250", print: "₹300" },
-                      { name: "A0 Color", xerox: "₹350", print: "₹400" }
-                    ].map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid var(--surface-container)', color: 'var(--on-surface-variant)' }}>
-                        <td style={{ padding: 12, fontWeight: 600 }}>{row.name}</td>
-                        <td style={{ padding: 12 }}>{row.xerox}</td>
-                        <td style={{ padding: 12 }}>{row.print}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
           </div>
         </div>
       </section>
@@ -516,7 +150,7 @@ export default function Services() {
             <input
               type="text"
               className="input"
-              placeholder="Enter Order ID (e.g., 3a4b5c6d-...)"
+              placeholder="Enter Order ID (e.g., WSR-123456)"
               value={orderId}
               onChange={e => setOrderId(e.target.value)}
               style={{ flex: 1 }}
@@ -549,20 +183,20 @@ export default function Services() {
                   <div>
                     <h3 className="headline-sm" style={{ fontSize: 18, marginBottom: 4 }}>{trackResult.file_name}</h3>
                     <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', fontFamily: 'monospace' }}>
-                      #{trackResult.id.slice(0, 16)}…
+                      #{trackResult.request_id || trackResult.id}
                     </p>
                   </div>
-                  <span className={`chip chip-${trackResult.status.toLowerCase()}`}>{trackResult.status}</span>
+                  <span className={`chip chip-${(trackResult.status || 'pending').toLowerCase()}`}>{trackResult.status}</span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
                   {[
-                    { label: 'Type', value: trackResult.print_type },
+                    { label: 'Type', value: trackResult.print_type || trackResult.service_name },
                     { label: 'Copies', value: trackResult.copies },
                     { label: 'Size', value: trackResult.paper_size },
                   ].map(item => (
                     <div key={item.label} style={{ background: 'var(--surface-container-low)', padding: '12px 14px', borderRadius: 'var(--radius)' }}>
                       <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--on-surface-variant)', marginBottom: 4 }}>{item.label}</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, textTransform: 'capitalize' }}>{item.value}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, textTransform: 'capitalize' }}>{item.value || '-'}</div>
                     </div>
                   ))}
                 </div>
@@ -581,7 +215,7 @@ export default function Services() {
                   }}>
                     <div style={{
                       position: 'absolute', top: 0, left: 0, right: 0,
-                      height: `${(currentStatusIndex / (STATUS_TIMELINE.length - 1)) * 100}%`,
+                      height: `${Math.max(0, (currentStatusIndex / (STATUS_TIMELINE.length - 1)) * 100)}%`,
                       background: 'var(--primary-container)',
                       transition: 'height 0.6s ease',
                     }} />

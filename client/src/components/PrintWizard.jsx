@@ -14,7 +14,6 @@ const WINSTAR_PHONE = '919345046665';
 
 const TOP_LEVEL_SERVICES = [
   { value: 'printing', label: 'Document & Wide Format Printing', icon: 'print' },
-  { value: 'lamination', label: 'Lamination', icon: 'layers' },
   { value: 'certificates', label: 'Certificates', icon: 'military_tech' },
   { value: 'visiting_cards', label: 'Visiting / Business Cards', icon: 'badge' },
   { value: 'brochures', label: 'Brochures / Flyers', icon: 'menu_book' },
@@ -136,11 +135,15 @@ export default function PrintWizard({ isWholesale = false }) {
     pages: 1,
     copies: 1,
     binding: 'No Binding',
-    lami_size: 'A4',
     
-    // Visiting Card & custom message fields
+    // Visiting Card fields
     card_type: 'Art Board',
     card_side: 'Single Side',
+
+    // Certificate fields
+    cert_type: 'Art Board 300 GSM',
+    cert_side: 'Single Side',
+
     message_text: '',
     
     // Wholesale fields
@@ -403,8 +406,23 @@ async function detectFilePages(file) {
         subtotal = baseRate + cutoff;
         printingTotal = subtotal;
 
+      } else if (config.service === 'certificates') {
+        const certPrices = {
+          'Art Board 300 GSM': { single: 20, double: 35 },
+          'Art Board with Matte Lamination': { single: 25, double: 40 },
+          'Art Board with Gloss Lamination': { single: 25, double: 40 },
+          'Metallic & Special Boards': { single: 35, double: 55 },
+          'Texture Special Board': { single: 30, double: 50 },
+          'Synthetic Non-Tearable 250 Micron': { single: 40, double: 65 },
+        };
+        const selectedCert = certPrices[config.cert_type] || certPrices['Art Board 300 GSM'];
+        const ratePerCert = config.cert_side === 'Front & Back' ? selectedCert.double : selectedCert.single;
+        const certCopies = Math.max(1, parseInt(config.copies) || 1);
+        subtotal = ratePerCert * certCopies;
+        printingTotal = subtotal;
+
       } else {
-        const keyMap = { 'certificates': 'Certificates', 'visiting_cards': 'Visiting Cards', 'brochures': 'Brochures' };
+        const keyMap = { 'brochures': 'Brochures' };
         const rates = FLAT_SERVICE_PRICES[keyMap[config.service]];
         if (rates) {
           subtotal = config.copies === 1 
@@ -544,12 +562,16 @@ async function detectFilePages(file) {
     }
 
     if (!isWholesaleActive) {
-      if (order.service === 'visiting_cards') {
+      if (order.service === 'certificates') {
+        textStr += `📜 *Paper Type:* ${order.cert_type || config.cert_type}\n` +
+                   `📐 *Side:* ${order.cert_side || config.cert_side}\n` +
+                   `🔢 *Quantity:* ${order.copies} certificates\n`;
+      } else if (order.service === 'visiting_cards') {
         textStr += `🪪 *Card Type:* ${order.card_type}\n` +
                    `📐 *Side:* ${order.card_side}\n` +
                    `🔢 *Quantity:* ${order.copies} cards\n`;
       } else {
-        let sizeDetails = order.service === 'lamination' ? order.lami_size : order.paper_size;
+        let sizeDetails = order.paper_size;
         textStr += `📂 *File:* ${order.file_name}\n` +
                    `🔢 *Copies:* ${order.copies} | *Pages:* ${order.pages} | *Size:* ${sizeDetails}\n` +
                    `🔗 *Binding:* ${order.binding}\n`;
@@ -1130,12 +1152,52 @@ async function detectFilePages(file) {
                     </>
                   )}
 
-                  {config.service === 'lamination' && (
-                    <div className="form-group" style={{ marginBottom: 16 }}>
-                      <label className="label">Lamination Size</label>
-                      <select className="select" value={config.lami_size} onChange={e => setConfig(c => ({ ...c, lami_size: e.target.value }))}>
-                        {LAMINATION_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
-                      </select>
+                  {config.service === 'certificates' && (
+                    <div className="animate-fade-in">
+                      <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                        <div className="form-group">
+                          <label className="label">Paper Type</label>
+                          <select className="select" value={config.cert_type} onChange={e => setConfig(c => ({ ...c, cert_type: e.target.value }))}>
+                            <option value="Art Board 300 GSM">Art Board 300 GSM</option>
+                            <option value="Art Board with Matte Lamination">Art Board with Matte Lamination</option>
+                            <option value="Art Board with Gloss Lamination">Art Board with Gloss Lamination</option>
+                            <option value="Metallic & Special Boards">Metallic & Special Boards</option>
+                            <option value="Texture Special Board">Texture Special Board</option>
+                            <option value="Synthetic Non-Tearable 250 Micron">Synthetic Non-Tearable 250 Micron</option>
+                          </select>
+                        </div>
+                        <div className="form-group">
+                          <label className="label">Printing Side</label>
+                          <select className="select" value={config.cert_side} onChange={e => setConfig(c => ({ ...c, cert_side: e.target.value }))}>
+                            <option value="Single Side">Single Side</option>
+                            <option value="Front & Back">Front & Back</option>
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                        <div className="form-group">
+                          <label className="label">Quantity (Certificates)</label>
+                          <input
+                            type="number"
+                            min="1"
+                            className="input"
+                            value={config.copies}
+                            onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
+                        <label className="label">Special Instructions / Notes (Optional)</label>
+                        <textarea 
+                          className="textarea" 
+                          rows={2} 
+                          placeholder="e.g. Student name list attached, gold border alignment..." 
+                          value={config.message_text} 
+                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                        />
+                      </div>
                     </div>
                   )}
 
@@ -1175,52 +1237,61 @@ async function detectFilePages(file) {
                           </select>
                         </div>
                       </div>
+
+                      <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
+                        <label className="label">Special Instructions / Notes (Optional)</label>
+                        <textarea 
+                          className="textarea" 
+                          rows={2} 
+                          placeholder="e.g. Rounded corner cutting, matte lamination note..." 
+                          value={config.message_text} 
+                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                        />
+                      </div>
                     </div>
                   )}
 
-                  {['printing', 'lamination'].includes(config.service) || config.service !== 'visiting_cards' ? (
-                    <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-                      {['printing', 'lamination'].includes(config.service) && (
+                  {!['certificates', 'visiting_cards'].includes(config.service) && (
+                    <>
+                      <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                         <div className="form-group">
                           <label className="label">Number of Pages</label>
                           <input type="number" min="1" className="input" value={config.pages} onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} />
                         </div>
-                      )}
-                      {config.service !== 'visiting_cards' && (
                         <div className="form-group">
                           <label className="label">Number of Copies</label>
                           <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
                         </div>
+                      </div>
+
+                      {config.service === 'printing' && ['A4', 'FS'].includes(config.paper_size) && (
+                        <div className="form-group" style={{ marginBottom: 16 }}>
+                          <label className="label">Binding Add-on</label>
+                          <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
+                            {BINDING_OPTIONS.map(b => {
+                              const disabled = b === 'Spiral Binding' && config.paper_size === 'A4' && config.pages > 500;
+                              return (
+                                <option key={b} value={b} disabled={disabled}>
+                                  {b} {disabled ? ' (Unavailable > 500 pages)' : ''}
+                                </option>
+                              );
+                            })}
+                          </select>
+                        </div>
                       )}
-                    </div>
-                  ) : null}
 
-                  {config.service === 'printing' && ['A4', 'FS'].includes(config.paper_size) && (
-                    <div className="form-group" style={{ marginBottom: 16 }}>
-                      <label className="label">Binding Add-on</label>
-                      <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
-                        {BINDING_OPTIONS.map(b => {
-                          const disabled = b === 'Spiral Binding' && config.paper_size === 'A4' && config.pages > 500;
-                          return (
-                            <option key={b} value={b} disabled={disabled}>
-                              {b} {disabled ? ' (Unavailable > 500 pages)' : ''}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
+                      <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
+                        <label className="label">Special Instructions / Notes (Optional)</label>
+                        <textarea 
+                          className="textarea" 
+                          rows={2} 
+                          placeholder="e.g. Spiral binding request, print specific pages only, custom paper requirements..." 
+                          value={config.message_text} 
+                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                        />
+                      </div>
+                    </>
                   )}
-
-                  <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
-                    <label className="label">Special Instructions / Notes (Optional)</label>
-                    <textarea 
-                      className="textarea" 
-                      rows={2} 
-                      placeholder="e.g. Spiral binding request, print specific pages only, custom paper requirements..." 
-                      value={config.message_text} 
-                      onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
-                    />
-                  </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
                     <button className="btn btn-outline" onClick={() => setStep(1)}>Back</button>
@@ -1355,7 +1426,22 @@ async function detectFilePages(file) {
                   <span style={{ fontWeight: 600 }}>{TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}</span>
                 </div>
                 
-                {config.service === 'visiting_cards' ? (
+                {config.service === 'certificates' ? (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Paper Type:</span>
+                      <span style={{ fontWeight: 600 }}>{config.cert_type}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Printing Side:</span>
+                      <span style={{ fontWeight: 600 }}>{config.cert_side}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Quantity:</span>
+                      <span style={{ fontWeight: 600 }}>{config.copies} Certificates</span>
+                    </div>
+                  </>
+                ) : config.service === 'visiting_cards' ? (
                   <>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: 'var(--on-surface-variant)' }}>Card Type:</span>
@@ -1381,15 +1467,13 @@ async function detectFilePages(file) {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: 'var(--on-surface-variant)' }}>Size:</span>
-                      <span style={{ fontWeight: 600 }}>{config.service === 'lamination' ? config.lami_size : config.paper_size}</span>
+                      <span style={{ fontWeight: 600 }}>{config.paper_size}</span>
                     </div>
 
-                    {['printing', 'binding', 'lamination'].includes(config.service) && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span style={{ color: 'var(--on-surface-variant)' }}>Pages:</span>
-                        <span style={{ fontWeight: 600 }}>{config.pages}</span>
-                      </div>
-                    )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: 'var(--on-surface-variant)' }}>Pages:</span>
+                      <span style={{ fontWeight: 600 }}>{config.pages}</span>
+                    </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: 'var(--on-surface-variant)' }}>Copies:</span>

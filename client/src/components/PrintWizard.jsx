@@ -433,11 +433,15 @@ export default function PrintWizard({ isWholesale = false }) {
       )}
 
       <div className="wizard-tabs" style={{ display: 'flex', gap: 12, marginBottom: 32, borderBottom: '1px solid var(--surface-container)' }}>
-        {[
+        {(isWholesaleActive ? [
+          { stepNum: 1, label: '1. Spec Selection', icon: 'tune' },
+          { stepNum: 2, label: '2. File Upload', icon: 'cloud_upload' },
+          { stepNum: 3, label: '3. Order Placement', icon: 'chat' },
+        ] : [
           { stepNum: 1, label: '1. Upload File', icon: 'cloud_upload' },
           { stepNum: 2, label: '2. Print Specs', icon: 'tune' },
           { stepNum: 3, label: '3. Customer & WhatsApp', icon: 'chat' },
-        ].map(s => (
+        ]).map(s => (
           <button
             key={s.stepNum}
             onClick={() => setStep(s.stepNum)}
@@ -464,64 +468,16 @@ export default function PrintWizard({ isWholesale = false }) {
 
       <div className="print-wizard-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 32 }}>
         <div>
-          {/* STEP 1 */}
-          {step === 1 && (
-            <div>
-              <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 1: Upload Your Print File</h3>
-              <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
-                Supports PDF, DOCX, CorelDRAW (.CDR), PSD, AI, JPG, and PNG up to 50MB.
-              </p>
-
-              <div
-                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-                onDragLeave={() => setDragOver(false)}
-                onDrop={e => {
-                  e.preventDefault();
-                  setDragOver(false);
-                  if (e.dataTransfer.files?.[0]) handleFileSelect(e.dataTransfer.files[0]);
-                }}
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  border: dragOver ? '2px dashed var(--primary-container)' : '2px dashed var(--surface-container-high)',
-                  borderRadius: 'var(--radius-lg)', padding: '48px 24px', textAlign: 'center',
-                  background: dragOver ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
-                  cursor: 'pointer', transition: 'all 0.2s',
-                }}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  style={{ display: 'none' }}
-                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.psd,.ai,.cdr,application/x-cdr,application/cdr,application/vnd.corel-draw"
-                  onChange={e => handleFileSelect(e.target.files?.[0])}
-                />
-                <span className="material-symbols-outlined icon-fill" style={{ fontSize: 54, color: 'var(--primary-container)', marginBottom: 12 }}>
-                  cloud_upload
-                </span>
-                <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
-                  {file ? file.name : 'Click to Browse or Drag & Drop File'}
-                </div>
-                <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                  {uploading ? 'Uploading to Winstar Cloud...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & validation (PDF, CDR, DOCX, Images)'}
-                </div>
-                {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
-                <button className="btn btn-primary" onClick={() => setStep(2)}>
-                  Next: Configure Print <span className="material-symbols-outlined">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2 */}
-          {step === 2 && (
-            <div>
-              <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 16 }}>Step 2: Specifications</h3>
-
-              {isWholesaleActive ? (
-                <>
+          {/* ========================================================================= */}
+          {/* B2B FLOW: 1. Spec Selection -> 2. File Upload -> 3. Order Placement       */}
+          {/* ========================================================================= */}
+          {isWholesaleActive ? (
+            <>
+              {/* B2B STEP 1: SPEC SELECTION */}
+              {step === 1 && (
+                <div>
+                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 16 }}>Step 1: Select Print Specifications</h3>
+                  
                   <div style={{ marginBottom: 20 }}>
                     <label className="label">Select Media Type</label>
                     <select className="select" value={config.media} onChange={e => handleMediaChange(e.target.value)} style={{ padding: '14px', fontSize: 16 }}>
@@ -530,6 +486,7 @@ export default function PrintWizard({ isWholesale = false }) {
                       ))}
                     </select>
                   </div>
+                  
                   <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                     <div className="form-group">
                       <label className="label">Size</label>
@@ -544,21 +501,238 @@ export default function PrintWizard({ isWholesale = false }) {
                       </select>
                     </div>
                   </div>
+
                   <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                     <div className="form-group">
                       <label className="label">Copies</label>
                       <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
                     </div>
                   </div>
-                  <div style={{ marginBottom: 24 }}>
+
+                  <div style={{ marginBottom: 20 }}>
                     <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
                       <input type="checkbox" checked={config.double_sided} onChange={e => setConfig(c => ({ ...c, double_sided: e.target.checked }))} style={{ width: 18, height: 18 }} />
                       Print on Both Sides
                     </label>
                   </div>
-                </>
-              ) : (
-                <>
+
+                  <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
+                    <label className="label">Special Instructions / Notes (Optional)</label>
+                    <textarea 
+                      className="textarea" 
+                      rows={2} 
+                      placeholder="e.g. Specific cutting, packaging, or urgent dispatch notes..." 
+                      value={config.message_text} 
+                      onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+                    <button className="btn btn-primary" onClick={() => setStep(2)}>
+                      Next: Upload File <span className="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* B2B STEP 2: FILE UPLOAD */}
+              {step === 2 && (
+                <div>
+                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 2: Upload Your Print File</h3>
+                  <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
+                    Supports PDF, DOCX, CorelDRAW (.CDR), PSD, AI, JPG, and PNG up to 50MB.
+                  </p>
+
+                  <div
+                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={e => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      if (e.dataTransfer.files?.[0]) handleFileSelect(e.dataTransfer.files[0]);
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      border: dragOver ? '2px dashed var(--primary-container)' : '2px dashed var(--surface-container-high)',
+                      borderRadius: 'var(--radius-lg)', padding: '48px 24px', textAlign: 'center',
+                      background: dragOver ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
+                      cursor: 'pointer', transition: 'all 0.2s',
+                    }}
+                  >
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.psd,.ai,.cdr,application/x-cdr,application/cdr,application/vnd.corel-draw"
+                      onChange={e => handleFileSelect(e.target.files?.[0])}
+                    />
+                    <span className="material-symbols-outlined icon-fill" style={{ fontSize: 54, color: 'var(--primary-container)', marginBottom: 12 }}>
+                      cloud_upload
+                    </span>
+                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                      {file ? file.name : 'Click to Browse or Drag & Drop File'}
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                      {uploading ? 'Uploading to Winstar Cloud...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & validation (PDF, CorelDRAW .CDR, DOCX, Images)'}
+                    </div>
+                    {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+                    <button className="btn btn-outline" onClick={() => setStep(1)}>
+                      <span className="material-symbols-outlined">arrow_back</span> Back to Specs
+                    </button>
+                    <button className="btn btn-primary" onClick={() => setStep(3)}>
+                      Next: Order Placement <span className="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* B2B STEP 3: ORDER PLACEMENT */}
+              {step === 3 && (
+                <div>
+                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 3: B2B Order Placement</h3>
+                  <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
+                    Your authenticated B2B account details will be automatically attached to this order.
+                  </p>
+
+                  <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div style={{
+                      background: 'var(--surface-container-low)',
+                      border: '1px solid #bbf7d0',
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '16px 20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 10,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#166534', fontWeight: 800, fontSize: 13.5 }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>verified_user</span>
+                        AUTHENTICATED B2B ACCOUNT DETAILS
+                      </div>
+                      <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, fontSize: 13 }}>
+                        <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
+                          <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Agency</span>
+                          <strong style={{ color: 'var(--on-surface)', wordBreak: 'break-word' }}>{profile?.company_name || profile?.full_name || customerName || 'B2B Agency'}</strong>
+                        </div>
+                        <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
+                          <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Email</span>
+                          <strong style={{ color: 'var(--on-surface)', wordBreak: 'break-all' }}>{profile?.email || user?.email || 'N/A'}</strong>
+                        </div>
+                        <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
+                          <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Phone</span>
+                          <strong style={{ color: 'var(--on-surface)' }}>{profile?.mobile || profile?.phone || customerPhone || user?.user_metadata?.mobile || 'N/A'}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="label">Delivery Method</label>
+                      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
+                          <input type="radio" name="delivery" checked={deliveryType === 'pickup'} onChange={() => setDeliveryType('pickup')} />
+                          Store Pickup (Winstar Printing)
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
+                          <input type="radio" name="delivery" checked={deliveryType === 'courier'} onChange={() => setDeliveryType('courier')} />
+                          Courier Delivery
+                        </label>
+                      </div>
+                    </div>
+
+                    {deliveryType === 'courier' && (
+                      <div className="form-group animate-fade-in">
+                        <label className="label">Complete Courier Address *</label>
+                        <textarea className="textarea" rows={2} placeholder="Street, City, Postal Pin Code..." required value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} />
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                      <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>
+                        <span className="material-symbols-outlined">arrow_back</span> Back
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={submitting}
+                        style={{ flex: 1, height: 'auto', minHeight: 52, padding: '12px 16px', fontSize: 15, background: '#25D366', borderColor: '#25D366', color: '#fff', whiteSpace: 'normal', lineHeight: 1.3 }}
+                      >
+                        {submitting ? (
+                          <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>chat</span>
+                            <span>SUBMIT PRINT ORDER & OPEN WHATSAPP</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </>
+          ) : (
+            /* ========================================================================= */
+            /* RETAIL FLOW: 1. Upload File -> 2. Print Specs -> 3. Customer & WhatsApp   */
+            /* ========================================================================= */
+            <>
+              {/* RETAIL STEP 1 */}
+              {step === 1 && (
+                <div>
+                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 1: Upload Your Print File</h3>
+                  <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
+                    Supports PDF, DOCX, CorelDRAW (.CDR), PSD, AI, JPG, and PNG up to 50MB.
+                  </p>
+
+                  <div
+                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={e => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      if (e.dataTransfer.files?.[0]) handleFileSelect(e.dataTransfer.files[0]);
+                    }}
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      border: dragOver ? '2px dashed var(--primary-container)' : '2px dashed var(--surface-container-high)',
+                      borderRadius: 'var(--radius-lg)', padding: '48px 24px', textAlign: 'center',
+                      background: dragOver ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
+                      cursor: 'pointer', transition: 'all 0.2s',
+                    }}
+                  >
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.psd,.ai,.cdr,application/x-cdr,application/cdr,application/vnd.corel-draw"
+                      onChange={e => handleFileSelect(e.target.files?.[0])}
+                    />
+                    <span className="material-symbols-outlined icon-fill" style={{ fontSize: 54, color: 'var(--primary-container)', marginBottom: 12 }}>
+                      cloud_upload
+                    </span>
+                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                      {file ? file.name : 'Click to Browse or Drag & Drop File'}
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                      {uploading ? 'Uploading to Winstar Cloud...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & validation (PDF, CDR, DOCX, Images)'}
+                    </div>
+                    {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+                    <button className="btn btn-primary" onClick={() => setStep(2)}>
+                      Next: Configure Print <span className="material-symbols-outlined">arrow_forward</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* RETAIL STEP 2 */}
+              {step === 2 && (
+                <div>
+                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 16 }}>Step 2: Specifications</h3>
+
                   <div style={{ marginBottom: 20 }}>
                     <label className="label">Top-Level Service</label>
                     <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -707,7 +881,6 @@ export default function PrintWizard({ isWholesale = false }) {
                     </div>
                   )}
 
-                  {/* Optional Printing Instructions Message Box (Always Visible) */}
                   <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
                     <label className="label">Special Instructions / Notes (Optional)</label>
                     <textarea 
@@ -718,111 +891,81 @@ export default function PrintWizard({ isWholesale = false }) {
                       onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
                     />
                   </div>
-                </>
-              )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
-                <button className="btn btn-outline" onClick={() => setStep(1)}>Back</button>
-                <button className="btn btn-primary" onClick={() => setStep(3)}>
-                  Next: Delivery <span className="material-symbols-outlined">arrow_forward</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3 */}
-          {step === 3 && (
-            <div>
-              <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>
-                {isWholesaleActive ? 'Step 3: B2B Order & Delivery' : 'Step 3: Contact & Delivery'}
-              </h3>
-              <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
-                {isWholesaleActive 
-                  ? 'Your authenticated B2B account details will be automatically attached to this order.' 
-                  : 'No account required. An instant Request ID will be generated for WhatsApp tracking.'}
-              </p>
-
-              <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {isWholesaleActive ? (
-                  <div style={{
-                    background: 'var(--surface-container-low)',
-                    border: '1px solid #bbf7d0',
-                    borderRadius: 'var(--radius-lg)',
-                    padding: '16px 20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 10,
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#166534', fontWeight: 800, fontSize: 13.5 }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>verified_user</span>
-                      AUTHENTICATED B2B ACCOUNT DETAILS
-                    </div>
-                    <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, fontSize: 13 }}>
-                      <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
-                        <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Agency</span>
-                        <strong style={{ color: 'var(--on-surface)', wordBreak: 'break-word' }}>{profile?.company_name || profile?.full_name || customerName || 'B2B Agency'}</strong>
-                      </div>
-                      <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
-                        <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Email</span>
-                        <strong style={{ color: 'var(--on-surface)', wordBreak: 'break-all' }}>{profile?.email || user?.email || 'N/A'}</strong>
-                      </div>
-                      <div style={{ background: 'var(--surface-container-lowest)', padding: '10px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
-                        <span style={{ color: 'var(--on-surface-variant)', display: 'block', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>Registered Phone</span>
-                        <strong style={{ color: 'var(--on-surface)' }}>{profile?.mobile || profile?.phone || customerPhone || user?.user_metadata?.mobile || 'N/A'}</strong>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="responsive-form-grid" style={{ display: 'grid', gap: 16 }}>
-                    <div className="form-group">
-                      <label className="label">Full Name *</label>
-                      <input type="text" className="input" placeholder="e.g. John Doe" required value={customerName} onChange={e => setCustomerName(e.target.value)} />
-                    </div>
-                    <div className="form-group">
-                      <label className="label">WhatsApp Number *</label>
-                      <input type="tel" className="input" placeholder="e.g. 1234567890" required value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
-                    </div>
-                  </div>
-                )}
-
-                <div className="form-group">
-                  <label className="label">Delivery Method</label>
-                  <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
-                      <input type="radio" name="delivery" checked={deliveryType === 'pickup'} onChange={() => setDeliveryType('pickup')} />
-                      Store Pickup (Winstar Printing)
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
-                      <input type="radio" name="delivery" checked={deliveryType === 'courier'} onChange={() => setDeliveryType('courier')} />
-                      Courier Delivery
-                    </label>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+                    <button className="btn btn-outline" onClick={() => setStep(1)}>Back</button>
+                    <button className="btn btn-primary" onClick={() => setStep(3)}>
+                      Next: Delivery <span className="material-symbols-outlined">arrow_forward</span>
+                    </button>
                   </div>
                 </div>
+              )}
 
-                {deliveryType === 'courier' && (
-                  <div className="form-group animate-fade-in">
-                    <label className="label">Complete Courier Address *</label>
-                    <textarea className="textarea" rows={2} placeholder="Street, City, Postal Pin Code..." required value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} />
-                  </div>
-                )}
+              {/* RETAIL STEP 3 */}
+              {step === 3 && (
+                <div>
+                  <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 3: Contact & Delivery</h3>
+                  <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
+                    No account required. An instant Request ID will be generated for WhatsApp tracking.
+                  </p>
 
-                <button
-                  type="submit"
-                  className="btn btn-primary btn-full"
-                  disabled={submitting}
-                  style={{ height: 'auto', minHeight: 52, padding: '12px 16px', fontSize: 15, background: '#25D366', borderColor: '#25D366', color: '#fff', marginTop: 8, whiteSpace: 'normal', lineHeight: 1.3 }}
-                >
-                  {submitting ? (
-                    <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>chat</span>
-                      <span><span className="hide-on-compact">SUBMIT PRINT ORDER & </span>OPEN WHATSAPP</span>
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
+                  <form onSubmit={handlePlaceOrder} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div className="responsive-form-grid" style={{ display: 'grid', gap: 16 }}>
+                      <div className="form-group">
+                        <label className="label">Full Name *</label>
+                        <input type="text" className="input" placeholder="e.g. John Doe" required value={customerName} onChange={e => setCustomerName(e.target.value)} />
+                      </div>
+                      <div className="form-group">
+                        <label className="label">WhatsApp Number *</label>
+                        <input type="tel" className="input" placeholder="e.g. 1234567890" required value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="label">Delivery Method</label>
+                      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
+                          <input type="radio" name="delivery" checked={deliveryType === 'pickup'} onChange={() => setDeliveryType('pickup')} />
+                          Store Pickup (Winstar Printing)
+                        </label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14 }}>
+                          <input type="radio" name="delivery" checked={deliveryType === 'courier'} onChange={() => setDeliveryType('courier')} />
+                          Courier Delivery
+                        </label>
+                      </div>
+                    </div>
+
+                    {deliveryType === 'courier' && (
+                      <div className="form-group animate-fade-in">
+                        <label className="label">Complete Courier Address *</label>
+                        <textarea className="textarea" rows={2} placeholder="Street, City, Postal Pin Code..." required value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} />
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                      <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>
+                        <span className="material-symbols-outlined">arrow_back</span> Back
+                      </button>
+                      <button
+                        type="submit"
+                        className="btn btn-primary"
+                        disabled={submitting}
+                        style={{ flex: 1, height: 'auto', minHeight: 52, padding: '12px 16px', fontSize: 15, background: '#25D366', borderColor: '#25D366', color: '#fff', whiteSpace: 'normal', lineHeight: 1.3 }}
+                      >
+                        {submitting ? (
+                          <div className="spinner" style={{ width: 22, height: 22, borderWidth: 2 }} />
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined" style={{ fontSize: 20, flexShrink: 0 }}>chat</span>
+                            <span>SUBMIT PRINT ORDER & OPEN WHATSAPP</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </>
           )}
         </div>
 

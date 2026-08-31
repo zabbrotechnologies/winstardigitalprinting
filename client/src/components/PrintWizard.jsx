@@ -67,7 +67,8 @@ export default function PrintWizard({ isWholesale = false }) {
     paper_gsm: '100',
   });
 
-  const isWholesaleActive = isWholesale || (profile?.isWholesale && profile?.isApproved);
+  // Only activate wholesale mode when explicitly passed via prop (e.g. inside Dashboard)
+  const isWholesaleActive = Boolean(isWholesale);
 
   // Sync B2B account details when profile loads
   useEffect(() => {

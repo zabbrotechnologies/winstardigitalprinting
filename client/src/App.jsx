@@ -8,6 +8,7 @@ import Admin from './pages/Admin';
 import BulkOrder from './pages/BulkOrder';
 import RegisterWholesale from './pages/RegisterWholesale';
 import CookieConsent from './components/CookieConsent';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
             </div>
           } />
         </Routes>
+        <FloatingWhatsApp />
         <CookieConsent />
       </AuthProvider>
     </BrowserRouter>

@@ -138,6 +138,49 @@ export default function PrintWizard({ isWholesale = false }) {
     }
   }, [config.service]);
 
+// Helper to analyze and extract page count from uploaded PDF files
+async function detectFilePages(file) {
+  if (!file) return 1;
+  const fileName = file.name ? file.name.toLowerCase() : '';
+  const isPdf = file.type === 'application/pdf' || fileName.endsWith('.pdf');
+
+  if (isPdf) {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      const text = new TextDecoder('latin1').decode(bytes);
+
+      // Method 1: Look for /Type /Pages /Count (\d+)
+      const countMatches = [...text.matchAll(/\/Type\s*\/Pages[^>]*?\/Count\s+(\d+)/g)];
+      if (countMatches.length > 0) {
+        const counts = countMatches.map(m => parseInt(m[1], 10)).filter(n => !isNaN(n) && n > 0);
+        if (counts.length > 0) {
+          return Math.max(...counts);
+        }
+      }
+
+      // Method 2: Count distinct /Type /Page objects (excluding /Type /Pages)
+      const pageMatches = text.match(/\/Type\s*\/Page\b(?!\s*s)/g);
+      if (pageMatches && pageMatches.length > 0) {
+        return pageMatches.length;
+      }
+
+      // Method 3: Fallback /Count (\d+)
+      const generalCounts = [...text.matchAll(/\/Count\s+(\d+)/g)];
+      if (generalCounts.length > 0) {
+        const counts = generalCounts.map(m => parseInt(m[1], 10)).filter(n => !isNaN(n) && n > 0);
+        if (counts.length > 0) {
+          return Math.max(...counts);
+        }
+      }
+    } catch (e) {
+      console.warn('Could not parse PDF page count:', e);
+    }
+  }
+
+  return 1;
+}
+
   function getCalculatedPrice() {
     let subtotal = 0;
     let printingTotal = 0;
@@ -153,10 +196,13 @@ export default function PrintWizard({ isWholesale = false }) {
         const isDouble = config.double_sided && item.double_1st !== null;
         const rate1st = isDouble ? item.double_1st : item.single_1st;
         const rateAdd = isDouble ? item.double_add : item.single_add;
-        if (config.copies > 10) {
-          subtotal = config.copies * rateAdd;
+        const pages = parseInt(config.pages) || 1;
+        const copies = parseInt(config.copies) || 1;
+        const totalSheets = pages * copies;
+        if (totalSheets > 10) {
+          subtotal = totalSheets * rateAdd;
         } else {
-          subtotal = rate1st + ((config.copies - 1) * rateAdd);
+          subtotal = rate1st + ((totalSheets - 1) * rateAdd);
         }
       }
       printingTotal = subtotal;
@@ -305,10 +351,17 @@ export default function PrintWizard({ isWholesale = false }) {
     setUploading(true);
 
     try {
+      // 1. Analyze and extract page count from uploaded PDF
+      const detectedPages = await detectFilePages(selectedFile);
+      if (detectedPages && detectedPages > 0) {
+        setConfig(c => ({ ...c, pages: detectedPages }));
+      }
+
+      // 2. Upload file to backend
       const uploaded = await uploadPrintFile(selectedFile);
       setUploadedFile(uploaded);
     } catch (err) {
-      console.warn('Upload error:', err);
+      console.warn('Upload / analysis error:', err);
     } finally {
       setUploading(false);
     }
@@ -574,10 +627,30 @@ export default function PrintWizard({ isWholesale = false }) {
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      {uploading ? 'Uploading to Winstar Cloud...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & validation (PDF, CorelDRAW .CDR, DOCX, Images)'}
+                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • ${config.pages} Page${config.pages > 1 ? 's' : ''} detected • Click to replace` : 'Instant automatic file upload & page count analysis (PDF, CorelDRAW .CDR, DOCX, Images)'}
                     </div>
                     {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
                   </div>
+
+                  {file && (
+                    <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--surface-container-low)', padding: '10px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--surface-container-high)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 700, color: 'var(--on-surface)' }}>
+                        <span className="material-symbols-outlined" style={{ color: '#16a34a', fontSize: 20 }}>auto_awesome</span>
+                        <span>Detected Pages in Document:</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          className="input" 
+                          style={{ width: 80, textAlign: 'center', padding: '6px 8px', height: 36, fontWeight: 700 }} 
+                          value={config.pages} 
+                          onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} 
+                        />
+                        <span style={{ fontSize: 13, color: 'var(--on-surface-variant)', fontWeight: 600 }}>Pages</span>
+                      </div>
+                    </div>
+                  )}
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
                     <button className="btn btn-outline" onClick={() => setStep(1)}>
@@ -716,7 +789,7 @@ export default function PrintWizard({ isWholesale = false }) {
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      {uploading ? 'Uploading to Winstar Cloud...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & validation (PDF, CDR, DOCX, Images)'}
+                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • ${config.pages} Page${config.pages > 1 ? 's' : ''} detected • Click to replace` : 'Instant automatic file upload & page count analysis (PDF, CorelDRAW .CDR, DOCX, Images)'}
                     </div>
                     {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
                   </div>

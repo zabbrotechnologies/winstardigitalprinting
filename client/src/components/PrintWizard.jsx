@@ -558,7 +558,11 @@ async function detectFilePages(file) {
 
                   <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                     <div className="form-group">
-                      <label className="label">Copies</label>
+                      <label className="label">Number of Pages {file && <span style={{ fontSize: 11, color: '#16a34a', fontWeight: 600 }}>(Detected: {config.pages})</span>}</label>
+                      <input type="number" min="1" className="input" value={config.pages} onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))} />
+                    </div>
+                    <div className="form-group">
+                      <label className="label">Number of Copies</label>
                       <input type="number" min="1" className="input" value={config.copies} onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))} />
                     </div>
                   </div>

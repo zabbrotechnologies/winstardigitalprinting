@@ -336,9 +336,14 @@ export default function Admin() {
                           <div style={{ fontSize: 12, color: 'var(--on-surface-variant)' }}>
                             {ord.copies} copy(ies) • {ord.paper_size} ({ord.paper_gsm || 'Standard'})
                           </div>
+                          {ord.binding && ord.binding !== 'None' && ord.binding !== 'none' && (
+                            <div style={{ fontSize: 11, color: 'var(--primary-container)', fontWeight: 600, marginTop: 2 }}>
+                              ✨ {ord.binding}
+                            </div>
+                          )}
                           {ord.message_text && (
-                            <div style={{ fontSize: 11, color: 'var(--primary-container)', marginTop: 4, fontStyle: 'italic' }}>
-                              * Has Special Notes
+                            <div style={{ fontSize: 11, color: 'var(--on-surface-variant)', marginTop: 4, fontStyle: 'italic' }}>
+                              * Note: {ord.message_text}
                             </div>
                           )}
                         </td>
@@ -534,11 +539,16 @@ export default function Admin() {
                 </div>
                 <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)' }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>PRINT SPECIFICATION</div>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{selectedOrder.service_name} • {selectedOrder.copies} copies • {selectedOrder.paper_size}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>{selectedOrder.service_name} • {selectedOrder.copies} copies • {selectedOrder.paper_size} ({selectedOrder.paper_gsm || ''})</div>
+                  {selectedOrder.binding && selectedOrder.binding !== 'None' && selectedOrder.binding !== 'none' && (
+                    <div style={{ fontSize: 12, color: 'var(--primary-container)', fontWeight: 700, marginTop: 4 }}>
+                      ✨ {selectedOrder.binding}
+                    </div>
+                  )}
                 </div>
                 <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>DELIVERY TYPE</div>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{selectedOrder.delivery_type === 'courier' ? 'Courier: ' + selectedOrder.delivery_address : 'Store Pickup'}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>DELIVERY & ADDRESS</div>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>{selectedOrder.delivery_address || (selectedOrder.delivery_type === 'courier' ? 'Courier Delivery' : 'Store Pickup')}</div>
                 </div>
                 {selectedOrder.message_text && (
                   <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)', gridColumn: 'span 2' }}>

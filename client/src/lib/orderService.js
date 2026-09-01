@@ -188,25 +188,76 @@ export async function createOrder(orderPayload, currentUser = null) {
   const requestId = isWholesale ? `WG-WSR-${randomNum}` : `WSR-${randomNum}`;
   const now = new Date().toISOString();
   const userId = currentUser?.id || currentUser?.$id || null;
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId || '');
 
-  const orderData = {
+  // 1. Format service name
+  let serviceName = orderPayload.service_name || 'Print Service';
+  if (isWholesale && (orderPayload.media_type || orderPayload.media_category)) {
+    serviceName = [orderPayload.media_type, orderPayload.media_category].filter(Boolean).join(' - ');
+  }
+
+  // 2. Format print specifications & finishing
+  let printType = orderPayload.print_type || (orderPayload.double_sided ? 'Both Sides' : 'Single Side');
+  if (orderPayload.color) {
+    printType = `${orderPayload.color} (${orderPayload.double_sided ? 'Front & Back' : 'Single Side'})`;
+  }
+
+  const finishingParts = [];
+  if (orderPayload.thermal_lamination?.type || orderPayload.lamination?.type) {
+    finishingParts.push(`Lamination: ${orderPayload.thermal_lamination?.type || orderPayload.lamination?.type}`);
+  }
+  if (orderPayload.cutting?.type) {
+    finishingParts.push(`Cutting: ${orderPayload.cutting?.type}`);
+  }
+  if (orderPayload.sticker?.type) {
+    finishingParts.push(`Sticker: ${orderPayload.sticker?.type}`);
+  }
+  const finishingSummary = finishingParts.join(', ');
+
+  let bindingVal = orderPayload.binding || 'None';
+  if (finishingSummary) {
+    bindingVal = finishingSummary;
+  }
+
+  // 3. Format customer name & contact
+  let customerName = orderPayload.customer_name || currentUser?.user_metadata?.full_name || 'Customer';
+  const email = orderPayload.customer_email || currentUser?.email;
+  if (email && !customerName.includes(email)) {
+    customerName = `${customerName} (${email})`;
+  }
+
+  // 4. Format delivery address & customer instructions
+  let deliveryAddress = orderPayload.delivery_address || '';
+  if (orderPayload.message_text) {
+    if (orderPayload.delivery_type === 'courier') {
+      deliveryAddress = (deliveryAddress || 'Courier Delivery') + ' | Note: ' + orderPayload.message_text;
+    } else {
+      deliveryAddress = 'Store Pickup | Note: ' + orderPayload.message_text;
+    }
+  }
+
+  let paperGsm = orderPayload.paper_gsm || '80 GSM';
+  if (orderPayload.sheet_type && !orderPayload.paper_gsm) {
+    paperGsm = orderPayload.sheet_type;
+  }
+
+  // Database payload with strict schema adherence
+  const dbPayload = {
     request_id: requestId,
-    user_id: userId,
-    customer_name: orderPayload.customer_name || currentUser?.user_metadata?.full_name || 'Customer',
+    user_id: isUuid ? userId : null,
+    customer_name: customerName,
     customer_phone: orderPayload.customer_phone || '',
-    customer_email: orderPayload.customer_email || currentUser?.email || '',
-    service_name: orderPayload.service_name || 'Print Service',
+    service_name: serviceName,
     file_name: orderPayload.file_name || 'print-file.pdf',
-    file_url: orderPayload.file_url || '',
-    file_id: orderPayload.file_id || '',
-    print_type: orderPayload.print_type || 'bw',
+    file_url: orderPayload.file_url || null,
+    file_id: orderPayload.file_id || null,
+    print_type: printType,
     copies: parseInt(orderPayload.copies) || 1,
     paper_size: orderPayload.paper_size || 'A4',
-    paper_gsm: orderPayload.paper_gsm || '80 GSM',
-    binding: orderPayload.binding || 'none',
+    paper_gsm: String(paperGsm),
+    binding: bindingVal,
     delivery_type: orderPayload.delivery_type || 'pickup',
-    delivery_address: orderPayload.delivery_address || '',
-    message_text: orderPayload.message_text || '',
+    delivery_address: deliveryAddress,
     order_type: orderPayload.order_type || 'normal',
     total_price: parseFloat(orderPayload.total_price) || 0,
     status: 'Pending',
@@ -214,49 +265,37 @@ export async function createOrder(orderPayload, currentUser = null) {
     updated_at: now,
   };
 
-  const dbPayload = { ...orderData };
-
-  // Ensure user_id is a valid UUID for the original orders table, otherwise set it to null to prevent crash.
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(dbPayload.user_id || '');
-  if (dbPayload.user_id && !isUuid) {
-    dbPayload.user_id = null;
-  }
+  const fullOrderData = {
+    ...orderPayload,
+    ...dbPayload,
+    message_text: orderPayload.message_text || '',
+    customer_email: email || '',
+  };
 
   // 1. Save in Supabase
   try {
-    let payloadToInsert = { ...dbPayload };
-    let { data, error } = await supabase
+    const { data, error } = await supabase
       .from(tableName)
-      .insert([payloadToInsert])
+      .insert([dbPayload])
       .select()
       .single();
 
-    // If it fails because message_text doesn't exist in the schema, retry without it
-    if (error && error.message && error.message.includes('message_text')) {
-      delete payloadToInsert.message_text;
-      const retry = await supabase
-        .from(tableName)
-        .insert([payloadToInsert])
-        .select()
-        .single();
-      data = retry.data;
-      error = retry.error;
-    }
-
     if (!error && data) {
-      // Restore the original string user_id and message_text so the user can still see it in their local dashboard
-      data.user_id = orderData.user_id;
-      saveLocalOrder(data);
-      return data;
+      const mergedOrder = { ...fullOrderData, ...data };
+      saveLocalOrder(mergedOrder);
+      return mergedOrder;
+    }
+    if (error) {
+      console.warn('Supabase order insert notice:', error);
     }
   } catch (supabaseErr) {
-    console.warn('Supabase order insert notice:', supabaseErr);
+    console.warn('Supabase order insert error:', supabaseErr);
   }
 
   // 2. Fallback to Local Storage
   const fallbackOrder = {
     id: `ord_${Date.now()}`,
-    ...orderData,
+    ...fullOrderData,
   };
   saveLocalOrder(fallbackOrder);
   return fallbackOrder;

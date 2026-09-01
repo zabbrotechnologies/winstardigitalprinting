@@ -181,22 +181,25 @@ export default function Services() {
               <div style={{ marginBottom: 32 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                   <div>
-                    <h3 className="headline-sm" style={{ fontSize: 18, marginBottom: 4 }}>{trackResult.file_name}</h3>
-                    <p style={{ fontSize: 13, color: 'var(--on-surface-variant)', fontFamily: 'monospace' }}>
-                      #{trackResult.id.slice(0, 16)}…
+                    <h3 className="headline-sm" style={{ fontSize: 18, marginBottom: 4 }}>{trackResult.service_name || trackResult.file_name}</h3>
+                    <p style={{ fontSize: 13, color: 'var(--primary-container)', fontFamily: 'monospace', fontWeight: 700 }}>
+                      ID: {trackResult.request_id || trackResult.id}
                     </p>
                   </div>
-                  <span className={`chip chip-${trackResult.status.toLowerCase()}`}>{trackResult.status}</span>
+                  <span className={`chip chip-${(trackResult.status || 'pending').toLowerCase()}`}>{trackResult.status}</span>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
                   {[
-                    { label: 'Type', value: trackResult.print_type },
-                    { label: 'Copies', value: trackResult.copies },
-                    { label: 'Size', value: trackResult.paper_size },
+                    { label: 'File', value: trackResult.file_name },
+                    { label: 'Specification', value: `${trackResult.print_type || 'Standard'} • ${trackResult.paper_size} (${trackResult.paper_gsm || ''})` },
+                    { label: 'Copies', value: `${trackResult.copies} copy(ies)` },
+                    { label: 'Finishing / Binding', value: trackResult.binding || 'None' },
+                    { label: 'Delivery', value: trackResult.delivery_type === 'courier' ? 'Courier Delivery' : 'Store Pickup' },
+                    { label: 'Total Amount', value: `₹${parseFloat(trackResult.total_price || 0).toFixed(2)}` },
                   ].map(item => (
                     <div key={item.label} style={{ background: 'var(--surface-container-low)', padding: '12px 14px', borderRadius: 'var(--radius)' }}>
                       <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--on-surface-variant)', marginBottom: 4 }}>{item.label}</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, textTransform: 'capitalize' }}>{item.value}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700 }}>{item.value}</div>
                     </div>
                   ))}
                 </div>

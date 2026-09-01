@@ -613,12 +613,23 @@ img {
   display: none;
 }
 
-.mobile-dashboard-bar {
+.sidebar-backdrop {
   display: none;
 }
 
-.sidebar-backdrop {
+.mobile-dashboard-bar {
   display: none;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--surface-container-lowest);
+  border: 1px solid var(--surface-container-high);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-ambient);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .dashboard-stats-grid {

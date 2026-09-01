@@ -96,21 +96,22 @@ export default function Dashboard() {
         }}>
           {/* Mobile Top Navigation Bar */}
           <div className="mobile-dashboard-bar">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flex: 1 }}>
               <div style={{
-                width: 34, height: 34, borderRadius: 'var(--radius-md)',
+                width: 36, height: 36, borderRadius: 'var(--radius-md)',
                 background: 'var(--primary-fixed)', color: 'var(--primary-container)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
               }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 19 }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                   {view === 'overview' ? 'dashboard' : view === 'orders' ? 'inventory_2' : view === 'documents' ? 'description' : view === 'invoices' ? 'receipt_long' : 'add_circle'}
                 </span>
               </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'capitalize', color: 'var(--on-surface)' }}>
-                  {view === 'new_order' ? 'New Print Request' : view}
+              <div style={{ minWidth: 0, overflow: 'hidden' }}>
+                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'capitalize', color: 'var(--on-surface)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {view === 'new_order' ? 'New Request' : view}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>
+                <div style={{ fontSize: 11, color: 'var(--on-surface-variant)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {profile?.company_name || 'Enterprise Portal'}
                 </div>
               </div>
@@ -124,7 +125,9 @@ export default function Dashboard() {
                 padding: '7px 12px', fontWeight: 700, fontSize: 12,
                 borderColor: 'var(--primary-container)', color: 'var(--primary-container)',
                 background: 'var(--primary-fixed)', cursor: 'pointer',
-                borderRadius: 'var(--radius-full)'
+                borderRadius: 'var(--radius-full)',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 17 }}>menu_open</span>

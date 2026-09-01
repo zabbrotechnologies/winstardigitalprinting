@@ -11,7 +11,16 @@ import {
   FLAT_SERVICE_PRICES,
   THERMAL_LAMINATION_PRICES,
   CUTTING_PRICES,
-  STICKER_FINISHING_PRICES
+  STICKER_FINISHING_PRICES,
+  THERMAL_LAMINATION_OPTIONS,
+  CUTTING_OPTIONS,
+  STICKER_OPTIONS,
+  B2B_MEDIA_TYPES,
+  B2B_MEDIA_TREE,
+  B2B_CATEGORY_PRICE_MAP,
+  getB2BCategories,
+  getB2BSizes,
+  getB2BGSMs
 } from '../lib/priceList';
 
 const WINSTAR_PHONE = '919345046665'; 
@@ -28,83 +37,6 @@ const SHEET_TYPES = ['Normal Sheet', 'Green Sheet'];
 const COLOR_OPTIONS = ['B&W', 'Color'];
 const BINDING_OPTIONS = ['No Binding', 'Chat Binding', 'Spiral Binding'];
 const LAMINATION_SIZES = ['ID', 'A4', 'FS', 'A3'];
-
-export const THERMAL_LAMINATION_OPTIONS = ['Glossy', 'Matt', 'Velvet', '3D'];
-export const CUTTING_OPTIONS = ['Edge Cutting', 'A4 Cutting', 'A3 Cutting', 'Visiting Card Cutting'];
-export const STICKER_OPTIONS = ['Creasing', 'Scoring', 'Shape Cut'];
-
-// ==========================================
-// B2B PRINT SPECIFICATION DATA STRUCTURES
-// ==========================================
-export const B2B_MEDIA_TYPES = [
-  { id: 'art_board', label: 'Art Board / Art Sheet', icon: 'layers' },
-  { id: 'metallic', label: 'Metallic', icon: 'auto_awesome' },
-  { id: 'texture', label: 'Texture', icon: 'texture' },
-  { id: 'synthetic', label: 'Synthetic', icon: 'water_drop' },
-  { id: 'sticker', label: 'Sticker', icon: 'label' },
-  { id: 'pvc_sticker', label: 'PVC Sticker', icon: 'sticky_note_2' },
-];
-
-export const B2B_MEDIA_CATEGORIES = {
-  'Art Board / Art Sheet': [
-    'Coated',
-    'Bond',
-    'Uncoated Art Sheet',
-    'Art Board 300 GSM',
-    'Art Board 350 GSM',
-  ],
-  'Metallic': [
-    'Metallic Gold',
-    'Metallic Silver',
-    'Metallic Copper',
-    'Metallic Pearl',
-    'Metallic Special Board',
-  ],
-  'Texture': [
-    'Needle Point',
-    'Linen Texture',
-    'Canvas Texture',
-    'Stucco Texture',
-    'Texture Special Board',
-  ],
-  'Synthetic': [
-    'Synthetic White 125 Micron',
-    'Synthetic White 200 Micron',
-    'Synthetic Gold 125 Micron',
-    'Synthetic Silver 125 Micron',
-    'Synthetic Non-Tearable 250 Micron',
-  ],
-  'Sticker': [
-    'Mirror Coat Sticker',
-    'Standard Matte Sticker',
-    'Glossy Paper Sticker',
-    'Kraft Paper Sticker',
-  ],
-  'PVC Sticker': [
-    'PVC Sticker - White',
-    'PVC Sticker - Clear',
-    'PVC Sticker - Silver',
-    'PVC Sticker - Foil Silver',
-    'PVC Sticker - Gold',
-  ],
-};
-
-export function getB2BAvailableSizes(mediaType, mediaCategory) {
-  if (!mediaType || !mediaCategory) return [];
-
-  // CONDITION 1 — IF Media Type = “Art Board / Art Sheet” AND Media Category = “Coated” → Available sizes: A4, A3.
-  if (mediaType === 'Art Board / Art Sheet' && mediaCategory === 'Coated') {
-    return ['A4', 'A3'];
-  }
-
-  // CONDITION 2 — IF Media Type = “Art Board / Art Sheet” AND Media Category = “Bond” → Available sizes: A4, 12×17.
-  if (mediaType === 'Art Board / Art Sheet' && mediaCategory === 'Bond') {
-    return ['A4', '12×17'];
-  }
-
-  // CONDITION 3 — For every other Media Type + Media Category combination → Available size: 13×19.
-  return ['13×19'];
-}
 
 export default function PrintWizard({ isWholesale = false }) {
   const { user, profile, getAccessToken } = useAuth();
@@ -130,6 +62,7 @@ export default function PrintWizard({ isWholesale = false }) {
   const [b2bMediaType, setB2bMediaType] = useState('');
   const [b2bMediaCategory, setB2bMediaCategory] = useState('');
   const [b2bSize, setB2bSize] = useState('');
+  const [b2bGsm, setB2bGsm] = useState('');
   const [b2bBothSides, setB2bBothSides] = useState(false);
   const [b2bThermalLamination, setB2bThermalLamination] = useState(false);
   const [b2bThermalLaminationType, setB2bThermalLaminationType] = useState('');
@@ -184,20 +117,25 @@ export default function PrintWizard({ isWholesale = false }) {
     setB2bMediaType(typeLabel);
     setB2bMediaCategory('');
     setB2bSize('');
+    setB2bGsm('');
     setError('');
   };
 
   const handleB2BMediaCategoryChange = (category) => {
     setB2bMediaCategory(category);
-    const validSizes = getB2BAvailableSizes(b2bMediaType, category);
-    if (!validSizes.includes(b2bSize)) {
-      setB2bSize('');
-    }
+    setB2bSize('');
+    setB2bGsm('');
     setError('');
   };
 
   const handleB2BSizeChange = (sz) => {
     setB2bSize(sz);
+    setB2bGsm('');
+    setError('');
+  };
+
+  const handleB2BGsmChange = (gsm) => {
+    setB2bGsm(gsm);
     setError('');
   };
 
@@ -387,25 +325,58 @@ async function detectFilePages(file) {
     let bindingTotal = 0;
     
     if (isWholesaleActive) {
-      const item = WHOLESALE_PRICE_LIST.find(i => 
-        i.media === config.media && 
-        i.size === config.paper_size && 
-        i.gsm === config.paper_gsm
-      );
+      const mediaKey = B2B_CATEGORY_PRICE_MAP[b2bMediaCategory] || b2bMediaCategory?.toUpperCase();
+      const normalizedSize = b2bSize ? b2bSize.toUpperCase().replace(/\s+/g, '') : '';
+      const normalizedGsm = b2bGsm ? String(b2bGsm).trim() : '';
+
+      const item = WHOLESALE_PRICE_LIST.find(i => {
+        const iMedia = (i.media || '').toUpperCase().replace(/\s+/g, ' ');
+        const targetMedia = mediaKey ? mediaKey.toUpperCase().replace(/\s+/g, ' ') : '';
+        const iSize = (i.size || '').toUpperCase().replace(/\s+/g, '');
+        const iGsm = String(i.gsm || '').trim();
+
+        const mediaMatch = iMedia === targetMedia;
+        const sizeMatch = !normalizedSize || iSize === normalizedSize;
+        const gsmMatch = !normalizedGsm || iGsm === normalizedGsm;
+
+        return mediaMatch && sizeMatch && gsmMatch;
+      });
+
+      let printCost = 0;
       if (item) {
-        const isDouble = config.double_sided && item.double_1st !== null;
+        const isDouble = b2bBothSides && item.double_1st !== null;
         const rate1st = isDouble ? item.double_1st : item.single_1st;
         const rateAdd = isDouble ? item.double_add : item.single_add;
         const pages = parseInt(config.pages) || 1;
-        const copies = parseInt(config.copies) || 1;
+        const copies = parseInt(b2bCopies) || 1;
         const totalSheets = pages * copies;
         if (totalSheets > 10) {
-          subtotal = totalSheets * rateAdd;
+          printCost = totalSheets * rateAdd;
         } else {
-          subtotal = rate1st + ((totalSheets - 1) * rateAdd);
+          printCost = rate1st + ((totalSheets - 1) * rateAdd);
         }
       }
-      printingTotal = subtotal;
+
+      // Calculate finishing charges
+      let laminationCost = 0;
+      if (b2bThermalLamination && b2bThermalLaminationType) {
+        const pricePerSide = THERMAL_LAMINATION_PRICES[b2bThermalLaminationType] || 0;
+        laminationCost = pricePerSide * (b2bBothSides ? 2 : 1) * (parseInt(b2bCopies) || 1);
+      }
+
+      let cuttingCost = 0;
+      if (b2bCutting && b2bCuttingType) {
+        cuttingCost = CUTTING_PRICES[b2bCuttingType] || 0;
+      }
+
+      let stickerCost = 0;
+      if (b2bSticker && b2bStickerType) {
+        stickerCost = STICKER_FINISHING_PRICES[b2bStickerType] || 0;
+      }
+
+      printingTotal = printCost;
+      bindingTotal = laminationCost + cuttingCost + stickerCost;
+      subtotal = printingTotal + bindingTotal;
     } else {
       if (config.service === 'printing') {
         const isWideFormat = ['A0', 'A1', 'A2'].includes(config.paper_size);
@@ -641,9 +612,15 @@ async function detectFilePages(file) {
         media_type: isWholesaleActive ? b2bMediaType : '',
         media_category: isWholesaleActive ? b2bMediaCategory : '',
         paper_size: isWholesaleActive ? b2bSize : config.paper_size,
+        paper_gsm: isWholesaleActive ? b2bGsm : config.paper_gsm,
         double_sided: isWholesaleActive ? b2bBothSides : config.double_sided,
         copies: isWholesaleActive ? b2bCopies : config.copies,
         message_text: isWholesaleActive ? b2bInstructions : config.message_text,
+        lamination: (isWholesaleActive && b2bThermalLamination && b2bThermalLaminationType) ? {
+          enabled: true,
+          type: b2bThermalLaminationType,
+          price_per_side: THERMAL_LAMINATION_PRICES[b2bThermalLaminationType] || 0,
+        } : null,
         thermal_lamination: (isWholesaleActive && b2bThermalLamination && b2bThermalLaminationType) ? {
           enabled: true,
           type: b2bThermalLaminationType,
@@ -689,7 +666,7 @@ async function detectFilePages(file) {
       const registeredEmail = order.customer_email || profile?.email || user?.email || 'N/A';
       const registeredPhone = order.customer_phone || profile?.mobile || 'N/A';
 
-      const thermLamType = order.thermal_lamination?.type || (b2bThermalLamination ? b2bThermalLaminationType : '');
+      const thermLamType = order.thermal_lamination?.type || order.lamination?.type || (b2bThermalLamination ? b2bThermalLaminationType : '');
       const cuttingType = order.cutting?.type || (b2bCutting ? b2bCuttingType : '');
       const stickerType = order.sticker?.type || (b2bSticker ? b2bStickerType : '');
 
@@ -700,8 +677,9 @@ async function detectFilePages(file) {
         `📦 *Media Type:* ${order.media_type || b2bMediaType}\n` +
         `📄 *Media Category:* ${order.media_category || b2bMediaCategory}\n` +
         `📐 *Size:* ${order.paper_size || b2bSize}\n` +
+        `⚖️ *GSM:* ${order.paper_gsm || b2bGsm}\n` +
         `🔄 *Print Side:* ${(order.double_sided ?? b2bBothSides) ? 'Both Sides' : 'Single Side'}\n` +
-        (thermLamType ? `✨ *Thermal Lamination:* ${thermLamType} (${(order.double_sided ?? b2bBothSides) ? 'Both Sides' : 'Single Side'})\n` : '') +
+        (thermLamType ? `✨ *Lamination:* ${thermLamType} (${(order.double_sided ?? b2bBothSides) ? 'Both Sides' : 'Single Side'})\n` : '') +
         (cuttingType ? `✂️ *Cutting:* ${cuttingType}\n` : '') +
         (stickerType ? `🏷️ *Sticker Finishing:* ${stickerType}\n` : '') +
         `🔢 *Copies:* ${order.copies || b2bCopies}\n` +
@@ -784,8 +762,12 @@ async function detectFilePages(file) {
                   setError('Please select a Size.');
                   return;
                 }
+                if (!b2bGsm) {
+                  setError('Please select a GSM.');
+                  return;
+                }
                 if (b2bThermalLamination && !b2bThermalLaminationType) {
-                  setError('Please select a Thermal Lamination type.');
+                  setError('Please select a lamination type.');
                   return;
                 }
                 if (b2bCutting && !b2bCuttingType) {
@@ -922,7 +904,7 @@ async function detectFilePages(file) {
                       }}
                     >
                       <option value="">Select Media</option>
-                      {(B2B_MEDIA_CATEGORIES[b2bMediaType] || []).map(cat => (
+                      {getB2BCategories(b2bMediaType).map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
@@ -947,159 +929,177 @@ async function detectFilePages(file) {
                       }}
                     >
                       <option value="">Select Size</option>
-                      {getB2BAvailableSizes(b2bMediaType, b2bMediaCategory).map(sz => (
+                      {getB2BSizes(b2bMediaType, b2bMediaCategory).map(sz => (
                         <option key={sz} value={sz}>{sz}</option>
                       ))}
                     </select>
                   </div>
 
-                  {/* 4. PRINT OPTIONS: Print on Both Sides, Thermal Lamination, Cutting, Sticker */}
-                  <div style={{ marginBottom: 20 }}>
-                    <label className="label" style={{ fontWeight: 700, marginBottom: 12, display: 'block' }}>
-                      4. Print Options
+                  {/* 4. GSM (Conditional Dropdown directly below Size) */}
+                  <div className="form-group" style={{ marginBottom: 20 }}>
+                    <label className="label" style={{ fontWeight: 700 }}>
+                      4. Select GSM <span style={{ color: 'var(--primary-container)' }}>*</span>
                     </label>
-
-                    {/* Print on Both Sides */}
-                    <div style={{ marginBottom: 16 }}>
-                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
-                        <input
-                          type="checkbox"
-                          checked={b2bBothSides}
-                          onChange={e => setB2bBothSides(e.target.checked)}
-                          style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
-                        />
-                        <span>Print on Both Sides</span>
-                      </label>
-                    </div>
-
-                    {/* 1. Thermal Lamination */}
-                    <div style={{ marginBottom: 16 }}>
-                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
-                        <input
-                          type="checkbox"
-                          checked={b2bThermalLamination}
-                          onChange={e => {
-                            const checked = e.target.checked;
-                            setB2bThermalLamination(checked);
-                            if (!checked) {
-                              setB2bThermalLaminationType('');
-                            }
-                            setError('');
-                          }}
-                          style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
-                        />
-                        <span>Thermal Lamination</span>
-                      </label>
-
-                      {b2bThermalLamination && (
-                        <div className="form-group animate-fade-in" style={{ marginTop: 10, marginLeft: 28, maxWidth: 360 }}>
-                          <select
-                            className="select"
-                            value={b2bThermalLaminationType}
-                            onChange={e => {
-                              setB2bThermalLaminationType(e.target.value);
-                              setError('');
-                            }}
-                            style={{ padding: '11px 14px', fontSize: 14 }}
-                          >
-                            <option value="">Select Thermal Lamination</option>
-                            {THERMAL_LAMINATION_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>
-                                {opt} (₹{THERMAL_LAMINATION_PRICES[opt]}/side)
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* 2. Cutting */}
-                    <div style={{ marginBottom: 16 }}>
-                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
-                        <input
-                          type="checkbox"
-                          checked={b2bCutting}
-                          onChange={e => {
-                            const checked = e.target.checked;
-                            setB2bCutting(checked);
-                            if (!checked) {
-                              setB2bCuttingType('');
-                            }
-                            setError('');
-                          }}
-                          style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
-                        />
-                        <span>Cutting</span>
-                      </label>
-
-                      {b2bCutting && (
-                        <div className="form-group animate-fade-in" style={{ marginTop: 10, marginLeft: 28, maxWidth: 360 }}>
-                          <select
-                            className="select"
-                            value={b2bCuttingType}
-                            onChange={e => {
-                              setB2bCuttingType(e.target.value);
-                              setError('');
-                            }}
-                            style={{ padding: '11px 14px', fontSize: 14 }}
-                          >
-                            <option value="">Select Cutting</option>
-                            {CUTTING_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>
-                                {opt} (₹{CUTTING_PRICES[opt]})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* 3. Sticker */}
-                    <div style={{ marginBottom: 16 }}>
-                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
-                        <input
-                          type="checkbox"
-                          checked={b2bSticker}
-                          onChange={e => {
-                            const checked = e.target.checked;
-                            setB2bSticker(checked);
-                            if (!checked) {
-                              setB2bStickerType('');
-                            }
-                            setError('');
-                          }}
-                          style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
-                        />
-                        <span>Sticker</span>
-                      </label>
-
-                      {b2bSticker && (
-                        <div className="form-group animate-fade-in" style={{ marginTop: 10, marginLeft: 28, maxWidth: 360 }}>
-                          <select
-                            className="select"
-                            value={b2bStickerType}
-                            onChange={e => {
-                              setB2bStickerType(e.target.value);
-                              setError('');
-                            }}
-                            style={{ padding: '11px 14px', fontSize: 14 }}
-                          >
-                            <option value="">Select Sticker</option>
-                            {STICKER_OPTIONS.map(opt => (
-                              <option key={opt} value={opt}>
-                                {opt} (₹{STICKER_FINISHING_PRICES[opt]})
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-                    </div>
+                    <select
+                      className="select"
+                      disabled={!b2bSize}
+                      value={b2bGsm}
+                      onChange={e => handleB2BGsmChange(e.target.value)}
+                      style={{
+                        padding: '13px 14px',
+                        fontSize: 15,
+                        background: !b2bSize ? 'var(--surface-container-low)' : 'var(--surface-container-lowest)',
+                        cursor: !b2bSize ? 'not-allowed' : 'pointer',
+                        opacity: !b2bSize ? 0.6 : 1,
+                      }}
+                    >
+                      <option value="">Select GSM</option>
+                      {getB2BGSMs(b2bMediaType, b2bMediaCategory, b2bSize).map(gsm => (
+                        <option key={gsm} value={gsm}>{gsm} GSM</option>
+                      ))}
+                    </select>
                   </div>
 
-                  {/* 5. NUMBER OF COPIES (Numeric quantity with increment/decrement) */}
+                  {/* 5. PRINT ON BOTH SIDES */}
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={b2bBothSides}
+                        onChange={e => setB2bBothSides(e.target.checked)}
+                        style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
+                      />
+                      <span>Print on Both Sides</span>
+                    </label>
+                  </div>
+
+                  {/* 6. LAMINATION */}
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={b2bThermalLamination}
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setB2bThermalLamination(checked);
+                          if (!checked) {
+                            setB2bThermalLaminationType('');
+                          }
+                          setError('');
+                        }}
+                        style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
+                      />
+                      <span>Lamination</span>
+                    </label>
+
+                    {b2bThermalLamination && (
+                      <div className="form-group animate-fade-in" style={{ marginTop: 10, marginLeft: 28, maxWidth: 360 }}>
+                        <select
+                          className="select"
+                          value={b2bThermalLaminationType}
+                          onChange={e => {
+                            setB2bThermalLaminationType(e.target.value);
+                            setError('');
+                          }}
+                          style={{ padding: '11px 14px', fontSize: 14 }}
+                        >
+                          <option value="">Select Lamination</option>
+                          {THERMAL_LAMINATION_OPTIONS.map(opt => (
+                            <option key={opt} value={opt}>
+                              {opt} (₹{THERMAL_LAMINATION_PRICES[opt]}/side)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 7. CUTTING */}
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={b2bCutting}
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setB2bCutting(checked);
+                          if (!checked) {
+                            setB2bCuttingType('');
+                          }
+                          setError('');
+                        }}
+                        style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
+                      />
+                      <span>Cutting</span>
+                    </label>
+
+                    {b2bCutting && (
+                      <div className="form-group animate-fade-in" style={{ marginTop: 10, marginLeft: 28, maxWidth: 360 }}>
+                        <select
+                          className="select"
+                          value={b2bCuttingType}
+                          onChange={e => {
+                            setB2bCuttingType(e.target.value);
+                            setError('');
+                          }}
+                          style={{ padding: '11px 14px', fontSize: 14 }}
+                        >
+                          <option value="">Select Cutting</option>
+                          {CUTTING_OPTIONS.map(opt => (
+                            <option key={opt} value={opt}>
+                              {opt} (₹{CUTTING_PRICES[opt]})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 8. STICKER */}
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 10, cursor: 'pointer', fontSize: 14.5, fontWeight: 600 }}>
+                      <input
+                        type="checkbox"
+                        checked={b2bSticker}
+                        onChange={e => {
+                          const checked = e.target.checked;
+                          setB2bSticker(checked);
+                          if (!checked) {
+                            setB2bStickerType('');
+                          }
+                          setError('');
+                        }}
+                        style={{ width: 18, height: 18, accentColor: 'var(--primary-container)', cursor: 'pointer' }}
+                      />
+                      <span>Sticker</span>
+                    </label>
+
+                    {b2bSticker && (
+                      <div className="form-group animate-fade-in" style={{ marginTop: 10, marginLeft: 28, maxWidth: 360 }}>
+                        <select
+                          className="select"
+                          value={b2bStickerType}
+                          onChange={e => {
+                            setB2bStickerType(e.target.value);
+                            setError('');
+                          }}
+                          style={{ padding: '11px 14px', fontSize: 14 }}
+                        >
+                          <option value="">Select Sticker</option>
+                          {STICKER_OPTIONS.map(opt => (
+                            <option key={opt} value={opt}>
+                              {opt} (₹{STICKER_FINISHING_PRICES[opt]})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 9. NUMBER OF COPIES (Numeric quantity with increment/decrement) */}
                   <div className="form-group" style={{ marginBottom: 20, maxWidth: 260 }}>
                     <label className="label" style={{ fontWeight: 700 }}>
-                      5. Number of Copies <span style={{ color: 'var(--primary-container)' }}>*</span>
+                      9. Number of Copies <span style={{ color: 'var(--primary-container)' }}>*</span>
                     </label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <button
@@ -1132,11 +1132,11 @@ async function detectFilePages(file) {
                     </div>
                   </div>
 
-                  {/* 6. CUSTOMER INSTRUCTIONS (max 200 chars with live counter) */}
+                  {/* 10. CUSTOMER INSTRUCTIONS (max 200 chars with live counter) */}
                   <div className="form-group" style={{ marginBottom: 24 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                       <label className="label" style={{ fontWeight: 700, margin: 0 }}>
-                        6. Customer Instructions
+                        10. Customer Instructions
                       </label>
                       <span style={{ fontSize: 12, color: b2bInstructions.length >= 200 ? 'var(--error)' : 'var(--on-surface-variant)', fontWeight: 600 }}>
                         {b2bInstructions.length} / 200
@@ -1170,8 +1170,16 @@ async function detectFilePages(file) {
                           setError('Please select a Size.');
                           return;
                         }
+                        if (!b2bGsm) {
+                          setError('Please select a GSM.');
+                          return;
+                        }
+                        if (!b2bCopies || parseInt(b2bCopies) < 1) {
+                          setError('Please enter a valid Number of Copies (minimum 1).');
+                          return;
+                        }
                         if (b2bThermalLamination && !b2bThermalLaminationType) {
-                          setError('Please select a Thermal Lamination type.');
+                          setError('Please select a lamination type.');
                           return;
                         }
                         if (b2bCutting && !b2bCuttingType) {
@@ -1725,12 +1733,16 @@ async function detectFilePages(file) {
                   <span style={{ fontWeight: 700 }}>{b2bSize || '—'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--on-surface-variant)' }}>GSM:</span>
+                  <span style={{ fontWeight: 700 }}>{b2bGsm ? `${b2bGsm} GSM` : '—'}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: 'var(--on-surface-variant)' }}>Print Side:</span>
                   <span style={{ fontWeight: 700 }}>{b2bBothSides ? 'Both Sides' : 'Single Side'}</span>
                 </div>
                 {b2bThermalLamination && b2bThermalLaminationType && (
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: 'var(--on-surface-variant)' }}>Thermal Lamination:</span>
+                    <span style={{ color: 'var(--on-surface-variant)' }}>Lamination:</span>
                     <span style={{ fontWeight: 700, color: 'var(--on-surface)' }}>{b2bThermalLaminationType} ({b2bBothSides ? 'Both Sides' : 'Single Side'})</span>
                   </div>
                 )}

@@ -131,3 +131,180 @@ export const STICKER_FINISHING_PRICES = {
   'Shape Cut': 20,
 };
 
+export const THERMAL_LAMINATION_OPTIONS = ['Glossy', 'Matt', 'Velvet', '3D'];
+export const CUTTING_OPTIONS = ['Edge Cutting', 'A4 Cutting', 'A3 Cutting', 'Visiting Card Cutting'];
+export const STICKER_OPTIONS = ['Creasing', 'Scoring', 'Shape Cut'];
+
+// ==========================================
+// B2B MEDIA SELECTION HIERARCHY & DATA TREE
+// ==========================================
+
+export const B2B_MEDIA_TYPES = [
+  { id: 'art_board', label: 'Art Board / Art Sheet', icon: 'layers' },
+  { id: 'metallic', label: 'Metallic', icon: 'auto_awesome' },
+  { id: 'texture', label: 'Texture', icon: 'texture' },
+  { id: 'synthetic', label: 'Synthetic', icon: 'water_drop' },
+  { id: 'sticker', label: 'Sticker', icon: 'label' },
+  { id: 'pvc_sticker', label: 'PVC Sticker', icon: 'sticky_note_2' },
+];
+
+export const B2B_MEDIA_TREE = {
+  'Art Board / Art Sheet': {
+    'Coated': {
+      'A4': ['100'],
+      'A3': ['100'],
+      '13x19': ['100'],
+    },
+    'Bond': {
+      'A4': ['100'],
+      '12x17': ['100'],
+    },
+    'Art Paper': {
+      '13x19': ['130', '170'],
+    },
+    'Art Board': {
+      '13x19': ['250', '280', '300', '350'],
+    },
+    'Special Size Art Board': {
+      '13x30': ['250'],
+    },
+    'Matt Board': {
+      '13x19': ['300'],
+    },
+    'Mirror Board': {
+      '13x19': ['300'],
+    },
+  },
+  'Metallic': {
+    'Metallic Silver': {
+      '13x19': ['300'],
+    },
+    'Metallic Gold': {
+      '13x19': ['300'],
+    },
+    'Metallic Silver Gold': {
+      '13x19': ['300'],
+    },
+    'Metallic Design': {
+      '13x19': ['300'],
+    },
+  },
+  'Texture': {
+    'Ivory': {
+      '13x19': ['300'],
+    },
+    'Texture Linen White': {
+      '13x19': ['300'],
+    },
+    'Texture Linen Cream': {
+      '13x19': ['300'],
+    },
+    'Texture Needle Point': {
+      '13x19': ['300'],
+    },
+    'Texture Stucco': {
+      '13x19': ['300'],
+    },
+  },
+  'Synthetic': {
+    'Synthetic 125 mic': {
+      '13x19': ['125'],
+    },
+    'Synthetic 200 mic': {
+      '13x19': ['200'],
+    },
+    'Synthetic Silver / Gold': {
+      '13x19': ['125'],
+    },
+    'Synthetic Transparent': {
+      '13x19': ['135'],
+    },
+  },
+  'Sticker': {
+    'Sticker Art': {
+      '13x19': ['90/130'],
+    },
+    'Sticker Art (A)': {
+      '13x19': ['90/140'],
+    },
+    'Sticker Glossy': {
+      '13x19': ['90/130', '90/140'],
+    },
+    'Sticker Glossy (A)': {
+      '13x19': ['90/140'], // Isolated in config; configurable to 90/40 if needed
+    },
+  },
+  'PVC Sticker': {
+    'PVC Sticker - White': {
+      '13x19': ['90/140'],
+    },
+    'PVC Sticker - Clear': {
+      '13x19': ['90/140'],
+    },
+    'PVC Sticker - White (A)': {
+      '13x19': ['90/130'],
+    },
+    'PVC Sticker - Clear (A)': {
+      '13x19': ['90/130'],
+    },
+    'PVC Sticker - Silver': {
+      '13x19': ['90/130'],
+    },
+    'PVC Sticker - Foil Silver': {
+      '13x19': ['90/130'],
+    },
+    'PVC Sticker - Gold (A)': {
+      '13x19': ['90/130'],
+    },
+  },
+};
+
+export const B2B_CATEGORY_PRICE_MAP = {
+  'Coated': 'COATED',
+  'Bond': 'BOND',
+  'Art Paper': 'ART PAPER',
+  'Art Board': 'ART BOARD',
+  'Special Size Art Board': 'SPECIAL SIZE ART BOARD',
+  'Matt Board': 'MATT BOARD',
+  'Mirror Board': 'MIRROR BOARD',
+  'Metallic Silver': 'METALLIC SILVER',
+  'Metallic Gold': 'METALLIC GOLD',
+  'Metallic Silver Gold': 'METALLIC SILVER GOLD',
+  'Metallic Design': 'METALLIC DESIGN',
+  'Ivory': 'IVORY',
+  'Texture Linen White': 'TEXTURE LINEN WHITE',
+  'Texture Linen Cream': 'TEXTURE LINEN CREAM',
+  'Texture Needle Point': 'TEXTURE NEEDLE POINT',
+  'Texture Stucco': 'TEXTURE STUCCO',
+  'Synthetic 125 mic': 'SYNTHETIC -125 MIC',
+  'Synthetic 200 mic': 'SYNTHETIC -200 MIC',
+  'Synthetic Silver / Gold': 'SYNTHETIC SILVER/GOLD',
+  'Synthetic Transparent': 'SYNTHETIC TRANSPARENT',
+  'Sticker Art': 'STICKER - ART',
+  'Sticker Art (A)': 'STICKER - ART (A)',
+  'Sticker Glossy': 'STICKER - GLOSSY',
+  'Sticker Glossy (A)': 'STICKER - GLOSSY (A)',
+  'PVC Sticker - White': 'PVC STICKER - WHITE',
+  'PVC Sticker - Clear': 'PVC STICKER - CLEAR',
+  'PVC Sticker - White (A)': 'PVC STICKER - WHITE (A)',
+  'PVC Sticker - Clear (A)': 'PVC STICKER - CLEAR (A)',
+  'PVC Sticker - Silver': 'PVC STICKER - SILVER',
+  'PVC Sticker - Foil Silver': 'PVC STICKER - FOIL SILVER',
+  'PVC Sticker - Gold (A)': 'PVC STICKER - GOLD (A)',
+};
+
+export function getB2BCategories(mediaType) {
+  if (!mediaType || !B2B_MEDIA_TREE[mediaType]) return [];
+  return Object.keys(B2B_MEDIA_TREE[mediaType]);
+}
+
+export function getB2BSizes(mediaType, mediaCategory) {
+  if (!mediaType || !mediaCategory || !B2B_MEDIA_TREE[mediaType]?.[mediaCategory]) return [];
+  return Object.keys(B2B_MEDIA_TREE[mediaType][mediaCategory]);
+}
+
+export function getB2BGSMs(mediaType, mediaCategory, size) {
+  if (!mediaType || !mediaCategory || !size || !B2B_MEDIA_TREE[mediaType]?.[mediaCategory]?.[size]) return [];
+  return B2B_MEDIA_TREE[mediaType][mediaCategory][size];
+}
+

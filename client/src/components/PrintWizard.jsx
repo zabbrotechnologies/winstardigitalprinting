@@ -323,6 +323,7 @@ async function detectFilePages(file) {
     let subtotal = 0;
     let printingTotal = 0;
     let bindingTotal = 0;
+    let cuttingTotal = 0;
     
     if (isWholesaleActive) {
       const mediaKey = B2B_CATEGORY_PRICE_MAP[b2bMediaCategory] || b2bMediaCategory?.toUpperCase();
@@ -377,6 +378,18 @@ async function detectFilePages(file) {
       printingTotal = printCost;
       bindingTotal = laminationCost + cuttingCost + stickerCost;
       subtotal = printingTotal + bindingTotal;
+
+      const gst = subtotal * 0.18;
+      const grandTotal = Math.round(subtotal + gst);
+      return { 
+        subtotal: subtotal.toFixed(2), 
+        gst: gst.toFixed(2), 
+        grandTotal: grandTotal.toFixed(2),
+        printingTotal: printingTotal.toFixed(2),
+        bindingTotal: bindingTotal.toFixed(2),
+        cuttingTotal: '0.00',
+        courierCharge: '0.00'
+      };
     } else {
       if (config.service === 'printing') {
         const isWideFormat = ['A0', 'A1', 'A2'].includes(config.paper_size);
@@ -489,8 +502,9 @@ async function detectFilePages(file) {
         const baseRate = config.card_side === 'Front & Back' ? priceObj.double : priceObj.single;
         const cutoff = priceObj.qty <= 510 ? 60 : 120;
         
-        subtotal = baseRate + cutoff;
-        printingTotal = subtotal;
+        printingTotal = baseRate;
+        cuttingTotal = cutoff;
+        subtotal = printingTotal + cuttingTotal;
 
       } else if (config.service === 'certificates') {
         const certPrices = {
@@ -517,17 +531,19 @@ async function detectFilePages(file) {
         }
         printingTotal = subtotal;
       }
-    }
 
-    const gst = subtotal * 0.18;
-    const grandTotal = Math.round(subtotal + gst);
-    return { 
-      subtotal: subtotal.toFixed(2), 
-      gst: gst.toFixed(2), 
-      grandTotal: grandTotal.toFixed(2),
-      printingTotal: printingTotal.toFixed(2),
-      bindingTotal: bindingTotal.toFixed(2)
-    };
+      const courierCharge = deliveryType === 'courier' ? 30 : 0;
+      const grandTotal = Math.round(printingTotal + bindingTotal + cuttingTotal + courierCharge);
+      return { 
+        subtotal: (printingTotal + bindingTotal + cuttingTotal).toFixed(2), 
+        gst: '0.00', 
+        grandTotal: grandTotal.toFixed(2),
+        printingTotal: printingTotal.toFixed(2),
+        bindingTotal: bindingTotal.toFixed(2),
+        cuttingTotal: cuttingTotal.toFixed(2),
+        courierCharge: courierCharge.toFixed(2)
+      };
+    }
   }
 
   async function handleFileSelect(selectedFile) {
@@ -713,7 +729,9 @@ async function detectFilePages(file) {
     }
 
     textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + (order.delivery_address || deliveryAddress) : 'Store Pickup'}\n`;
-    textStr += `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n`;
+    textStr += (order.order_type === 'wholesale' || isWholesaleActive)
+      ? `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n`
+      : `💰 *Total Amount:* ₹${order.total_price}\n\n`;
     
     textStr += `Please confirm my print job! Request ID: ${reqId}`;
 
@@ -1452,7 +1470,7 @@ async function detectFilePages(file) {
                             {DOC_PRINT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
                         </div>
-                        {['A4', 'FS'].includes(config.paper_size) && (
+                        {['A3', 'A4', 'FS'].includes(config.paper_size) && (
                           <div className="form-group">
                             <label className="label">Sheet Type</label>
                             <select className="select" value={config.sheet_type} onChange={e => setConfig(c => ({ ...c, sheet_type: e.target.value }))}>
@@ -1923,14 +1941,18 @@ async function detectFilePages(file) {
                     <span>₹{prices.bindingTotal}</span>
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                  <span>Subtotal</span>
-                  <span>₹{prices.subtotal}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                  <span>GST (18%)</span>
-                  <span>₹{prices.gst}</span>
-                </div>
+                {Number(prices.cuttingTotal) > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                    <span>Cutting Charge</span>
+                    <span>₹{prices.cuttingTotal}</span>
+                  </div>
+                )}
+                {deliveryType === 'courier' && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                    <span>Courier Charge</span>
+                    <span>₹{prices.courierCharge}</span>
+                  </div>
+                )}
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--surface-container-high)', fontWeight: 800, fontSize: 18, color: 'var(--primary-container)' }}>
                   <span>Estimated Total</span>
                   <span>₹{prices.grandTotal}</span>
@@ -1991,7 +2013,7 @@ async function detectFilePages(file) {
                     {createdOrder.customer_email && <div><strong>Email:</strong> {createdOrder.customer_email}</div>}
                     <div><strong>Service:</strong> {createdOrder.service_name}</div>
                     <div><strong>File:</strong> {createdOrder.file_name}</div>
-                    <div><strong>Total Amount:</strong> ₹{createdOrder.total_price} (Incl. GST)</div>
+                    <div><strong>Total Amount:</strong> ₹{createdOrder.total_price} {(createdOrder.order_type === 'wholesale' || isWholesaleActive) ? '(Incl. GST)' : ''}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

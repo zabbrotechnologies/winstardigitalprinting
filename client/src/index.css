@@ -1575,37 +1575,75 @@ img {
   .admin-responsive-table th, 
   .admin-responsive-table td, 
   .admin-responsive-table tr { 
-    display: block; 
-    width: 100%;
+    display: block !important; 
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   
   .admin-responsive-table thead tr { 
-    display: none;
+    display: none !important;
   }
   
   .admin-responsive-table tr {
-    margin-bottom: 20px;
-    border: 1px solid var(--surface-container-high) !important;
-    border-radius: var(--radius-lg);
-    background-color: var(--surface-container-lowest);
-    padding: 16px;
-    box-shadow: var(--shadow-card);
+    margin-bottom: 20px !important;
+    border: 1.5px solid var(--surface-container-high) !important;
+    border-radius: var(--radius-xl) !important;
+    background-color: var(--surface-container-lowest) !important;
+    padding: 16px 14px !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
   }
   
   .admin-responsive-table td { 
     border: none !important;
     border-bottom: 1px dashed var(--surface-container-high) !important; 
-    position: relative;
-    padding: 12px 0 !important;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: flex-start;
+    padding: 10px 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    text-align: left !important;
+    width: 100% !important;
   }
   
   .admin-responsive-table td:last-child {
     border-bottom: none !important;
     padding-bottom: 0 !important;
+  }
+
+  .admin-responsive-table td::before {
+    content: attr(data-label);
+    position: static !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.06em !important;
+    color: var(--on-surface-variant) !important;
+    text-transform: uppercase !important;
+    display: block !important;
+    margin-bottom: 2px !important;
+    text-align: left !important;
+  }
+
+  .admin-responsive-table td > div {
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .admin-responsive-table select {
+    width: 100% !important;
+    max-width: 260px !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    border-radius: var(--radius-md) !important;
+    background: var(--surface-container-lowest) !important;
+  }
+
+  .admin-responsive-table a.btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
   }
 
   /* Make stat cards wrap on mobile */
@@ -1621,13 +1659,6 @@ img {
   .admin-tabs-container button {
     flex: 1 1 100%;
     justify-content: flex-start;
-  }
-
-  /* Ensure select/buttons in cells take full width */
-  .admin-responsive-table select,
-  .admin-responsive-table button.btn {
-    width: 100%;
-    margin-top: 4px;
   }
 
   /* Quick Print Wizard */
@@ -1720,61 +1751,7 @@ img {
 
 .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
 
-@media (max-width: 768px) {
-  .admin-responsive-table, 
-  .admin-responsive-table thead, 
-  .admin-responsive-table tbody, 
-  .admin-responsive-table th, 
-  .admin-responsive-table td, 
-  .admin-responsive-table tr {
-    display: block;
-    width: 100%;
-  }
-  
-  .admin-responsive-table thead tr {
-    display: none;
-  }
-  
-  .admin-responsive-table tr {
-    margin-bottom: 16px;
-    border: 1px solid var(--surface-container-high) !important;
-    border-radius: var(--radius-md);
-    background: var(--surface-container-lowest);
-    box-shadow: var(--shadow-ambient);
-    padding: 8px;
-  }
-  
-  .admin-responsive-table td {
-    padding: 12px 16px !important;
-    position: relative;
-    border-bottom: 1px solid var(--surface-container-low);
-    text-align: right;
-    min-height: 48px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .admin-responsive-table td:last-child {
-    border-bottom: none;
-  }
-  
-  .admin-responsive-table td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 16px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--on-surface-variant);
-    text-transform: uppercase;
-    text-align: left;
-  }
-  
-  .admin-responsive-table td > div {
-    text-align: right;
-  }
-}
+
 
 .hero-cmyk-grid {
   display: grid;

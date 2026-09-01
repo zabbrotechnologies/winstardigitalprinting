@@ -158,7 +158,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Side: Production Press Machine Full Width with Smooth Left-Side Fade */}
+            {/* Right Side: Production Press Machine Full Width */}
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
               <div style={{
                 position: 'relative',
@@ -166,47 +166,20 @@ export default function Home() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                overflow: 'hidden',
               }}>
                 <img
                   src="/images/hero-production-press.jpg"
                   alt="Winstar Digital Production Press Machine & Book Samples"
                   style={{
                     width: '100%',
-                    maxWidth: '640px',
+                    maxWidth: '680px',
                     height: 'auto',
                     display: 'block',
                     objectFit: 'contain',
-                    mixBlendMode: 'multiply',
-                    filter: 'contrast(1.04) saturate(1.08)',
-                    WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 6%, rgba(0,0,0,0.85) 20%, black 35%, black 88%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 6%, black 90%, transparent 100%)',
-                    maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.2) 6%, rgba(0,0,0,0.85) 20%, black 35%, black 88%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 6%, black 90%, transparent 100%)',
-                    maskComposite: 'intersect',
-                    WebkitMaskComposite: 'destination-in',
+                    borderRadius: 'var(--radius-xl)',
+                    boxShadow: '0 16px 40px rgba(15, 23, 42, 0.08)',
                   }}
                 />
-
-                {/* Left Side Soft Radial / Linear Gradient Fade Overlay */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  bottom: 0,
-                  left: 0,
-                  width: '28%',
-                  background: 'linear-gradient(to right, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0) 100%)',
-                  pointerEvents: 'none',
-                }} />
-
-                {/* Bottom Soft Fade Overlay */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: '24px',
-                  background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 100%)',
-                  pointerEvents: 'none',
-                }} />
               </div>
             </div>
           </div>

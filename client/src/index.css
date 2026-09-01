@@ -621,6 +621,26 @@ img {
   display: none;
 }
 
+.dashboard-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gutter);
+  margin-bottom: 48px;
+}
+
+.dashboard-quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
 /* ============================================================
    DROPZONE
    ============================================================ */
@@ -1160,6 +1180,17 @@ img {
     padding: 16px !important;
   }
 
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    margin-bottom: 32px !important;
+  }
+
+  .dashboard-quick-actions-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
   /* Tables wrapper on mobile with smooth scroll */
   .table-wrapper {
     overflow-x: auto;
@@ -1387,6 +1418,17 @@ img {
   .dashboard-main {
     margin-left: 0 !important;
     padding: 16px !important;
+  }
+
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    margin-bottom: 32px !important;
+  }
+
+  .dashboard-quick-actions-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
   }
 
   /* Tables wrapper on mobile with smooth scroll */

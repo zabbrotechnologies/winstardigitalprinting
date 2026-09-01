@@ -148,7 +148,7 @@ export default function Dashboard() {
               </div>
 
               {/* Stats Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--gutter)', marginBottom: 48 }}>
+              <div className="dashboard-stats-grid">
                 {statCards.map(card => (
                   <StatCard key={card.label} {...card} />
                 ))}
@@ -171,14 +171,14 @@ export default function Dashboard() {
               {/* Quick Actions */}
               <div style={{ marginTop: 40 }}>
                 <h2 className="headline-sm" style={{ fontSize: 20, marginBottom: 20 }}>Quick Actions</h2>
-                <div style={{ display: 'flex', gap: 16 }}>
+                <div className="dashboard-quick-actions-grid">
                   {[
                     { icon: 'add_circle', label: 'New Print Request', desc: 'Upload and configure a new print job', action: () => setView('new_order') },
                     { icon: 'inventory_2', label: 'View All Orders', desc: 'Check status of all your orders', action: () => setView('orders') },
                     { icon: 'help', label: 'Get Support', desc: 'Contact us for help with your orders', action: () => {} },
                   ].map(qa => (
                     <button key={qa.label} onClick={qa.action} style={{
-                      flex: 1, padding: '20px', background: 'var(--surface-container-lowest)',
+                      padding: '20px', background: 'var(--surface-container-lowest)',
                       border: '1px solid var(--surface-container-high)',
                       borderRadius: 'var(--radius-lg)', cursor: 'pointer',
                       textAlign: 'left', transition: 'var(--transition)',

@@ -16,6 +16,7 @@ function formatCurrency(val) {
 export default function Dashboard() {
   const { user, profile, loading: authLoading, getAccessToken } = useAuth();
   const [view, setView] = useState('overview');
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState(null);
   const [ordersLoading, setOrdersLoading] = useState(true);
@@ -76,7 +77,12 @@ export default function Dashboard() {
     <div style={{ minHeight: '100vh', background: 'var(--surface)' }}>
       <Navbar />
       <div style={{ display: 'flex', paddingTop: 72 }}>
-        <Sidebar activeView={view} onViewChange={setView} />
+        <Sidebar 
+          activeView={view} 
+          onViewChange={setView} 
+          isOpen={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+        />
 
         {/* Main content */}
         <main className="dashboard-main" style={{
@@ -88,17 +94,57 @@ export default function Dashboard() {
           position: 'relative',
           overflowY: 'auto',
         }}>
+          {/* Mobile Top Navigation Bar */}
+          <div className="mobile-dashboard-bar">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 34, height: 34, borderRadius: 'var(--radius-md)',
+                background: 'var(--primary-fixed)', color: 'var(--primary-container)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 19 }}>
+                  {view === 'overview' ? 'dashboard' : view === 'orders' ? 'inventory_2' : view === 'documents' ? 'description' : view === 'invoices' ? 'receipt_long' : 'add_circle'}
+                </span>
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'capitalize', color: 'var(--on-surface)' }}>
+                  {view === 'new_order' ? 'New Print Request' : view}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--on-surface-variant)' }}>
+                  {profile?.company_name || 'Enterprise Portal'}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              className="btn btn-outline btn-sm"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '7px 12px', fontWeight: 700, fontSize: 12,
+                borderColor: 'var(--primary-container)', color: 'var(--primary-container)',
+                background: 'var(--primary-fixed)', cursor: 'pointer',
+                borderRadius: 'var(--radius-full)'
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 17 }}>menu_open</span>
+              <span>Portal Menu</span>
+            </button>
+          </div>
+
           {/* Overview View */}
           {view === 'overview' && (
             <div className="animate-fade-in">
               {/* Page header */}
-              <div style={{ marginBottom: 40 }}>
-                <h1 className="display-lg-mobile" style={{ marginBottom: 6 }}>
-                  Welcome back, {profile?.full_name?.split(' ')[0] || 'there'} 👋
-                </h1>
-                <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
-                  Here is a summary of your recent printing activity.
-                </p>
+              <div style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
+                <div>
+                  <h1 className="display-lg-mobile" style={{ marginBottom: 6 }}>
+                    Welcome back, {profile?.full_name?.split(' ')[0] || 'there'} 👋
+                  </h1>
+                  <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
+                    Here is a summary of your recent printing activity.
+                  </p>
+                </div>
               </div>
 
               {/* Stats Grid */}

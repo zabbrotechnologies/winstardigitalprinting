@@ -208,23 +208,6 @@ export default function Home() {
                   pointerEvents: 'none',
                 }} />
               </div>
-
-              {/* Floating Quality Badge */}
-              <div style={{
-                position: 'absolute', bottom: -4, right: 8,
-                background: 'rgba(255, 255, 255, 0.96)',
-                backdropFilter: 'blur(8px)',
-                padding: '8px 18px',
-                borderRadius: 'var(--radius-full)',
-                boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
-                border: '1px solid #e2e8f0',
-                display: 'flex', alignItems: 'center', gap: 8,
-                fontSize: 13, fontWeight: 700, color: '#0F172A',
-                zIndex: 3
-              }}>
-                <span className="material-symbols-outlined" style={{ color: '#ec4899', fontSize: 18 }}>auto_awesome</span>
-                <span>Commercial Digital Press · Crisp 2400 DPI</span>
-              </div>
             </div>
           </div>
         </div>

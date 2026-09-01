@@ -106,3 +106,28 @@ export const FLAT_SERVICE_PRICES = {
   'Visiting Cards': { print: 250.00, xerox: 250.00 },
   'Brochures': { print: 15.00, xerox: 15.00 }
 };
+
+// ==========================================
+// B2B FINISHING OPTIONS PRICING
+// ==========================================
+
+export const THERMAL_LAMINATION_PRICES = {
+  'Glossy': 7,
+  'Matt': 7,
+  'Velvet': 15,
+  '3D': 15,
+};
+
+export const CUTTING_PRICES = {
+  'Edge Cutting': 40,
+  'A4 Cutting': 30,
+  'A3 Cutting': 40,
+  'Visiting Card Cutting': 60,
+};
+
+export const STICKER_FINISHING_PRICES = {
+  'Creasing': 5,
+  'Scoring': 10,
+  'Shape Cut': 20,
+};
+

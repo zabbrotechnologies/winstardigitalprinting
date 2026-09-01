@@ -742,7 +742,7 @@ async function detectFilePages(file) {
   const prices = getCalculatedPrice();
 
   return (
-    <div id="quick-print" className="card animate-fade-in" style={{ padding: 32, borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-modal)' }}>
+    <div id="quick-print" className="card print-wizard-card animate-fade-in">
       {isWholesaleActive && (
         <div style={{
           display: 'flex', alignItems: 'center', gap: 10,
@@ -754,7 +754,7 @@ async function detectFilePages(file) {
         </div>
       )}
 
-      <div className="wizard-tabs" style={{ display: 'flex', gap: 12, marginBottom: 32, borderBottom: '1px solid var(--surface-container)' }}>
+      <div className="wizard-tabs">
         {(isWholesaleActive ? [
           { stepNum: 1, label: '1. Print Spec.', icon: 'tune' },
           { stepNum: 2, label: '2. Upload', icon: 'cloud_upload' },
@@ -766,6 +766,7 @@ async function detectFilePages(file) {
         ]).map(s => (
           <button
             key={s.stepNum}
+            className="wizard-tab-btn"
             onClick={() => {
               if (isWholesaleActive && s.stepNum > 1) {
                 if (!b2bMediaType) {
@@ -801,11 +802,8 @@ async function detectFilePages(file) {
               setError('');
             }}
             style={{
-              padding: '12px 18px', border: 'none', background: 'none', cursor: 'pointer',
-              fontWeight: 700, fontSize: 14, display: 'flex', alignItems: 'center', gap: 8,
               color: step === s.stepNum ? 'var(--primary-container)' : 'var(--on-surface-variant)',
               borderBottom: step === s.stepNum ? '2.5px solid var(--primary-container)' : '2.5px solid transparent',
-              transition: 'all 0.2s',
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{s.icon}</span>
@@ -821,8 +819,8 @@ async function detectFilePages(file) {
         </div>
       )}
 
-      <div className="print-wizard-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: 32 }}>
-        <div>
+      <div className="print-wizard-grid">
+        <div style={{ minWidth: 0 }}>
           {/* ========================================================================= */}
           {/* B2B FLOW: 1. Print Spec. -> 2. Upload -> 3. WhatsApp                      */}
           {/* ========================================================================= */}
@@ -852,23 +850,13 @@ async function detectFilePages(file) {
                           <button
                             key={type.id}
                             type="button"
+                            className="b2b-media-tile"
                             onClick={() => handleB2BMediaTypeSelect(type.label)}
                             style={{
-                              padding: '18px 12px',
-                              borderRadius: 'var(--radius-lg)',
                               border: isSelected ? '2px solid var(--primary-container)' : '1.5px solid var(--surface-container-high)',
                               background: isSelected ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
                               color: isSelected ? 'var(--on-primary-fixed-variant)' : 'var(--on-surface)',
-                              cursor: 'pointer',
-                              textAlign: 'center',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: 8,
-                              position: 'relative',
                               boxShadow: isSelected ? '0 4px 14px rgba(183,0,17,0.12)' : 'var(--shadow-card)',
-                              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                             }}
                           >
                             {isSelected && (
@@ -1725,12 +1713,8 @@ async function detectFilePages(file) {
         </div>
 
         {/* RIGHT COLUMN */}
-        <div>
-          <div style={{
-            background: 'var(--surface-container-low)', padding: 24,
-            borderRadius: 'var(--radius-lg)', position: 'sticky', top: 96,
-            border: '1px solid var(--surface-container-high)',
-          }}>
+        <div style={{ minWidth: 0 }}>
+          <div className="print-wizard-summary-card">
             <h4 className="headline-sm" style={{ fontSize: 16, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--primary-container)' }}>receipt</span>
               {isWholesaleActive ? 'B2B Order Specification' : 'Order Estimation Summary'}

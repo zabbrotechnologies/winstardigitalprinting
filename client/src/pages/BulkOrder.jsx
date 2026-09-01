@@ -23,7 +23,7 @@ export default function BulkOrder() {
     <div className="page-content" style={{ minHeight: '100vh', background: 'var(--surface)' }}>
       <Navbar />
 
-      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '120px 20px 80px' }}>
+      <main className="b2b-main-content">
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef3c7', color: '#b45309', padding: '6px 16px', borderRadius: 'var(--radius-full)', fontSize: 13, fontWeight: 700, marginBottom: 16, letterSpacing: '0.04em' }}>

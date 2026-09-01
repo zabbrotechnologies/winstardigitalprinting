@@ -304,22 +304,33 @@ export async function createOrder(orderPayload, currentUser = null) {
 /**
  * Fetch orders for user
  */
-export async function fetchUserOrders(userId) {
+export async function fetchUserOrders(userId, userEmail = null) {
   let remoteOrders = [];
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(userId || '');
 
   try {
-    const { data: normalData, error: err1 } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+    let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
+    
+    if (isUuid) {
+      query = query.eq('user_id', userId);
+    } else if (userEmail) {
+      query = query.ilike('customer_name', `%${userEmail}%`);
+    } else {
+      query = query.eq('user_id', userId);
+    }
 
+    const { data: normalData, error: err1 } = await query;
     if (!err1 && normalData) remoteOrders.push(...normalData);
   } catch (err) {
     console.warn('Orders fetch notice:', err);
   }
 
-  const localOrders = getLocalOrders().filter(o => o.user_id === userId || o.user_id === 'guest');
+  const localOrders = getLocalOrders().filter(o => {
+    if (o.user_id === userId || o.user_id === 'guest') return true;
+    if (!isUuid && userEmail && o.customer_name?.toLowerCase().includes(userEmail.toLowerCase())) return true;
+    return false;
+  });
+  
   const seen = new Set();
   const merged = [];
 

@@ -30,7 +30,8 @@ export default function Dashboard() {
     setOrdersLoading(true);
     try {
       const currentUserId = user?.id || user?.$id;
-      const userOrders = await fetchUserOrders(currentUserId);
+      const currentUserEmail = user?.email;
+      const userOrders = await fetchUserOrders(currentUserId, currentUserEmail);
       setOrders(userOrders);
 
       // Compute stats

@@ -6,13 +6,13 @@ import { supabase } from '../lib/supabase';
 import { getLocalOrders } from '../lib/orderService';
 
 const ALL_SERVICES = [
+  { title: "Certificates", icon: "military_tech", image: "/images/services/certificates.jpg", description: "High-quality award and certificate printing." },
   { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
   { title: "Plan Printouts", icon: "print", image: "/images/services/plan-printouts.jpg", description: "High quality large format plan printouts." },
   { title: "Visiting Cards", icon: "badge", image: "/images/services/visiting-cards.png", description: "Premium customized business cards." },
   { title: "A4 Printouts", icon: "file_copy", image: "/images/services/a4-printouts.jpg", description: "Crisp and clear A4 document printing." },
   { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.jpg", description: "Book-like perfect binding for a premium finish." },
   { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.jpg", description: "Eye-catching tri-fold and bi-fold brochures." },
-  { title: "Certificates", icon: "military_tech", image: "/images/services/certificates.jpg", description: "High-quality award and certificate printing." },
   { title: "Wiro Binding", icon: "library_books", image: "/images/services/wiro-binding.jpg", description: "Durable and flexible wiro binding." },
   { title: "Soft Binding", icon: "book", image: "/images/services/soft-binding.jpg", description: "Clean soft binding for presentations." },
   { title: "Document OCR", icon: "document_scanner", image: "/images/services/document-ocr.webp", description: "Scan and convert documents into editable text." },

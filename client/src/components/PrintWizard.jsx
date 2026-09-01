@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import JSZip from 'jszip';
 import { useAuth } from '../context/AuthContext';
 import { createOrder, uploadPrintFile } from '../lib/orderService';
 import { 
@@ -236,12 +237,19 @@ export default function PrintWizard({ isWholesale = false }) {
     }
   }, [config.service]);
 
-// Helper to analyze and extract page count from uploaded PDF files
+// Helper to analyze and extract page/slide count from uploaded documents (PDF, Word DOCX/DOC, PowerPoint PPTX/PPT)
 async function detectFilePages(file) {
   if (!file) return 1;
   const fileName = file.name ? file.name.toLowerCase() : '';
-  const isPdf = file.type === 'application/pdf' || fileName.endsWith('.pdf');
+  const fileType = file.type ? file.type.toLowerCase() : '';
 
+  const isPdf = fileType === 'application/pdf' || fileName.endsWith('.pdf');
+  const isDocx = fileName.endsWith('.docx') || fileType.includes('wordprocessingml');
+  const isDoc = fileName.endsWith('.doc') || fileType === 'application/msword';
+  const isPptx = fileName.endsWith('.pptx') || fileType.includes('presentationml');
+  const isPpt = fileName.endsWith('.ppt') || fileType === 'application/vnd.ms-powerpoint';
+
+  // 1. PDF Page Detection
   if (isPdf) {
     try {
       const arrayBuffer = await file.arrayBuffer();
@@ -273,6 +281,100 @@ async function detectFilePages(file) {
       }
     } catch (e) {
       console.warn('Could not parse PDF page count:', e);
+    }
+  }
+
+  // 2. DOCX Word Document Page Detection
+  if (isDocx) {
+    try {
+      const zip = await JSZip.loadAsync(file);
+
+      let appPages = 0;
+      let appWords = 0;
+
+      // A. Check docProps/app.xml for <Pages>N</Pages> and <Words>N</Words>
+      const appXmlFile = zip.file('docProps/app.xml') || zip.file(/[dD]oc[pP]rops\/app\.xml/i)?.[0];
+      if (appXmlFile) {
+        const appXmlText = await appXmlFile.async('text');
+        const pagesMatch = appXmlText.match(/<(?:\w+:)?Pages>(\d+)<\/(?:\w+:)?Pages>/i);
+        if (pagesMatch && parseInt(pagesMatch[1], 10) > 0) {
+          appPages = parseInt(pagesMatch[1], 10);
+        }
+        const wordsMatch = appXmlText.match(/<(?:\w+:)?Words>(\d+)<\/(?:\w+:)?Words>/i);
+        if (wordsMatch && parseInt(wordsMatch[1], 10) > 0) {
+          appWords = parseInt(wordsMatch[1], 10);
+        }
+      }
+
+      // B. Check word/document.xml for rendered page breaks, manual page breaks & sections
+      let docBreaks = 0;
+      const docXmlFile = zip.file('word/document.xml') || zip.file(/[wW]ord\/document\.xml/i)?.[0];
+      if (docXmlFile) {
+        const docXmlText = await docXmlFile.async('text');
+        const lastRenderedBreaks = (docXmlText.match(/<w:lastRenderedPageBreak\b/g) || []).length;
+        const manualPageBreaks = (docXmlText.match(/<w:br\b[^>]*?w:type="page"/g) || []).length;
+        const sectionBreaks = (docXmlText.match(/<w:sectPr\b/g) || []).length;
+        
+        docBreaks = lastRenderedBreaks + manualPageBreaks;
+        if (docBreaks > 0) {
+          return Math.max(appPages, docBreaks + 1);
+        }
+        if (sectionBreaks > 1) {
+          return Math.max(appPages, sectionBreaks);
+        }
+      }
+
+      if (appPages > 0) {
+        return appPages;
+      }
+
+      if (appWords > 350) {
+        return Math.ceil(appWords / 350);
+      }
+    } catch (e) {
+      console.warn('Could not parse DOCX page count:', e);
+    }
+  }
+
+  // 3. PPTX PowerPoint Presentation Slide Detection
+  if (isPptx) {
+    try {
+      const zip = await JSZip.loadAsync(file);
+
+      // A. Check docProps/app.xml for <Slides>N</Slides>
+      const appXmlFile = zip.file('docProps/app.xml') || zip.file(/[dD]oc[pP]rops\/app\.xml/i)?.[0];
+      if (appXmlFile) {
+        const appXmlText = await appXmlFile.async('text');
+        const slidesMatch = appXmlText.match(/<(?:\w+:)?Slides>(\d+)<\/(?:\w+:)?Slides>/i);
+        if (slidesMatch && parseInt(slidesMatch[1], 10) > 0) {
+          return parseInt(slidesMatch[1], 10);
+        }
+      }
+
+      // B. Count individual slide XML files in ppt/slides/
+      const slideFiles = Object.keys(zip.files).filter(k => /^ppt\/slides\/slide\d+\.xml$/i.test(k));
+      if (slideFiles.length > 0) {
+        return slideFiles.length;
+      }
+    } catch (e) {
+      console.warn('Could not parse PPTX slide count:', e);
+    }
+  }
+
+  // 4. Legacy .DOC or .PPT Binary Fallback Parsing
+  if (isDoc || isPpt) {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      const text = new TextDecoder('latin1').decode(bytes);
+
+      const pagesMatch = text.match(/<(?:\w+:)?Pages>(\d+)<\/(?:\w+:)?Pages>/i) ||
+                         text.match(/<(?:\w+:)?Slides>(\d+)<\/(?:\w+:)?Slides>/i);
+      if (pagesMatch && parseInt(pagesMatch[1], 10) > 0) {
+        return parseInt(pagesMatch[1], 10);
+      }
+    } catch (e) {
+      console.warn('Could not parse legacy binary document count:', e);
     }
   }
 
@@ -1096,7 +1198,7 @@ async function detectFilePages(file) {
                 <div>
                   <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 2: Upload Your Print File</h3>
                   <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
-                    Supports PDF, DOCX, CorelDRAW (.CDR), PSD, AI, JPG, and PNG up to 50MB.
+                    Supports PDF, Word (.DOCX, .DOC), PowerPoint (.PPTX, .PPT), CorelDRAW (.CDR), PSD, AI, JPG, and PNG up to 50MB.
                   </p>
 
                   <div
@@ -1119,7 +1221,7 @@ async function detectFilePages(file) {
                       type="file"
                       ref={fileInputRef}
                       style={{ display: 'none' }}
-                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.psd,.ai,.cdr,application/x-cdr,application/cdr,application/vnd.corel-draw"
+                      accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg,.psd,.ai,.cdr,application/x-cdr,application/cdr,application/vnd.corel-draw,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.ms-powerpoint"
                       onChange={e => handleFileSelect(e.target.files?.[0])}
                     />
                     <span className="material-symbols-outlined icon-fill" style={{ fontSize: 54, color: 'var(--primary-container)', marginBottom: 12 }}>
@@ -1129,7 +1231,7 @@ async function detectFilePages(file) {
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload (PDF, CorelDRAW .CDR, DOCX, Images)'}
+                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & page count analysis (PDF, Word, PPT, Images)'}
                     </div>
                     {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
                   </div>
@@ -1249,7 +1351,7 @@ async function detectFilePages(file) {
                 <div>
                   <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 8 }}>Step 1: Upload Your Print File</h3>
                   <p className="body-md" style={{ color: 'var(--on-surface-variant)', marginBottom: 20 }}>
-                    Supports PDF, DOCX, CorelDRAW (.CDR), PSD, AI, JPG, and PNG up to 50MB.
+                    Supports PDF, Word (.DOCX, .DOC), PowerPoint (.PPTX, .PPT), CorelDRAW (.CDR), PSD, AI, JPG, and PNG up to 50MB.
                   </p>
 
                   <div
@@ -1272,7 +1374,7 @@ async function detectFilePages(file) {
                       type="file"
                       ref={fileInputRef}
                       style={{ display: 'none' }}
-                      accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.psd,.ai,.cdr,application/x-cdr,application/cdr,application/vnd.corel-draw"
+                      accept=".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg,.psd,.ai,.cdr,application/x-cdr,application/cdr,application/vnd.corel-draw,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.ms-powerpoint"
                       onChange={e => handleFileSelect(e.target.files?.[0])}
                     />
                     <span className="material-symbols-outlined icon-fill" style={{ fontSize: 54, color: 'var(--primary-container)', marginBottom: 12 }}>
@@ -1282,7 +1384,7 @@ async function detectFilePages(file) {
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • ${config.pages} Page${config.pages > 1 ? 's' : ''} detected • Click to replace` : 'Instant automatic file upload & page count analysis (PDF, CorelDRAW .CDR, DOCX, Images)'}
+                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • ${config.pages} Page${config.pages > 1 ? 's' : ''} detected • Click to replace` : 'Instant automatic file upload & page count analysis (PDF, Word, PowerPoint, Images)'}
                     </div>
                     {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
                   </div>

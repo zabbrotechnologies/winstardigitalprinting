@@ -1261,7 +1261,7 @@ async function detectFilePages(file) {
                     </div>
                   )}
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginTop: 24 }}>
                     <button className="btn btn-outline" onClick={() => setStep(1)}>
                       <span className="material-symbols-outlined">arrow_back</span> Back to Print Spec
                     </button>
@@ -1331,7 +1331,7 @@ async function detectFilePages(file) {
                       </div>
                     )}
 
-                    <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                    <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
                       <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>
                         <span className="material-symbols-outlined">arrow_back</span> Back
                       </button>
@@ -1635,7 +1635,7 @@ async function detectFilePages(file) {
                     </>
                   )}
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, marginTop: 24 }}>
                     <button className="btn btn-outline" onClick={() => setStep(1)}>Back</button>
                     <button className="btn btn-primary" onClick={() => setStep(3)}>
                       Next: Delivery <span className="material-symbols-outlined">arrow_forward</span>
@@ -1685,7 +1685,7 @@ async function detectFilePages(file) {
                       </div>
                     )}
 
-                    <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+                    <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
                       <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>
                         <span className="material-symbols-outlined">arrow_back</span> Back
                       </button>

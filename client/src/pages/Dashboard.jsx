@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [orders, setOrders] = useState([]);
   const [stats, setStats] = useState(null);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [orderFilter, setOrderFilter] = useState('All');
 
   useEffect(() => {
     if (!user) return;
@@ -212,7 +213,11 @@ export default function Dashboard() {
               </div>
               <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
                 {['All', 'Pending', 'Processing', 'Printed', 'Delivered'].map(status => (
-                  <button key={status} className="btn btn-outline btn-sm btn-pill">
+                  <button 
+                    key={status} 
+                    className={`btn btn-sm btn-pill ${orderFilter === status ? 'btn-primary' : 'btn-outline'}`}
+                    onClick={() => setOrderFilter(status)}
+                  >
                     {status}
                   </button>
                 ))}
@@ -222,7 +227,7 @@ export default function Dashboard() {
                   New Order
                 </button>
               </div>
-              <OrderTable orders={orders} loading={ordersLoading} />
+              <OrderTable orders={orderFilter === 'All' ? orders : orders.filter(o => o.status === orderFilter)} loading={ordersLoading} />
             </div>
           )}
 

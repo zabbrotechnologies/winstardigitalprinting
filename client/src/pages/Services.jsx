@@ -16,7 +16,7 @@ const ALL_SERVICES = [
   { title: "Wiro Binding", icon: "library_books", image: "/images/services/wiro-binding.jpg", description: "Durable and flexible wiro binding." },
   { title: "Soft Binding", icon: "book", image: "/images/services/soft-binding.jpg", description: "Clean soft binding for presentations." },
   { title: "Document OCR", icon: "document_scanner", image: "/images/services/document-ocr.png", description: "Scan and convert documents into editable text." },
-  { title: "Rexin Binding", icon: "bookmark", image: "/images/services/rexin-binding.jpg", description: "Classic rexin binding for thesis and reports." },
+  { title: "Rexine Binding", icon: "bookmark", image: "/images/services/rexin-binding.jpg", description: "Classic rexin binding for thesis and reports." },
   { title: "Moroccan Hard Binding", icon: "book_4", image: "/images/services/moroccan-hard-binding.jpg", description: "Premium Moroccan hard binding." },
   { title: "Hard Binding", icon: "library_books", image: "/images/services/hard-binding.jpg", description: "Standard hard binding for maximum durability." }
 ];

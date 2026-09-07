@@ -510,50 +510,70 @@ export default function Admin() {
         {/* Modal: View Details */}
         {selectedOrder && (
           <div style={{
-            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1100,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', zIndex: 1100,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px 12px',
+            backdropFilter: 'blur(4px)'
           }}
           onClick={() => setSelectedOrder(null)}
           >
-            <div className="card animate-fade-in" style={{ maxWidth: 640, width: '100%', padding: 32, borderRadius: 'var(--radius-xl)' }} onClick={e => e.stopPropagation()}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--primary-container)', textTransform: 'uppercase' }}>
+            <div
+              className="card animate-fade-in"
+              style={{
+                maxWidth: 640,
+                width: '100%',
+                maxHeight: 'calc(100vh - 32px)',
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                padding: '24px 20px',
+                borderRadius: 'var(--radius-xl)',
+                boxSizing: 'border-box'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 18, gap: 12 }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary-container)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     JOB CONFIGURATION & DETAILS
                   </div>
-                  <h2 className="headline-sm" style={{ fontSize: 22 }}>{selectedOrder.request_id || selectedOrder.id}</h2>
+                  <h2 className="headline-sm" style={{ fontSize: 20, wordBreak: 'break-all', marginTop: 2 }}>{selectedOrder.request_id || selectedOrder.id}</h2>
                 </div>
-                <button className="btn btn-ghost btn-sm" onClick={() => setSelectedOrder(null)}>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setSelectedOrder(null)}
+                  style={{ borderRadius: '50%', width: 36, height: 36, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                  aria-label="Close"
+                >
                   <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 24 }}>
-                <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>CUSTOMER</div>
-                  <div style={{ fontSize: 14, fontWeight: 700 }}>{selectedOrder.customer_name} ({selectedOrder.customer_phone})</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 20 }}>
+                <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)', minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)', marginBottom: 2 }}>CUSTOMER</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, wordBreak: 'break-word' }}>{selectedOrder.customer_name} ({selectedOrder.customer_phone})</div>
+                  {selectedOrder.customer_email && <div style={{ fontSize: 12, color: 'var(--on-surface-variant)', wordBreak: 'break-all', marginTop: 2 }}>{selectedOrder.customer_email}</div>}
                 </div>
-                <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>TOTAL ESTIMATED AMOUNT</div>
+                <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)', minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)', marginBottom: 2 }}>TOTAL ESTIMATED AMOUNT</div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--primary-container)' }}>{formatCurrency(selectedOrder.total_price)}</div>
                 </div>
-                <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>PRINT SPECIFICATION</div>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{selectedOrder.service_name} • {selectedOrder.copies} copies • {selectedOrder.paper_size} ({selectedOrder.paper_gsm || ''})</div>
+                <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)', minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)', marginBottom: 2 }}>PRINT SPECIFICATION</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{selectedOrder.service_name} • {selectedOrder.copies} copies • {selectedOrder.paper_size} {selectedOrder.paper_gsm ? `(${selectedOrder.paper_gsm})` : ''}</div>
                   {selectedOrder.binding && selectedOrder.binding !== 'None' && selectedOrder.binding !== 'none' && (
                     <div style={{ fontSize: 12, color: 'var(--primary-container)', fontWeight: 700, marginTop: 4 }}>
                       ✨ {selectedOrder.binding}
                     </div>
                   )}
                 </div>
-                <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>DELIVERY & ADDRESS</div>
-                  <div style={{ fontSize: 13, fontWeight: 600 }}>{selectedOrder.delivery_address || (selectedOrder.delivery_type === 'courier' ? 'Courier Delivery' : 'Store Pickup')}</div>
+                <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)', minWidth: 0 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)', marginBottom: 2 }}>DELIVERY & ADDRESS</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{selectedOrder.delivery_address || (selectedOrder.delivery_type === 'courier' ? 'Courier Delivery' : 'Store Pickup')}</div>
                 </div>
                 {selectedOrder.message_text && (
-                  <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)', gridColumn: 'span 2' }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)' }}>SPECIAL INSTRUCTIONS / NOTES</div>
-                    <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'pre-wrap' }}>{selectedOrder.message_text}</div>
+                  <div style={{ background: 'var(--surface-container-low)', padding: 12, borderRadius: 'var(--radius-md)', gridColumn: '1 / -1', minWidth: 0 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-surface-variant)', marginBottom: 2 }}>SPECIAL INSTRUCTIONS / NOTES</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{selectedOrder.message_text}</div>
                   </div>
                 )}
               </div>
@@ -565,15 +585,28 @@ export default function Admin() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-primary btn-full"
-                    style={{ height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                    style={{
+                      height: 'auto',
+                      minHeight: 48,
+                      padding: '10px 16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      whiteSpace: 'normal',
+                      wordBreak: 'break-word',
+                      textAlign: 'center',
+                      lineHeight: 1.3
+                    }}
                   >
-                    <span className="material-symbols-outlined">download</span> Download Original Client File ({selectedOrder.file_name})
+                    <span className="material-symbols-outlined" style={{ flexShrink: 0 }}>download</span>
+                    <span>Download Original Client File {selectedOrder.file_name ? `(${selectedOrder.file_name})` : ''}</span>
                   </a>
                 </div>
               )}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <button className="btn btn-outline" onClick={() => setSelectedOrder(null)}>Close</button>
+                <button className="btn btn-outline" onClick={() => setSelectedOrder(null)} style={{ minWidth: 100 }}>Close</button>
               </div>
             </div>
           </div>

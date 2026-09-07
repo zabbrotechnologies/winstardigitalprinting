@@ -41,70 +41,282 @@ export const WHOLESALE_PRICE_LIST = [
 ];
 
 // --- NORMAL RETAIL CUSTOMER PRICING ---
-export const NORMAL_PRINT_PRICES = {
+
+export const BW_DOC_SIZES = ['A4', 'FS', 'A3', 'A2', 'A1', 'A0'];
+
+export const BW_PRINT_PRICING = {
   'A4': {
-    'Normal Sheet': {
-      'Single Side': { print: 1.20, xerox: 1.00 },
-      'Front & Back': { print: 0.80, xerox: 0.60 },
-    },
-    'Green Sheet': {
-      'Single Side': { print: 3.00, xerox: 2.00 },
-      'Front & Back': { print: 3.00, xerox: 2.00 }, // No F&B rate given for Green sheet, using single rate logic or fallback
-    }
+    'Copier': [
+      { gsm: '70GSM', ss: 1.20, fb: 0.80 },
+      { gsm: '80GSM', ss: 1.50, fb: 1.00 },
+      { gsm: '100GSM', ss: 2.50, fb: 2.00 },
+    ],
+    'Bond': [
+      { gsm: '100GSM', ss: 2.50, fb: 2.00 },
+    ],
+    'Ledger Green': [
+      { gsm: '80GSM', ss: 2.50, fb: 2.00 },
+    ],
   },
   'FS': {
-    'Normal Sheet': {
-      'Single Side': { print: 2.00, xerox: 1.50 },
-      'Front & Back': { print: 1.50, xerox: 1.00 },
-    },
-    'Green Sheet': {
-      'Single Side': { print: 3.00, xerox: 2.50 },
-      'Front & Back': { print: 3.00, xerox: 2.50 },
-    }
+    'Copier': [
+      { gsm: '70GSM', ss: 2.00, fb: 1.50 },
+    ],
+    'Ledger Green': [
+      { gsm: '80GSM', ss: 3.00, fb: 2.00 },
+    ],
   },
   'A3': {
-    'Normal Sheet': {
-      'Single Side': { print: 5.00, xerox: 3.00 },
-      'Front & Back': { print: 3.00, xerox: 2.50 },
-    }
-  }
+    'Copier': [
+      { gsm: '70GSM', ss: 5.00, fb: 3.00 },
+      { gsm: '100GSM', ss: 6.00, fb: 5.00 },
+    ],
+  },
+  'A2': {
+    'Plotter Roll': [
+      { gsm: '90GSM', ss: 50.00, fb: null },
+    ],
+  },
+  'A1': {
+    'Plotter Roll': [
+      { gsm: '90GSM', ss: 100.00, fb: null },
+    ],
+  },
+  'A0': {
+    'Plotter Roll': [
+      { gsm: '90GSM', ss: 200.00, fb: null },
+    ],
+  },
 };
 
-export const WIDE_FORMAT_PRICES = {
-  'A2': { 'B&W': 40, 'Color': 200, 'B&W_Xerox': 30, 'Color_Xerox': 150 },
-  'A1': { 'B&W': 80, 'Color': 300, 'B&W_Xerox': 60, 'Color_Xerox': 250 },
-  'A0': { 'B&W': 160, 'Color': 400, 'B&W_Xerox': 120, 'Color_Xerox': 350 },
+export function getBWPapers(size) {
+  if (!size || !BW_PRINT_PRICING[size]) return [];
+  return Object.keys(BW_PRINT_PRICING[size]);
+}
+
+export function getBWGSMs(size, paper) {
+  if (!size || !paper || !BW_PRINT_PRICING[size]?.[paper]) return [];
+  return BW_PRINT_PRICING[size][paper].map(item => item.gsm);
+}
+
+export function getBWRow(size, paper, gsm) {
+  if (!size || !paper || !BW_PRINT_PRICING[size]?.[paper]) return null;
+  const list = BW_PRINT_PRICING[size][paper];
+  if (!gsm && list.length === 1) return list[0];
+  return list.find(item => item.gsm === gsm) || list[0] || null;
+}
+
+export const COLOR_DOC_SIZES = ['13×19 inch', '12×18 inch', '12×17', 'A3', 'A4', 'A2', 'A1', 'A0'];
+
+export const COLOR_PRINT_PRICING = {
+  '13×19 inch': {
+    'Art Paper': [
+      { gsm: '118G', single: 20, fb: 40 },
+      { gsm: '130G', single: 20, fb: 40 },
+      { gsm: '170G', single: 20, fb: 40 },
+    ],
+    'Art Board': [
+      { gsm: '250G', single: 25, fb: 50 },
+      { gsm: '280G', single: 25, fb: 40 },
+      { gsm: '300G', single: 25, fb: 40 },
+      { gsm: '350G', single: 25, fb: 40 },
+    ],
+  },
+  '12×18 inch': {
+    'Art Paper': [
+      { gsm: '130G', single: 20, fb: 40 },
+      { gsm: '170G', single: 20, fb: 40 },
+    ],
+    'Art Board': [
+      { gsm: '250G', single: 25, fb: 40 },
+      { gsm: '280G', single: 25, fb: 40 },
+      { gsm: '300G', single: 25, fb: 40 },
+    ],
+  },
+  '12×17': {
+    'Bond Paper': [
+      { gsm: '100G', single: 20, fb: 40 },
+    ],
+  },
+  'A3': {
+    'Paper': [
+      { gsm: '100G', single: 20, fb: 40 },
+    ],
+  },
+  'A4': {
+    'Paper': [
+      { gsm: '100G', single: 10, fb: 20 },
+    ],
+    'Bond Paper': [
+      { gsm: '100G', single: 10, fb: 20 },
+    ],
+    'Ledger Green': [
+      { gsm: '80G', single: 10, fb: 20 },
+    ],
+    'Art Paper': [
+      { gsm: '130G', single: 15, fb: 30 },
+      { gsm: '170G', single: 15, fb: 30 },
+    ],
+    'Art Board': [
+      { gsm: '250G', single: 20, fb: 40 },
+      { gsm: '300G', single: 20, fb: 40 },
+    ],
+  },
+  'A2': {
+    'Plotter Paper': [
+      { gsm: '90GSM', single: 350, fb: null },
+    ],
+  },
+  'A1': {
+    'Plotter Paper': [
+      { gsm: '91GSM', single: 600, fb: null },
+    ],
+  },
+  'A0': {
+    'Plotter Paper': [
+      { gsm: '92GSM', single: 800, fb: null },
+    ],
+  },
+};
+
+export function getColorPapers(size) {
+  if (!size || !COLOR_PRINT_PRICING[size]) return [];
+  return Object.keys(COLOR_PRINT_PRICING[size]);
+}
+
+export function getColorGSMs(size, paper) {
+  if (!size || !paper || !COLOR_PRINT_PRICING[size]?.[paper]) return [];
+  return COLOR_PRINT_PRICING[size][paper].map(item => item.gsm);
+}
+
+export function getColorRow(size, paper, gsm) {
+  if (!size || !paper || !COLOR_PRINT_PRICING[size]?.[paper]) return null;
+  const list = COLOR_PRINT_PRICING[size][paper];
+  if (!gsm && list.length === 1) return list[0];
+  return list.find(item => item.gsm === gsm) || list[0] || null;
+}
+
+export const VISITING_CARD_QUANTITIES = [120, 150, 200, 300, 510, 720, 1020];
+
+export const VISITING_CARD_TYPES = [
+  'Art Board',
+  'Art Board with Lamination',
+  'Metallic & Special Boards',
+  'Synthetic White 125 Micron',
+  'Syn. White 200 Mic / Syn. Gold & Silver 125 Mic',
+];
+
+export const VISITING_CARD_PRICES = {
+  'Art Board': [
+    { qty: 120, single: 130, double: 180 },
+    { qty: 150, single: 150, double: 200 },
+    { qty: 200, single: 175, double: 250 },
+    { qty: 300, single: 225, double: 325 },
+    { qty: 510, single: 340, double: 490 },
+    { qty: 720, single: 450, double: 660 },
+    { qty: 1020, single: 600, double: 900 }
+  ],
+  'Art Board with Lamination': [
+    { qty: 120, single: 180, double: 230 },
+    { qty: 150, single: 200, double: 250 },
+    { qty: 200, single: 225, double: 335 },
+    { qty: 300, single: 285, double: 445 },
+    { qty: 510, single: 450, double: 700 },
+    { qty: 720, single: 600, double: 950 },
+    { qty: 1020, single: 800, double: 1300 }
+  ],
+  'Metallic & Special Boards': [
+    { qty: 120, single: 190, double: 260 },
+    { qty: 150, single: 225, double: 300 },
+    { qty: 200, single: 275, double: 375 },
+    { qty: 300, single: 375, double: 500 },
+    { qty: 510, single: 575, double: 775 },
+    { qty: 720, single: 785, double: 1055 },
+    { qty: 1020, single: 1100, double: 1455 }
+  ],
+  'Synthetic White 125 Micron': [
+    { qty: 120, single: 200, double: 285 },
+    { qty: 150, single: 235, double: 335 },
+    { qty: 200, single: 305, double: 435 },
+    { qty: 300, single: 410, double: 585 },
+    { qty: 510, single: 655, double: 935 },
+    { qty: 720, single: 900, double: 1285 },
+    { qty: 1020, single: 1250, double: 1785 }
+  ],
+  'Syn. White 200 Mic / Syn. Gold & Silver 125 Mic': [
+    { qty: 120, single: 290, double: 435 },
+    { qty: 150, single: 345, double: 445 },
+    { qty: 200, single: 455, double: 675 },
+    { qty: 300, single: 620, double: 915 },
+    { qty: 510, single: 1000, double: 1475 },
+    { qty: 720, single: 1400, double: 2050 },
+    { qty: 1020, single: 1950, double: 2850 }
+  ]
+};
+
+export const BROCHURES_FLYERS_DATA = {
+  'Flyers': {
+    quantities: [
+      { qty: 25, price: 160, label: '25 Pieces' },
+      { qty: 50, price: 200, label: '50 Pieces' },
+      { qty: 100, price: 300, label: '100 Pieces' },
+    ]
+  },
+  'Letter Head': {
+    paperTypes: ['100gsm', 'Executive Bond 100gsm'],
+    '100gsm': {
+      tiers: [
+        { min: 1, max: 10, unitPrice: 10 },
+        { min: 11, max: 50, unitPrice: 8 },
+        { min: 51, max: Infinity, unitPrice: 7 },
+      ]
+    },
+    'Executive Bond 100gsm': {
+      padSize: 100,
+      pricePerPad: 700,
+    }
+  },
+  'Bill Book': {
+    paperTypes: ['Executive Bond 100gsm'],
+    'Executive Bond 100gsm': {
+      padSize: 100,
+      pricePerPad: 700,
+    }
+  }
 };
 
 export const BINDING_PRICES = {
-  'Chat Binding': { 'A4': 8, 'FS': 10 },
+  'Chat Binding': {
+    'A4': 8,
+    'FS': 10,
+  },
   'Spiral Binding': {
     'A4': [
-      { min: 1, max: 49, price: 25 },
-      { min: 50, max: 99, price: 30 },
-      { min: 100, max: 199, price: 40 },
-      { min: 200, max: 299, price: 50 },
-      { min: 300, max: 500, price: 70 },
+      { max: 25, price: 20 },
+      { max: 50, price: 25 },
+      { max: 100, price: 30 },
+      { max: 150, price: 35 },
+      { max: 200, price: 40 },
+      { max: 250, price: 50 },
+      { max: 300, price: 60 },
+      { max: 350, price: 70 },
+      { max: 400, price: 80 },
+      { max: 450, price: 90 },
+      { max: 500, price: 100 },
     ],
     'FS': [
-      { min: 1, max: 99, price: 50 },
-      { min: 100, max: Infinity, price: 70 },
-    ]
-  }
-};
-
-export const LAMINATION_PRICES = {
-  'ID': 20,
-  'A4': 25,
-  'FS': 35,
-  'A3': 50,
-};
-
-// Top-level service base prices (For items like Certificates, Visiting Cards, Brochures)
-export const FLAT_SERVICE_PRICES = {
-  'Certificates': { print: 50.00, xerox: 50.00 }, // Hardcoded base prices from old logic
-  'Visiting Cards': { print: 250.00, xerox: 250.00 },
-  'Brochures': { print: 15.00, xerox: 15.00 }
+      { max: 50, price: 35 },
+      { max: 100, price: 40 },
+      { max: 150, price: 45 },
+      { max: 200, price: 50 },
+      { max: 250, price: 60 },
+      { max: 300, price: 70 },
+      { max: 350, price: 80 },
+      { max: 400, price: 90 },
+      { max: 450, price: 100 },
+      { max: 500, price: 110 },
+    ],
+  },
 };
 
 // ==========================================

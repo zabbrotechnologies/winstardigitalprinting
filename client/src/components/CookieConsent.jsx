@@ -69,8 +69,8 @@ export default function CookieConsent() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.65)',
-          backdropFilter: 'blur(4px)',
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          backdropFilter: 'blur(6px)',
           zIndex: 10001,
           display: 'flex',
           alignItems: 'center',
@@ -83,30 +83,48 @@ export default function CookieConsent() {
             color: '#1a202c',
             maxWidth: '560px',
             width: '100%',
-            borderRadius: '12px',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
-            padding: '28px',
+            maxHeight: 'calc(100vh - 32px)',
+            borderRadius: '16px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
             display: 'flex',
             flexDirection: 'column',
-            gap: '20px',
-            position: 'relative'
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display, inherit)' }}>
-                Cookie Preferences
-              </h3>
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '20px 24px',
+              borderBottom: '1px solid #f1f5f9',
+              background: '#ffffff',
+              position: 'sticky',
+              top: 0,
+              zIndex: 2
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="material-symbols-outlined" style={{ color: '#1d4ed8', fontSize: '24px' }}>cookie</span>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, fontFamily: 'var(--font-display, inherit)' }}>
+                  Cookie Preferences
+                </h3>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowSettings(false)}
                 style={{
-                  background: 'none',
+                  background: '#f1f5f9',
                   border: 'none',
-                  fontSize: '20px',
+                  fontSize: '18px',
                   cursor: 'pointer',
                   color: '#64748b',
                   display: 'flex',
                   alignItems: 'center',
-                  padding: '4px'
+                  justifyContent: 'center',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  padding: 0
                 }}
                 aria-label="Close modal"
               >
@@ -114,98 +132,123 @@ export default function CookieConsent() {
               </button>
             </div>
 
-            <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.6', color: '#475569' }}>
-              We use cookies to enhance your browsing experience, provide personalized content, and analyze our traffic. You can customize your cookie preferences below.
-            </p>
+            {/* Modal Scrollable Body */}
+            <div style={{
+              padding: '20px 24px',
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              flex: 1
+            }}>
+              <p style={{ margin: 0, fontSize: '13.5px', lineHeight: '1.6', color: '#475569' }}>
+                We use cookies to enhance your browsing experience, provide personalized content, and analyze our traffic. You can customize your cookie preferences below.
+              </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Essential */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                padding: '12px 16px',
-                background: '#f8fafc',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0'
-              }}>
-                <div style={{ paddingRight: '16px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>Strictly Necessary Cookies</div>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                    Required for the website to function properly (authentication, security, cart).
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* Essential */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '14px 16px',
+                  background: '#f8fafc',
+                  borderRadius: '10px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>Strictly Necessary Cookies</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px', lineHeight: '1.4' }}>
+                      Required for website functionality, authentication, security, and print job submission.
+                    </div>
                   </div>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#16a34a', background: '#dcfce7', padding: '4px 8px', borderRadius: '4px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    Always Active
+                  </span>
                 </div>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#16a34a', background: '#dcfce7', padding: '4px 8px', borderRadius: '4px', whiteSpace: 'nowrap' }}>
-                  Always Active
-                </span>
-              </div>
 
-              {/* Analytics */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                padding: '12px 16px',
-                background: '#f8fafc',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0'
-              }}>
-                <div style={{ paddingRight: '16px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>Performance & Analytics</div>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                    Help us understand how visitors interact with the website to improve performance.
+                {/* Analytics */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '14px 16px',
+                  background: '#f8fafc',
+                  borderRadius: '10px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>Performance & Analytics</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px', lineHeight: '1.4' }}>
+                      Help us analyze visitor traffic and calculate response performance to improve services.
+                    </div>
                   </div>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0, marginTop: '2px' }}>
+                    <input
+                      type="checkbox"
+                      checked={preferences.analytics}
+                      onChange={(e) => setPreferences({ ...preferences, analytics: e.target.checked })}
+                      style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#1d4ed8' }}
+                    />
+                  </label>
                 </div>
-                <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={preferences.analytics}
-                    onChange={(e) => setPreferences({ ...preferences, analytics: e.target.checked })}
-                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#1d4ed8' }}
-                  />
-                </label>
-              </div>
 
-              {/* Marketing */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                padding: '12px 16px',
-                background: '#f8fafc',
-                borderRadius: '8px',
-                border: '1px solid #e2e8f0'
-              }}>
-                <div style={{ paddingRight: '16px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>Marketing & Preferences</div>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                    Used to deliver relevant offers and remember user preferences.
+                {/* Marketing */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '14px 16px',
+                  background: '#f8fafc',
+                  borderRadius: '10px',
+                  border: '1px solid #e2e8f0'
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>Marketing & Preferences</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px', lineHeight: '1.4' }}>
+                      Used to deliver relevant offers, B2B wholesale rates, and remember user session preferences.
+                    </div>
                   </div>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0, marginTop: '2px' }}>
+                    <input
+                      type="checkbox"
+                      checked={preferences.marketing}
+                      onChange={(e) => setPreferences({ ...preferences, marketing: e.target.checked })}
+                      style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#1d4ed8' }}
+                    />
+                  </label>
                 </div>
-                <label style={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={preferences.marketing}
-                    onChange={(e) => setPreferences({ ...preferences, marketing: e.target.checked })}
-                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#1d4ed8' }}
-                  />
-                </label>
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '8px', flexWrap: 'wrap' }}>
+            {/* Modal Footer Actions */}
+            <div style={{
+              display: 'flex',
+              gap: '10px',
+              justifyContent: 'flex-end',
+              padding: '16px 24px',
+              borderTop: '1px solid #f1f5f9',
+              background: '#ffffff',
+              flexWrap: 'wrap'
+            }}>
               <button
                 type="button"
                 onClick={handleRejectNonEssential}
                 style={{
-                  padding: '8px 16px',
-                  borderRadius: '6px',
+                  padding: '9px 16px',
+                  borderRadius: '8px',
                   border: '1px solid #cbd5e1',
                   background: '#ffffff',
                   color: '#334155',
                   fontSize: '13px',
                   fontWeight: 600,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  flex: '1 1 auto',
+                  textAlign: 'center'
                 }}
               >
                 Reject Non-Essential
@@ -214,14 +257,16 @@ export default function CookieConsent() {
                 type="button"
                 onClick={handleSavePreferences}
                 style={{
-                  padding: '8px 18px',
-                  borderRadius: '6px',
+                  padding: '9px 18px',
+                  borderRadius: '8px',
                   border: 'none',
                   background: '#1d4ed8',
                   color: '#ffffff',
                   fontSize: '13px',
                   fontWeight: 600,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  flex: '1 1 auto',
+                  textAlign: 'center'
                 }}
               >
                 Save Preferences
@@ -235,20 +280,19 @@ export default function CookieConsent() {
       {!showSettings && (
         <aside
           aria-label="Cookie Consent Banner"
+          className="cookie-banner-wrapper"
           style={{
             position: 'fixed',
             bottom: 0,
             left: 0,
             right: 0,
             backgroundColor: '#ffffff',
-            borderTop: '1px solid #000000',
-            boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.08)',
+            borderTop: '1px solid #e2e8f0',
+            boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.12)',
             zIndex: 9999,
-            padding: '18px 24px',
+            padding: '16px 20px',
             color: '#111827',
             fontFamily: 'var(--font-body, system-ui, -apple-system, sans-serif)',
-            display: 'flex',
-            flexDirection: 'column',
             animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
           }}
         >
@@ -260,68 +304,75 @@ export default function CookieConsent() {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '24px',
+            gap: '16px',
             flexWrap: 'wrap'
           }}>
             {/* Notice text */}
-            <p style={{
-              margin: 0,
-              fontSize: '13.5px',
-              lineHeight: '1.55',
-              color: '#1f2937',
-              flex: '1 1 500px',
-              letterSpacing: '-0.01em'
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+              flex: '1 1 320px',
+              minWidth: 0
             }}>
-              This website uses cookies to provide the optimal experience to visitors as well as to gather insight on site usage. By clicking “Accept All Cookies” you agree to the storing of cookies on your device for the best performance of this website and to analyze site usage.
-            </p>
+              <span className="material-symbols-outlined" style={{ color: '#1d4ed8', fontSize: '20px', flexShrink: 0, marginTop: '2px' }}>info</span>
+              <p style={{
+                margin: 0,
+                fontSize: '13px',
+                lineHeight: '1.5',
+                color: '#334155',
+                letterSpacing: '-0.01em'
+              }}>
+                We use cookies to ensure you get the best browsing experience, manage print specifications, and analyze site usage. By clicking “Accept All”, you agree to our cookie policy.
+              </p>
+            </div>
 
             {/* Action buttons */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '16px',
-              flexWrap: 'nowrap',
-              flexShrink: 0
-            }}>
+              gap: '10px',
+              flexWrap: 'wrap',
+              flexShrink: 0,
+              width: 'auto'
+            }}
+            className="cookie-banner-actions"
+            >
               <button
                 type="button"
                 onClick={() => setShowSettings(true)}
                 style={{
                   background: 'transparent',
-                  border: 'none',
-                  color: '#111827',
-                  fontSize: '13.5px',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '6px',
+                  color: '#334155',
+                  fontSize: '13px',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  padding: '8px 12px',
-                  textDecoration: 'none',
-                  transition: 'color 0.2s',
+                  padding: '8px 14px',
+                  transition: 'all 0.2s',
                   whiteSpace: 'nowrap'
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.textDecoration = 'underline')}
-                onMouseLeave={(e) => (e.currentTarget.style.textDecoration = 'none')}
               >
-                Cookies Settings
+                Cookie Settings
               </button>
 
               <button
                 type="button"
                 onClick={handleAcceptAll}
                 style={{
-                  backgroundColor: '#0c5adb',
+                  backgroundColor: '#1d4ed8',
                   color: '#ffffff',
                   border: 'none',
-                  borderRadius: '2px',
-                  fontSize: '13.5px',
+                  borderRadius: '6px',
+                  fontSize: '13px',
                   fontWeight: 700,
-                  padding: '10px 20px',
+                  padding: '9px 18px',
                   cursor: 'pointer',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                  boxShadow: '0 2px 4px rgba(29, 78, 216, 0.2)',
                   transition: 'background-color 0.15s ease',
                   whiteSpace: 'nowrap'
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0945a8')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#0c5adb')}
               >
                 Accept All Cookies
               </button>
@@ -339,6 +390,17 @@ export default function CookieConsent() {
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+        @media (max-width: 600px) {
+          .cookie-banner-actions {
+            width: 100% !important;
+            justifyContent: stretch !important;
+          }
+          .cookie-banner-actions button {
+            flex: 1 1 calc(50% - 6px) !important;
+            text-align: center !important;
+            justify-content: center !important;
+          }
         }
       `}</style>
     </>

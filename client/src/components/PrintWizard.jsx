@@ -418,6 +418,7 @@ async function detectFilePages(file) {
     cuttingType: b2bCuttingType,
     sticker: b2bSticker,
     stickerType: b2bStickerType,
+    deliveryType: deliveryType,
     copies: b2bCopies,
     pages: b2bPages,
     fileUploaded: Boolean(file || uploadedFile),
@@ -431,13 +432,13 @@ async function detectFilePages(file) {
     
     if (isWholesaleActive) {
       return { 
-        subtotal: b2bPriceResult.totalAmount.toFixed(2), 
+        subtotal: (b2bPriceResult.printingPrice + b2bPriceResult.laminationPrice + b2bPriceResult.cuttingPrice + b2bPriceResult.stickerPrice).toFixed(2), 
         gst: '0.00', 
         grandTotal: b2bPriceResult.totalAmount.toFixed(2),
         printingTotal: b2bPriceResult.printingPrice.toFixed(2),
         bindingTotal: (b2bPriceResult.laminationPrice + b2bPriceResult.cuttingPrice + b2bPriceResult.stickerPrice).toFixed(2),
         cuttingTotal: b2bPriceResult.cuttingPrice.toFixed(2),
-        courierCharge: '0.00'
+        courierCharge: b2bPriceResult.courierCharge.toFixed(2)
       };
     } else {
       const pages = Math.max(1, parseInt(config.pages) || 1);
@@ -699,6 +700,7 @@ async function detectFilePages(file) {
         ...(!isWholesaleActive ? config : {}),
         delivery_type: deliveryType,
         delivery_address: deliveryType === 'courier' ? deliveryAddress : '',
+        courier_charge: isWholesaleActive ? b2bPriceResult.courierCharge : (deliveryType === 'courier' ? 30 : 0),
         order_type: isWholesaleActive ? 'wholesale' : 'normal',
         total_price: isWholesaleActive ? b2bPriceResult.totalAmount : prices.grandTotal,
       };
@@ -728,6 +730,8 @@ async function detectFilePages(file) {
       const stickerType = order.sticker?.type || (b2bSticker ? b2bStickerType : '');
       const orderPages = order.pages || b2bPages || 1;
       const orderCopies = order.copies || b2bCopies || 1;
+      const isCourier = (order.delivery_type || deliveryType) === 'courier';
+      const courierCharge = order.courier_charge ?? (isCourier ? 30 : 0);
       const pPrice = order.printing_price ?? b2bPriceResult.printingPrice;
       const lPrice = order.lamination_price ?? b2bPriceResult.laminationPrice;
       const cPrice = order.cutting_price ?? b2bPriceResult.cuttingPrice;
@@ -748,6 +752,7 @@ async function detectFilePages(file) {
         (thermLamType ? `✨ *Lamination:* ${thermLamType} (${formatINR(lPrice)})\n` : '') +
         (cuttingType ? `✂️ *Cutting:* ${cuttingType} (${formatINR(cPrice)})\n` : '') +
         (stickerType ? `🏷️ *Sticker Finishing:* ${stickerType} (${formatINR(sPrice)})\n` : '') +
+        `🚚 *Delivery Method:* ${isCourier ? 'Courier Delivery' : 'Store Pickup'}\n` +
         (order.file_name ? `📂 *File Attached:* ${order.file_name}\n` : '') +
         ((order.message_text || b2bInstructions) ? `📝 *Customer Instructions:* ${order.message_text || b2bInstructions}\n` : '') +
         `\n💰 *PRICE ESTIMATION BREAKDOWN*\n` +
@@ -755,6 +760,7 @@ async function detectFilePages(file) {
         `• Lamination: ${formatINR(lPrice)}\n` +
         `• Cutting: ${formatINR(cPrice)}\n` +
         `• Sticker: ${formatINR(sPrice)}\n` +
+        `• Courier: ${formatINR(courierCharge)}\n` +
         `\n💵 *TOTAL AMOUNT:* ${formatINR(tPrice)}\n\n` +
         `Please confirm my print job! Request ID: ${reqId}`;
     } else {
@@ -2128,6 +2134,12 @@ async function detectFilePages(file) {
                       <span style={{ fontWeight: 700, color: 'var(--on-surface)', textAlign: 'right', wordBreak: 'break-word', maxWidth: '65%' }}>{b2bStickerType}</span>
                     </div>
                   )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                    <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>Delivery:</span>
+                    <span style={{ fontWeight: 700, textAlign: 'right', wordBreak: 'break-word' }}>
+                      {deliveryType === 'courier' ? 'Courier Delivery' : 'Store Pickup'}
+                    </span>
+                  </div>
                   {file && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                       <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>File Attached:</span>
@@ -2180,6 +2192,13 @@ async function detectFilePages(file) {
                           <span style={{ color: 'var(--on-surface-variant)' }}>Sticker:</span>
                           <span style={{ fontWeight: 700 }}>
                             {!b2bSticker ? '₹0' : formatINR(b2bPriceResult.stickerPrice)}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13.5, color: 'var(--on-surface)' }}>
+                          <span style={{ color: 'var(--on-surface-variant)' }}>Courier:</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {formatINR(b2bPriceResult.courierCharge)}
                           </span>
                         </div>
 

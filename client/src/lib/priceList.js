@@ -554,6 +554,8 @@ export function calculateB2BPrice(orderState = {}) {
     cuttingType = '',
     sticker = false,
     stickerType = '',
+    deliveryType = 'pickup',
+    deliveryMethod = '',
     copies = 1,
     pages = null,
     fileUploaded = false,
@@ -562,6 +564,8 @@ export function calculateB2BPrice(orderState = {}) {
   const numCopies = Math.max(1, parseInt(copies, 10) || 1);
   const isPagesAvailable = Boolean(fileUploaded) && pages !== null && pages !== undefined && !isNaN(pages) && Number(pages) > 0;
   const numPages = isPagesAvailable ? Math.max(1, parseInt(pages, 10) || 1) : null;
+  const isCourier = deliveryType === 'courier' || deliveryMethod === 'courier';
+  const courierCharge = isCourier ? 30 : 0;
 
   // If basic required selections are missing
   if (!mediaCategory || !gsm || !size) {
@@ -572,6 +576,7 @@ export function calculateB2BPrice(orderState = {}) {
       waitingForFile: !isPagesAvailable,
       pages: numPages,
       copies: numCopies,
+      deliveryType: isCourier ? 'courier' : 'pickup',
       item: null,
       firstCopyRate: 0,
       additionalCopyRate: 0,
@@ -581,6 +586,7 @@ export function calculateB2BPrice(orderState = {}) {
       laminationPrice: 0,
       cuttingPrice: 0,
       stickerPrice: 0,
+      courierCharge,
       totalAmount: 0,
     };
   }
@@ -611,6 +617,7 @@ export function calculateB2BPrice(orderState = {}) {
       waitingForFile: !isPagesAvailable,
       pages: numPages,
       copies: numCopies,
+      deliveryType: isCourier ? 'courier' : 'pickup',
       item: null,
       firstCopyRate: 0,
       additionalCopyRate: 0,
@@ -620,6 +627,7 @@ export function calculateB2BPrice(orderState = {}) {
       laminationPrice: 0,
       cuttingPrice: 0,
       stickerPrice: 0,
+      courierCharge,
       totalAmount: 0,
     };
   }
@@ -637,6 +645,7 @@ export function calculateB2BPrice(orderState = {}) {
       waitingForFile: !isPagesAvailable,
       pages: numPages,
       copies: numCopies,
+      deliveryType: isCourier ? 'courier' : 'pickup',
       item,
       firstCopyRate: 0,
       additionalCopyRate: 0,
@@ -646,6 +655,7 @@ export function calculateB2BPrice(orderState = {}) {
       laminationPrice: 0,
       cuttingPrice: 0,
       stickerPrice: 0,
+      courierCharge,
       totalAmount: 0,
     };
   }
@@ -685,8 +695,8 @@ export function calculateB2BPrice(orderState = {}) {
     stickerPrice = stRate * numCopies;
   }
 
-  // Grand Total = Printing + Lamination + Cutting + Sticker
-  const totalAmount = isPagesAvailable ? (printingPrice + laminationPrice + cuttingPrice + stickerPrice) : 0;
+  // Grand Total = Printing + Lamination + Cutting + Sticker + Courier
+  const totalAmount = isPagesAvailable ? (printingPrice + laminationPrice + cuttingPrice + stickerPrice + courierCharge) : 0;
 
   return {
     isValidSelection: true,
@@ -695,6 +705,7 @@ export function calculateB2BPrice(orderState = {}) {
     waitingForFile: !isPagesAvailable,
     pages: numPages,
     copies: numCopies,
+    deliveryType: isCourier ? 'courier' : 'pickup',
     item,
     firstCopyRate: firstRate,
     additionalCopyRate: addRate,
@@ -704,6 +715,7 @@ export function calculateB2BPrice(orderState = {}) {
     laminationPrice,
     cuttingPrice,
     stickerPrice,
+    courierCharge,
     totalAmount,
   };
 }

@@ -30,7 +30,9 @@ import {
   getBWRow,
   getColorPapers,
   getColorGSMs,
-  getColorRow
+  getColorRow,
+  calculateB2BPrice,
+  formatINR
 } from '../lib/priceList';
 
 const WINSTAR_PHONE = '919345046665'; 
@@ -79,6 +81,7 @@ export default function PrintWizard({ isWholesale = false }) {
   const [b2bStickerType, setB2bStickerType] = useState('');
   const [b2bCopies, setB2bCopies] = useState(1);
   const [b2bInstructions, setB2bInstructions] = useState('');
+  const [b2bPages, setB2bPages] = useState(null);
 
   const [config, setConfig] = useState({
     service: 'bw_print',
@@ -404,6 +407,22 @@ async function detectFilePages(file) {
   return 1;
 }
 
+  const b2bPriceResult = calculateB2BPrice({
+    mediaCategory: b2bMediaCategory,
+    gsm: b2bGsm,
+    size: b2bSize,
+    bothSides: b2bBothSides,
+    lamination: b2bThermalLamination,
+    laminationType: b2bThermalLaminationType,
+    cutting: b2bCutting,
+    cuttingType: b2bCuttingType,
+    sticker: b2bSticker,
+    stickerType: b2bStickerType,
+    copies: b2bCopies,
+    pages: b2bPages,
+    fileUploaded: Boolean(file || uploadedFile),
+  });
+
   function getCalculatedPrice() {
     let subtotal = 0;
     let printingTotal = 0;
@@ -411,68 +430,13 @@ async function detectFilePages(file) {
     let cuttingTotal = 0;
     
     if (isWholesaleActive) {
-      const mediaKey = B2B_CATEGORY_PRICE_MAP[b2bMediaCategory] || b2bMediaCategory?.toUpperCase();
-      const normalizedSize = b2bSize ? b2bSize.toUpperCase().replace(/\s+/g, '') : '';
-      const normalizedGsm = b2bGsm ? String(b2bGsm).trim() : '';
-
-      const item = WHOLESALE_PRICE_LIST.find(i => {
-        const iMedia = (i.media || '').toUpperCase().replace(/\s+/g, ' ');
-        const targetMedia = mediaKey ? mediaKey.toUpperCase().replace(/\s+/g, ' ') : '';
-        const iSize = (i.size || '').toUpperCase().replace(/\s+/g, '');
-        const iGsm = String(i.gsm || '').trim();
-
-        const mediaMatch = iMedia === targetMedia;
-        const sizeMatch = !normalizedSize || iSize === normalizedSize;
-        const gsmMatch = !normalizedGsm || iGsm === normalizedGsm;
-
-        return mediaMatch && sizeMatch && gsmMatch;
-      });
-
-      let printCost = 0;
-      if (item) {
-        const isDouble = b2bBothSides && item.double_1st !== null;
-        const rate1st = isDouble ? item.double_1st : item.single_1st;
-        const rateAdd = isDouble ? item.double_add : item.single_add;
-        const pages = parseInt(config.pages) || 1;
-        const copies = parseInt(b2bCopies) || 1;
-        const totalSheets = pages * copies;
-        if (totalSheets > 10) {
-          printCost = totalSheets * rateAdd;
-        } else {
-          printCost = rate1st + ((totalSheets - 1) * rateAdd);
-        }
-      }
-
-      // Calculate finishing charges
-      let laminationCost = 0;
-      if (b2bThermalLamination && b2bThermalLaminationType) {
-        const pricePerSide = THERMAL_LAMINATION_PRICES[b2bThermalLaminationType] || 0;
-        laminationCost = pricePerSide * (b2bBothSides ? 2 : 1) * (parseInt(b2bCopies) || 1);
-      }
-
-      let cuttingCost = 0;
-      if (b2bCutting && b2bCuttingType) {
-        cuttingCost = CUTTING_PRICES[b2bCuttingType] || 0;
-      }
-
-      let stickerCost = 0;
-      if (b2bSticker && b2bStickerType) {
-        stickerCost = STICKER_FINISHING_PRICES[b2bStickerType] || 0;
-      }
-
-      printingTotal = printCost;
-      bindingTotal = laminationCost + cuttingCost + stickerCost;
-      subtotal = printingTotal + bindingTotal;
-
-      const gst = subtotal * 0.18;
-      const grandTotal = Math.round(subtotal + gst);
       return { 
-        subtotal: subtotal.toFixed(2), 
-        gst: gst.toFixed(2), 
-        grandTotal: grandTotal.toFixed(2),
-        printingTotal: printingTotal.toFixed(2),
-        bindingTotal: bindingTotal.toFixed(2),
-        cuttingTotal: '0.00',
+        subtotal: b2bPriceResult.totalAmount.toFixed(2), 
+        gst: '0.00', 
+        grandTotal: b2bPriceResult.totalAmount.toFixed(2),
+        printingTotal: b2bPriceResult.printingPrice.toFixed(2),
+        bindingTotal: (b2bPriceResult.laminationPrice + b2bPriceResult.cuttingPrice + b2bPriceResult.stickerPrice).toFixed(2),
+        cuttingTotal: b2bPriceResult.cuttingPrice.toFixed(2),
         courierCharge: '0.00'
       };
     } else {
@@ -582,6 +546,7 @@ async function detectFilePages(file) {
     if (isAudio || isVideo) {
       setFile(null);
       setUploadedFile(null);
+      setB2bPages(null);
       setError('Audio and Video files are not supported. Please upload printable documents or images (PDF, CorelDRAW .CDR, DOCX, PSD, AI, JPG, PNG).');
       return;
     }
@@ -590,15 +555,15 @@ async function detectFilePages(file) {
     setUploading(true);
 
     try {
-      // 1. Analyze and extract page count from uploaded PDF
+      // 1. Analyze and extract page count from uploaded document
       const detectedPages = await detectFilePages(selectedFile);
-      if (detectedPages && detectedPages > 0) {
-        setConfig(c => ({ 
-          ...c, 
-          pages: detectedPages,
-          letterhead_sheets: detectedPages
-        }));
-      }
+      const safePages = (detectedPages && detectedPages > 0) ? detectedPages : 1;
+      setB2bPages(safePages);
+      setConfig(c => ({ 
+        ...c, 
+        pages: safePages,
+        letterhead_sheets: safePages
+      }));
 
       // 2. Upload file to backend
       const uploaded = await uploadPrintFile(selectedFile);
@@ -627,10 +592,17 @@ async function detectFilePages(file) {
       return;
     }
 
-    const prices = getCalculatedPrice();
-    if (prices.grandTotal <= 0) {
-      setError('Price unavailable for this specification. Please check your inputs or contact support.');
-      return;
+    if (isWholesaleActive) {
+      if (!b2bPriceResult.isPriceAvailable || (!b2bPriceResult.waitingForFile && b2bPriceResult.totalAmount <= 0)) {
+        setError(b2bPriceResult.errorMessage || 'Price unavailable for this specification. Please check your inputs or contact support.');
+        return;
+      }
+    } else {
+      const prices = getCalculatedPrice();
+      if (prices.grandTotal <= 0) {
+        setError('Price unavailable for this specification. Please check your inputs or contact support.');
+        return;
+      }
     }
 
     const currentSize = config.service === 'bw_print' ? config.bw_size : (config.service === 'color_print' ? config.color_size : '');
@@ -686,22 +658,26 @@ async function detectFilePages(file) {
         paper_size: isWholesaleActive ? b2bSize : normalPaperSize,
         paper_gsm: isWholesaleActive ? b2bGsm : normalPaperGsm,
         double_sided: isWholesaleActive ? b2bBothSides : normalDoubleSided,
+        pages: isWholesaleActive ? (b2bPages || 1) : config.pages,
         copies: isWholesaleActive ? b2bCopies : normalCopies,
         message_text: isWholesaleActive ? b2bInstructions : config.message_text,
         lamination: (isWholesaleActive && b2bThermalLamination && b2bThermalLaminationType) ? {
           enabled: true,
           type: b2bThermalLaminationType,
           price_per_side: THERMAL_LAMINATION_PRICES[b2bThermalLaminationType] || 0,
+          total_price: b2bPriceResult.laminationPrice,
         } : null,
         thermal_lamination: (isWholesaleActive && b2bThermalLamination && b2bThermalLaminationType) ? {
           enabled: true,
           type: b2bThermalLaminationType,
           price_per_side: THERMAL_LAMINATION_PRICES[b2bThermalLaminationType] || 0,
+          total_price: b2bPriceResult.laminationPrice,
         } : null,
         cutting: (isWholesaleActive && b2bCutting && b2bCuttingType) ? {
           enabled: true,
           type: b2bCuttingType,
           price: CUTTING_PRICES[b2bCuttingType] || 0,
+          total_price: b2bPriceResult.cuttingPrice,
         } : (!isWholesaleActive && config.service === 'visiting_cards') ? {
           enabled: true,
           type: 'Visiting Card Cutting',
@@ -711,7 +687,12 @@ async function detectFilePages(file) {
           enabled: true,
           type: b2bStickerType,
           price: STICKER_FINISHING_PRICES[b2bStickerType] || 0,
+          total_price: b2bPriceResult.stickerPrice,
         } : null,
+        printing_price: isWholesaleActive ? b2bPriceResult.printingPrice : prices.printingTotal,
+        lamination_price: isWholesaleActive ? b2bPriceResult.laminationPrice : 0,
+        cutting_price: isWholesaleActive ? b2bPriceResult.cuttingPrice : prices.cuttingTotal,
+        sticker_price: isWholesaleActive ? b2bPriceResult.stickerPrice : 0,
         file_name: uploadedFile?.fileName || file?.name || 'print-file.pdf',
         file_url: uploadedFile?.publicUrl || '',
         file_id: uploadedFile?.fileId || '',
@@ -719,7 +700,7 @@ async function detectFilePages(file) {
         delivery_type: deliveryType,
         delivery_address: deliveryType === 'courier' ? deliveryAddress : '',
         order_type: isWholesaleActive ? 'wholesale' : 'normal',
-        total_price: prices.grandTotal,
+        total_price: isWholesaleActive ? b2bPriceResult.totalAmount : prices.grandTotal,
       };
 
       const data = await createOrder(payload, user, token);
@@ -745,6 +726,13 @@ async function detectFilePages(file) {
       const thermLamType = order.thermal_lamination?.type || order.lamination?.type || (b2bThermalLamination ? b2bThermalLaminationType : '');
       const cuttingType = order.cutting?.type || (b2bCutting ? b2bCuttingType : '');
       const stickerType = order.sticker?.type || (b2bSticker ? b2bStickerType : '');
+      const orderPages = order.pages || b2bPages || 1;
+      const orderCopies = order.copies || b2bCopies || 1;
+      const pPrice = order.printing_price ?? b2bPriceResult.printingPrice;
+      const lPrice = order.lamination_price ?? b2bPriceResult.laminationPrice;
+      const cPrice = order.cutting_price ?? b2bPriceResult.cuttingPrice;
+      const sPrice = order.sticker_price ?? b2bPriceResult.stickerPrice;
+      const tPrice = order.total_price ?? b2bPriceResult.totalAmount;
 
       textStr = `🖨️ *WINSTAR B2B PRINT ORDER* - *${reqId}*\n\n` +
         `🏢 *Agency / Client:* ${agencyName}\n` +
@@ -753,14 +741,22 @@ async function detectFilePages(file) {
         `📦 *Media Type:* ${order.media_type || b2bMediaType}\n` +
         `📄 *Media Category:* ${order.media_category || b2bMediaCategory}\n` +
         `📐 *Size:* ${order.paper_size || b2bSize}\n` +
-        `⚖️ *GSM:* ${order.paper_gsm || b2bGsm}\n` +
-        `🔄 *Print Side:* ${(order.double_sided ?? b2bBothSides) ? 'Both Sides' : 'Single Side'}\n` +
-        (thermLamType ? `✨ *Lamination:* ${thermLamType} (${(order.double_sided ?? b2bBothSides) ? 'Both Sides' : 'Single Side'})\n` : '') +
-        (cuttingType ? `✂️ *Cutting:* ${cuttingType}\n` : '') +
-        (stickerType ? `🏷️ *Sticker Finishing:* ${stickerType}\n` : '') +
-        `🔢 *Copies:* ${order.copies || b2bCopies}\n` +
+        `⚖️ *GSM:* ${order.paper_gsm || b2bGsm} GSM\n` +
+        `🔄 *Print Side:* ${(order.double_sided ?? b2bBothSides) ? 'Front & Back' : 'Single Side'}\n` +
+        `📑 *Pages:* ${orderPages}\n` +
+        `🔢 *Copies:* ${orderCopies}\n` +
+        (thermLamType ? `✨ *Lamination:* ${thermLamType} (${formatINR(lPrice)})\n` : '') +
+        (cuttingType ? `✂️ *Cutting:* ${cuttingType} (${formatINR(cPrice)})\n` : '') +
+        (stickerType ? `🏷️ *Sticker Finishing:* ${stickerType} (${formatINR(sPrice)})\n` : '') +
         (order.file_name ? `📂 *File Attached:* ${order.file_name}\n` : '') +
-        ((order.message_text || b2bInstructions) ? `📝 *Customer Instructions:* ${order.message_text || b2bInstructions}\n` : '');
+        ((order.message_text || b2bInstructions) ? `📝 *Customer Instructions:* ${order.message_text || b2bInstructions}\n` : '') +
+        `\n💰 *PRICE ESTIMATION BREAKDOWN*\n` +
+        `• Printing: ${formatINR(pPrice)}\n` +
+        `• Lamination: ${formatINR(lPrice)}\n` +
+        `• Cutting: ${formatINR(cPrice)}\n` +
+        `• Sticker: ${formatINR(sPrice)}\n` +
+        `\n💵 *TOTAL AMOUNT:* ${formatINR(tPrice)}\n\n` +
+        `Please confirm my print job! Request ID: ${reqId}`;
     } else {
       textStr = `🖨️ *WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
         `👤 *Customer:* ${order.customer_name} (${order.customer_phone})\n` +
@@ -808,7 +804,7 @@ async function detectFilePages(file) {
 
     textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + (order.delivery_address || deliveryAddress) : 'Store Pickup'}\n`;
     textStr += (order.order_type === 'wholesale' || isWholesaleActive)
-      ? `💰 *Total Amount:* ₹${order.total_price} (Incl. 18% GST)\n\n`
+      ? `💰 *Total Amount:* ${formatINR(order.total_price || b2bPriceResult.totalAmount)}\n\n`
       : `💰 *Total Amount:* ₹${order.total_price}\n\n`;
     
     textStr += `Please confirm my print job! Request ID: ${reqId}`;
@@ -2070,7 +2066,9 @@ async function detectFilePages(file) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                 <span className="summary-mobile-badge">
                   {isWholesaleActive 
-                    ? (b2bMediaType ? `${b2bMediaType.split(' ')[0]} • ${b2bCopies}x` : 'Specifications') 
+                    ? (b2bPriceResult.isPriceAvailable && !b2bPriceResult.waitingForFile && b2bPriceResult.totalAmount > 0 
+                        ? formatINR(b2bPriceResult.totalAmount) 
+                        : (b2bMediaType ? `${b2bMediaType.split(' ')[0]} • ${b2bCopies}x` : 'Specifications')) 
                     : `₹${prices.grandTotal}`}
                 </span>
                 <span className="material-symbols-outlined summary-collapse-icon" style={{
@@ -2102,12 +2100,20 @@ async function detectFilePages(file) {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                     <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>Print Side:</span>
-                    <span style={{ fontWeight: 700, textAlign: 'right' }}>{b2bBothSides ? 'Both Sides' : 'Single Side'}</span>
+                    <span style={{ fontWeight: 700, textAlign: 'right' }}>{b2bBothSides ? 'Front & Back' : 'Single Side'}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                    <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>Pages:</span>
+                    <span style={{ fontWeight: 700, textAlign: 'right' }}>{(file || uploadedFile) && b2bPages ? b2bPages : '—'}</span>
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                    <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>Copies:</span>
+                    <span style={{ fontWeight: 700, textAlign: 'right' }}>{b2bCopies}</span>
                   </div>
                   {b2bThermalLamination && b2bThermalLaminationType && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                       <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>Lamination:</span>
-                      <span style={{ fontWeight: 700, color: 'var(--on-surface)', textAlign: 'right', wordBreak: 'break-word', maxWidth: '65%' }}>{b2bThermalLaminationType} ({b2bBothSides ? 'Both Sides' : 'Single Side'})</span>
+                      <span style={{ fontWeight: 700, color: 'var(--on-surface)', textAlign: 'right', wordBreak: 'break-word', maxWidth: '65%' }}>{b2bThermalLaminationType}</span>
                     </div>
                   )}
                   {b2bCutting && b2bCuttingType && (
@@ -2122,10 +2128,6 @@ async function detectFilePages(file) {
                       <span style={{ fontWeight: 700, color: 'var(--on-surface)', textAlign: 'right', wordBreak: 'break-word', maxWidth: '65%' }}>{b2bStickerType}</span>
                     </div>
                   )}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                    <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>Copies:</span>
-                    <span style={{ fontWeight: 700, textAlign: 'right' }}>{b2bCopies}</span>
-                  </div>
                   {file && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                       <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>File Attached:</span>
@@ -2140,6 +2142,61 @@ async function detectFilePages(file) {
                       <span style={{ color: 'var(--on-surface)', wordBreak: 'break-word', lineHeight: 1.3 }}>{b2bInstructions}</span>
                     </div>
                   )}
+
+                  {/* PRICE ESTIMATION BREAKDOWN */}
+                  <div style={{ borderTop: '1px dashed var(--surface-container-high)', paddingTop: 14, marginTop: 6 }}>
+                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.05em', color: 'var(--on-surface-variant)', textTransform: 'uppercase', marginBottom: 10 }}>
+                      PRICE ESTIMATION
+                    </div>
+
+                    {!b2bPriceResult.isPriceAvailable ? (
+                      <div style={{ fontSize: 12.5, color: '#b91c1c', background: '#fee2e2', border: '1px solid #fca5a5', padding: '10px 12px', borderRadius: 'var(--radius-md)', fontWeight: 600, textAlign: 'center', marginBottom: 8 }}>
+                        Price unavailable for this selection.
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13.5, color: 'var(--on-surface)' }}>
+                          <span style={{ color: 'var(--on-surface-variant)' }}>Printing:</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {b2bPriceResult.waitingForFile ? (b2bPriceResult.isValidSelection ? 'Waiting for file' : '—') : formatINR(b2bPriceResult.printingPrice)}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13.5, color: 'var(--on-surface)' }}>
+                          <span style={{ color: 'var(--on-surface-variant)' }}>Lamination:</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {!b2bThermalLamination ? '₹0' : (b2bPriceResult.waitingForFile ? 'Waiting for file' : formatINR(b2bPriceResult.laminationPrice))}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13.5, color: 'var(--on-surface)' }}>
+                          <span style={{ color: 'var(--on-surface-variant)' }}>Cutting:</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {!b2bCutting ? '₹0' : formatINR(b2bPriceResult.cuttingPrice)}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13.5, color: 'var(--on-surface)' }}>
+                          <span style={{ color: 'var(--on-surface-variant)' }}>Sticker:</span>
+                          <span style={{ fontWeight: 700 }}>
+                            {!b2bSticker ? '₹0' : formatINR(b2bPriceResult.stickerPrice)}
+                          </span>
+                        </div>
+
+                        <div style={{ 
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          marginTop: 12, paddingTop: 12, 
+                          borderTop: '1px solid var(--surface-container-high)', 
+                          fontWeight: 800, fontSize: 17, color: 'var(--primary-container)' 
+                        }}>
+                          <span>TOTAL AMOUNT:</span>
+                          <span>
+                            {b2bPriceResult.waitingForFile ? (b2bPriceResult.isValidSelection ? 'Waiting for file' : '—') : formatINR(b2bPriceResult.totalAmount)}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14, marginBottom: 16 }}>
@@ -2375,7 +2432,7 @@ async function detectFilePages(file) {
                     {createdOrder.customer_email && <div><strong>Email:</strong> {createdOrder.customer_email}</div>}
                     <div><strong>Service:</strong> {createdOrder.service_name}</div>
                     <div><strong>File:</strong> {createdOrder.file_name}</div>
-                    <div><strong>Total Amount:</strong> ₹{createdOrder.total_price} {(createdOrder.order_type === 'wholesale' || isWholesaleActive) ? '(Incl. GST)' : ''}</div>
+                    <div><strong>Total Amount:</strong> {formatINR(createdOrder.total_price)}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

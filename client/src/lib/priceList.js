@@ -22,15 +22,15 @@ export const WHOLESALE_PRICE_LIST = [
   { id: 21, gsm: '300', media: 'TEXTURE LINEN CREAM', size: '13X19', single_1st: 40, single_add: 30, double_1st: 60, double_add: 40 },
   { id: 22, gsm: '300', media: 'TEXTURE NEEDLE POINT', size: '13X19', single_1st: 40, single_add: 30, double_1st: 60, double_add: 40 },
   { id: 23, gsm: '300', media: 'TEXTURE STUCCO', size: '13X19', single_1st: 40, single_add: 30, double_1st: 60, double_add: 40 },
-  { id: 24, gsm: '125', media: 'SYNTHETIC -125 MIC', size: '13X19', single_1st: 40, single_add: 30, double_1st: 60, double_add: 40 },
-  { id: 25, gsm: '200', media: 'SYNTHETIC -200 MIC', size: '13X19', single_1st: 60, single_add: 40, double_1st: 80, double_add: 50 },
+  { id: 24, gsm: '125', media: 'SYNTHETIC - 125 MIC', size: '13X19', single_1st: 40, single_add: 30, double_1st: 60, double_add: 40 },
+  { id: 25, gsm: '200', media: 'SYNTHETIC - 200 MIC', size: '13X19', single_1st: 60, single_add: 40, double_1st: 80, double_add: 50 },
   { id: 26, gsm: '125', media: 'SYNTHETIC SILVER/GOLD', size: '13X19', single_1st: 60, single_add: 50, double_1st: 80, double_add: 50 },
   { id: 27, gsm: '135', media: 'SYNTHETIC TRANSPARENT', size: '13X19', single_1st: 75, single_add: 60, double_1st: null, double_add: null },
   { id: 28, gsm: '90/130', media: 'STICKER - ART', size: '13X19', single_1st: 30, single_add: 15, double_1st: null, double_add: null },
   { id: 29, gsm: '90/140', media: 'STICKER - ART (A)', size: '13X19', single_1st: 30, single_add: 16, double_1st: null, double_add: null },
   { id: 30, gsm: '90/130', media: 'STICKER - GLOSSY', size: '13X19', single_1st: 30, single_add: 17, double_1st: null, double_add: null },
-  { id: 31, gsm: '90/140', media: 'STICKER - GLOSSY (A)', size: '13X19', single_1st: 30, single_add: 19, double_1st: null, double_add: null },
-  { id: 32, gsm: '90/140', media: 'STICKER - GLOSSY (A) 2', size: '13X19', single_1st: 30, single_add: 20, double_1st: null, double_add: null },
+  { id: 31, gsm: '90/140', media: 'STICKER - GLOSSY', size: '13X19', single_1st: 30, single_add: 19, double_1st: null, double_add: null },
+  { id: 32, gsm: '90/140', media: 'STICKER - GLOSSY (A)', size: '13X19', single_1st: 30, single_add: 20, double_1st: null, double_add: null },
   { id: 33, gsm: '90/140', media: 'PVC STICKER - WHITE', size: '13X19', single_1st: 40, single_add: 28, double_1st: null, double_add: null },
   { id: 34, gsm: '90/140', media: 'PVC STICKER - CLEAR', size: '13X19', single_1st: 40, single_add: 28, double_1st: null, double_add: null },
   { id: 35, gsm: '90/130', media: 'PVC STICKER - WHITE (A)', size: '13X19', single_1st: 50, single_add: 35, double_1st: null, double_add: null },
@@ -519,4 +519,193 @@ export function getB2BGSMs(mediaType, mediaCategory, size) {
   if (!mediaType || !mediaCategory || !size || !B2B_MEDIA_TREE[mediaType]?.[mediaCategory]?.[size]) return [];
   return B2B_MEDIA_TREE[mediaType][mediaCategory][size];
 }
+
+/**
+ * Format Indian Rupee currency with commas (e.g. ₹960, ₹1,320, ₹10,000, ₹1,25,000)
+ */
+export function formatINR(val) {
+  if (val === null || val === undefined || isNaN(val)) return '—';
+  const num = Math.round(Number(val));
+  return '₹' + num.toLocaleString('en-IN');
+}
+
+/**
+ * Single source of truth for B2B price calculations.
+ * 
+ * Rules:
+ * 1. Price lookup by Media Category + GSM + Size
+ * 2. Printing Price = First Copy Rate + Additional Copy Rate * (Copies - 1)
+ *    Single Side Total = Pages * [First + Add * (Copies - 1)]
+ *    Front & Back Total = CEIL(Pages / 2) * [FB First + FB Add * (Copies - 1)]
+ * 3. Lamination Total = Price Per Side * Pages * Copies
+ * 4. Cutting Total = Selected Cutting Price * Copies
+ * 5. Sticker Finishing Total = Selected Sticker Finishing Price * Copies
+ * 6. Total = Printing + Lamination + Cutting + Sticker (No tax/GST/fees added)
+ */
+export function calculateB2BPrice(orderState = {}) {
+  const {
+    mediaCategory,
+    gsm,
+    size,
+    bothSides = false,
+    lamination = false,
+    laminationType = '',
+    cutting = false,
+    cuttingType = '',
+    sticker = false,
+    stickerType = '',
+    copies = 1,
+    pages = null,
+    fileUploaded = false,
+  } = orderState;
+
+  const numCopies = Math.max(1, parseInt(copies, 10) || 1);
+  const isPagesAvailable = Boolean(fileUploaded) && pages !== null && pages !== undefined && !isNaN(pages) && Number(pages) > 0;
+  const numPages = isPagesAvailable ? Math.max(1, parseInt(pages, 10) || 1) : null;
+
+  // If basic required selections are missing
+  if (!mediaCategory || !gsm || !size) {
+    return {
+      isValidSelection: false,
+      isPriceAvailable: true,
+      errorMessage: null,
+      waitingForFile: !isPagesAvailable,
+      pages: numPages,
+      copies: numCopies,
+      item: null,
+      firstCopyRate: 0,
+      additionalCopyRate: 0,
+      copyRate: 0,
+      physicalSheets: null,
+      printingPrice: 0,
+      laminationPrice: 0,
+      cuttingPrice: 0,
+      stickerPrice: 0,
+      totalAmount: 0,
+    };
+  }
+
+  // Find matching price list entry
+  const mediaKey = B2B_CATEGORY_PRICE_MAP[mediaCategory] || mediaCategory.toUpperCase();
+  const targetMediaNorm = mediaKey.toUpperCase().replace(/[\s\-_/]/g, '');
+  const targetSizeNorm = size ? String(size).toUpperCase().replace(/[\s\-_]/g, '') : '';
+  const targetGsmNorm = gsm ? String(gsm).trim().toUpperCase().replace(/[\s\-_]/g, '') : '';
+
+  const item = WHOLESALE_PRICE_LIST.find(i => {
+    const iMediaNorm = (i.media || '').toUpperCase().replace(/[\s\-_/]/g, '');
+    const iSizeNorm = (i.size || '').toUpperCase().replace(/[\s\-_]/g, '');
+    const iGsmNorm = String(i.gsm || '').trim().toUpperCase().replace(/[\s\-_]/g, '');
+
+    const mediaMatch = iMediaNorm === targetMediaNorm;
+    const sizeMatch = !targetSizeNorm || iSizeNorm === targetSizeNorm;
+    const gsmMatch = !targetGsmNorm || iGsmNorm === targetGsmNorm;
+
+    return mediaMatch && sizeMatch && gsmMatch;
+  });
+
+  if (!item) {
+    return {
+      isValidSelection: true,
+      isPriceAvailable: false,
+      errorMessage: 'Price unavailable for this selection.',
+      waitingForFile: !isPagesAvailable,
+      pages: numPages,
+      copies: numCopies,
+      item: null,
+      firstCopyRate: 0,
+      additionalCopyRate: 0,
+      copyRate: 0,
+      physicalSheets: null,
+      printingPrice: 0,
+      laminationPrice: 0,
+      cuttingPrice: 0,
+      stickerPrice: 0,
+      totalAmount: 0,
+    };
+  }
+
+  // Determine Single Side vs Front/Back
+  const isDouble = Boolean(bothSides);
+  const firstRate = isDouble ? item.double_1st : item.single_1st;
+  const addRate = isDouble ? item.double_add : item.single_add;
+
+  if (firstRate === null || firstRate === undefined) {
+    return {
+      isValidSelection: true,
+      isPriceAvailable: false,
+      errorMessage: 'Price unavailable for this selection.',
+      waitingForFile: !isPagesAvailable,
+      pages: numPages,
+      copies: numCopies,
+      item,
+      firstCopyRate: 0,
+      additionalCopyRate: 0,
+      copyRate: 0,
+      physicalSheets: null,
+      printingPrice: 0,
+      laminationPrice: 0,
+      cuttingPrice: 0,
+      stickerPrice: 0,
+      totalAmount: 0,
+    };
+  }
+
+  // Copy rate = First Copy Rate + (Additional Copy Rate * (Copies - 1))
+  const copyRate = firstRate + (addRate * (numCopies - 1));
+
+  // Printing Total
+  let physicalSheets = null;
+  let printingPrice = 0;
+
+  if (isPagesAvailable) {
+    physicalSheets = isDouble ? Math.ceil(numPages / 2) : numPages;
+    printingPrice = physicalSheets * copyRate;
+  }
+
+  // Lamination Total = Price Per Side * Pages * Copies
+  let laminationPrice = 0;
+  if (lamination && laminationType) {
+    const lamPerSide = THERMAL_LAMINATION_PRICES[laminationType] || 0;
+    if (isPagesAvailable) {
+      laminationPrice = lamPerSide * numPages * numCopies;
+    }
+  }
+
+  // Cutting Total = Selected Cutting Price * Copies
+  let cuttingPrice = 0;
+  if (cutting && cuttingType) {
+    const cutRate = CUTTING_PRICES[cuttingType] || 0;
+    cuttingPrice = cutRate * numCopies;
+  }
+
+  // Sticker Finishing Total = Selected Sticker Finishing Price * Copies
+  let stickerPrice = 0;
+  if (sticker && stickerType) {
+    const stRate = STICKER_FINISHING_PRICES[stickerType] || 0;
+    stickerPrice = stRate * numCopies;
+  }
+
+  // Grand Total = Printing + Lamination + Cutting + Sticker
+  const totalAmount = isPagesAvailable ? (printingPrice + laminationPrice + cuttingPrice + stickerPrice) : 0;
+
+  return {
+    isValidSelection: true,
+    isPriceAvailable: true,
+    errorMessage: null,
+    waitingForFile: !isPagesAvailable,
+    pages: numPages,
+    copies: numCopies,
+    item,
+    firstCopyRate: firstRate,
+    additionalCopyRate: addRate,
+    copyRate,
+    physicalSheets,
+    printingPrice,
+    laminationPrice,
+    cuttingPrice,
+    stickerPrice,
+    totalAmount,
+  };
+}
+
 

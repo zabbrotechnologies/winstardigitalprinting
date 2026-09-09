@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ServiceCard from '../components/ServiceCard';
@@ -29,18 +30,27 @@ const STATUS_TIMELINE = [
 ];
 
 export default function Services() {
+  const location = useLocation();
   const trackingRef = useRef(null);
   const [orderId, setOrderId] = useState('');
   const [trackResult, setTrackResult] = useState(null);
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState('');
 
-  // Scroll to tracking section if #tracking hash
+  // Scroll to section if hash exists or on navigation
   useEffect(() => {
-    if (window.location.hash === '#tracking' && trackingRef.current) {
-      setTimeout(() => trackingRef.current.scrollIntoView({ behavior: 'smooth' }), 200);
+    if (location.hash === '#tracking') {
+      const el = document.getElementById('tracking') || trackingRef.current;
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
+    } else if (location.hash === '#services') {
+      const el = document.getElementById('services');
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
     }
-  }, []);
+  }, [location.pathname, location.hash]);
 
   async function handleTrack(e) {
     e.preventDefault();
@@ -97,10 +107,11 @@ export default function Services() {
       <Navbar />
 
       {/* Page Header */}
-      <section style={{
+      <section id="services" style={{
         paddingTop: 'calc(72px + 64px)', paddingBottom: 64,
         background: 'linear-gradient(135deg, #fff 0%, #fdf2f8 100%)',
         textAlign: 'center',
+        scrollMarginTop: '80px',
       }}>
         <div className="container">
           <div style={{
@@ -136,7 +147,7 @@ export default function Services() {
       </section>
 
       {/* Order Tracking */}
-      <section id="tracking" ref={trackingRef} className="section" style={{ background: 'linear-gradient(135deg, #f8f9ff 0%, #fdf2f8 100%)' }}>
+      <section id="tracking" ref={trackingRef} className="section" style={{ background: 'linear-gradient(135deg, #f8f9ff 0%, #fdf2f8 100%)', scrollMarginTop: '80px' }}>
         <div className="container" style={{ maxWidth: 680 }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 className="headline-md" style={{ marginBottom: 12 }}>Track Your Order</h2>

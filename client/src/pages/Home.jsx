@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import PrintWizard from '../components/PrintWizard';
@@ -12,6 +13,16 @@ const HOW_IT_WORKS = [
 ];
 
 export default function Home() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === '#quick-print') {
+      const el = document.getElementById('quick-print');
+      if (el) {
+        setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 100);
+      }
+    }
+  }, [location.pathname, location.hash]);
   return (
     <div className="page-content">
       <Navbar />
@@ -222,7 +233,7 @@ export default function Home() {
       </section>
 
       {/* Quick Print Wizard */}
-      <section id="quick-print" className="section">
+      <section id="quick-print" className="section" style={{ scrollMarginTop: '80px' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <h2 className="headline-md" style={{ marginBottom: 12 }}>Quick Print</h2>

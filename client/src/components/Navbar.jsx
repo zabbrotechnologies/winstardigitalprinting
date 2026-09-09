@@ -13,7 +13,7 @@ export default function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
     setUserMenuOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.hash]);
 
   const navLinks = [
     { to: '/', label: 'Home' },
@@ -22,7 +22,67 @@ export default function Navbar() {
     { to: '/services#tracking', label: 'Track Order' },
   ];
 
-  const isActive = (to) => location.pathname === to;
+  const isActive = (to) => {
+    if (to === '/services#tracking') {
+      return location.pathname === '/services' && location.hash === '#tracking';
+    }
+    if (to === '/services') {
+      return location.pathname === '/services' && (!location.hash || location.hash !== '#tracking');
+    }
+    if (to === '/') {
+      return location.pathname === '/' && (!location.hash || location.hash === '');
+    }
+    return location.pathname === to;
+  };
+
+  function handleNavClick(e, to) {
+    if (to === '/services#tracking') {
+      if (location.pathname === '/services') {
+        e.preventDefault();
+        navigate('/services#tracking');
+        const trackingEl = document.getElementById('tracking');
+        if (trackingEl) {
+          trackingEl.scrollIntoView({ behavior: 'smooth' });
+        }
+        if (mobileOpen) setMobileOpen(false);
+        return;
+      }
+    } else if (to === '/services') {
+      if (location.pathname === '/services') {
+        e.preventDefault();
+        navigate('/services');
+        const servicesEl = document.getElementById('services');
+        if (servicesEl) {
+          servicesEl.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (mobileOpen) setMobileOpen(false);
+        return;
+      }
+    } else if (to === '/#quick-print' || to === '#quick-print') {
+      if (location.pathname === '/') {
+        e.preventDefault();
+        navigate('/#quick-print');
+        const qpEl = document.getElementById('quick-print');
+        if (qpEl) {
+          qpEl.scrollIntoView({ behavior: 'smooth' });
+        }
+        if (mobileOpen) setMobileOpen(false);
+        return;
+      }
+    } else if (to === '/') {
+      if (location.pathname === '/') {
+        e.preventDefault();
+        navigate('/');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (mobileOpen) setMobileOpen(false);
+        return;
+      }
+    }
+
+    if (mobileOpen) setMobileOpen(false);
+  }
 
   async function handleSignOut() {
     await signOut();
@@ -33,7 +93,12 @@ export default function Navbar() {
     <header className="navbar">
       <div className="navbar-inner">
         {/* Brand */}
-        <Link to="/" className="navbar-brand" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', height: '100%' }}>
+        <Link
+          to="/"
+          className="navbar-brand"
+          style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none', height: '100%' }}
+          onClick={(e) => handleNavClick(e, '/')}
+        >
           <img 
             src="/logo.png" 
             alt="WINSTAR Logo" 
@@ -93,6 +158,7 @@ export default function Navbar() {
                 <Link
                   to={link.to}
                   className={isActive(link.to) ? 'active' : ''}
+                  onClick={(e) => handleNavClick(e, link.to)}
                 >
                   {link.label}
                 </Link>
@@ -150,7 +216,12 @@ export default function Navbar() {
               <Link to="/auth" className="btn btn-outline btn-pill" style={{ padding: '8px 18px', fontSize: 13 }}>
                 Login
               </Link>
-              <Link to="/#quick-print" className="btn btn-primary btn-pill" style={{ padding: '8px 18px', fontSize: 13 }}>
+              <Link
+                to="/#quick-print"
+                className="btn btn-primary btn-pill"
+                style={{ padding: '8px 18px', fontSize: 13 }}
+                onClick={(e) => handleNavClick(e, '/#quick-print')}
+              >
                 Start Print
               </Link>
             </div>
@@ -175,7 +246,7 @@ export default function Navbar() {
               key={link.to}
               to={link.to}
               className={`mobile-nav-link ${isActive(link.to) ? 'active' : ''}`}
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => handleNavClick(e, link.to)}
             >
               {link.label}
             </Link>
@@ -208,7 +279,12 @@ export default function Navbar() {
               <Link to="/auth" className="btn btn-outline" onClick={() => setMobileOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
                 Login / Register
               </Link>
-              <Link to="/#quick-print" className="btn btn-primary" onClick={() => setMobileOpen(false)} style={{ width: '100%', justifyContent: 'center' }}>
+              <Link
+                to="/#quick-print"
+                className="btn btn-primary"
+                onClick={(e) => handleNavClick(e, '/#quick-print')}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
                 Start Print
               </Link>
             </div>

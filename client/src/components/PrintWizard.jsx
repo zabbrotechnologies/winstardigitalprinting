@@ -994,14 +994,9 @@ async function detectFilePages(file) {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-                {isLocked && s.stepNum > 1 ? 'lock' : s.icon}
+                {s.icon}
               </span>
               <span>{s.label}</span>
-              {isLocked && (
-                <span className="material-symbols-outlined" style={{ fontSize: 14, marginLeft: 2, verticalAlign: 'middle' }}>
-                  lock
-                </span>
-              )}
             </button>
           );
         })}

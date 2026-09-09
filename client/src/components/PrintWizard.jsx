@@ -561,6 +561,27 @@ async function detectFilePages(file) {
     }
   }
 
+  const prices = getCalculatedPrice();
+
+  // B2C Sequential Step Validations
+  const isB2CStep1Complete = Boolean(
+    file &&
+    uploadedFile &&
+    uploadStatus === 'COMPLETED' &&
+    !uploading &&
+    !uploadError &&
+    config.pages > 0
+  );
+
+  const b2cCurrentSize = config.service === 'bw_print' ? config.bw_size : (config.service === 'color_print' ? config.color_size : '');
+  const isB2CBindOverLimit = b2cCurrentSize === 'A4' && config.binding === 'Spiral Binding' && config.pages > 500;
+
+  const isB2CStep2Complete = Boolean(
+    isB2CStep1Complete &&
+    parseFloat(prices.grandTotal) > 0 &&
+    !isB2CBindOverLimit
+  );
+
   async function handleFileSelect(selectedFile) {
     if (!selectedFile) return;
     setError('');
@@ -656,15 +677,21 @@ async function detectFilePages(file) {
         return;
       }
     } else {
-      const prices = getCalculatedPrice();
-      if (prices.grandTotal <= 0) {
+      if (!isB2CStep1Complete || !uploadedFile || uploadStatus !== 'COMPLETED') {
+        setError('Please upload and complete file processing before submitting the order.');
+        return;
+      }
+      if (!isB2CStep2Complete) {
+        setError('Please complete your print specifications.');
+        return;
+      }
+      if (parseFloat(prices.grandTotal) <= 0) {
         setError('Price unavailable for this specification. Please check your inputs or contact support.');
         return;
       }
     }
 
-    const currentSize = config.service === 'bw_print' ? config.bw_size : (config.service === 'color_print' ? config.color_size : '');
-    if (!isWholesaleActive && currentSize === 'A4' && config.binding === 'Spiral Binding' && config.pages > 500) {
+    if (!isWholesaleActive && isB2CBindOverLimit) {
       setError('Spiral Binding is not available for documents over 500 pages.');
       return;
     }
@@ -876,8 +903,6 @@ async function detectFilePages(file) {
     window.open(`https://wa.me/${WINSTAR_PHONE}?text=${text}`, '_blank');
   }
 
-  const prices = getCalculatedPrice();
-
   return (
     <div id="quick-print" className="card print-wizard-card animate-fade-in">
       {isWholesaleActive && (
@@ -905,6 +930,9 @@ async function detectFilePages(file) {
           if (isWholesaleActive) {
             if (s.stepNum === 2 && !isB2BStep1Valid) isLocked = true;
             if (s.stepNum === 3 && !isB2BStep3Allowed) isLocked = true;
+          } else {
+            if (s.stepNum === 2 && !isB2CStep1Complete) isLocked = true;
+            if (s.stepNum === 3 && !isB2CStep2Complete) isLocked = true;
           }
 
           return (
@@ -935,6 +963,25 @@ async function detectFilePages(file) {
                     }
                     return;
                   }
+                } else {
+                  if (s.stepNum === 2 && !isB2CStep1Complete) {
+                    if (uploading || uploadStatus === 'UPLOADING' || uploadStatus === 'PROCESSING') {
+                      setError('Please wait for document upload and analysis to complete.');
+                    } else {
+                      setError('Please upload and complete file processing before continuing to Print Specs.');
+                    }
+                    return;
+                  }
+                  if (s.stepNum === 3 && !isB2CStep2Complete) {
+                    if (!isB2CStep1Complete) {
+                      setError('Please upload and complete file processing first.');
+                    } else if (isB2CBindOverLimit) {
+                      setError('Spiral Binding is not available for documents over 500 pages.');
+                    } else {
+                      setError('Please complete your print specifications before continuing to WhatsApp.');
+                    }
+                    return;
+                  }
                 }
                 setStep(s.stepNum);
                 setError('');
@@ -947,7 +994,7 @@ async function detectFilePages(file) {
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
-                {isLocked && s.stepNum === 3 ? 'lock' : s.icon}
+                {isLocked && s.stepNum > 1 ? 'lock' : s.icon}
               </span>
               <span>{s.label}</span>
               {isLocked && (
@@ -1582,9 +1629,17 @@ async function detectFilePages(file) {
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • ${config.pages} Page${config.pages > 1 ? 's' : ''} detected • Click to replace` : 'Instant automatic file upload & page count analysis (PDF, Word, PowerPoint, Images)'}
+                      {uploading || uploadStatus === 'PROCESSING' || uploadStatus === 'UPLOADING'
+                        ? 'Analyzing document pages & uploading...'
+                        : (uploadStatus === 'COMPLETED' && file && uploadedFile)
+                          ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • ${config.pages} Page${config.pages > 1 ? 's' : ''} detected • Upload complete • Click to replace`
+                          : (uploadStatus === 'ERROR')
+                            ? 'Upload failed. Please click to try again.'
+                            : 'Instant automatic file upload & page count analysis (PDF, Word, PowerPoint, Images)'}
                     </div>
-                    {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
+                    {(uploading || uploadStatus === 'UPLOADING' || uploadStatus === 'PROCESSING') && (
+                      <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />
+                    )}
                   </div>
 
                   {error && (
@@ -1599,7 +1654,27 @@ async function detectFilePages(file) {
                   )}
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
-                    <button className="btn btn-primary" onClick={() => setStep(2)}>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      disabled={!isB2CStep1Complete}
+                      onClick={() => {
+                        if (!isB2CStep1Complete) {
+                          if (uploading || uploadStatus === 'UPLOADING' || uploadStatus === 'PROCESSING') {
+                            setError('Please wait for document upload and analysis to complete.');
+                          } else {
+                            setError('Please upload and complete file processing before continuing to Print Specs.');
+                          }
+                          return;
+                        }
+                        setError('');
+                        setStep(2);
+                      }}
+                      style={{
+                        opacity: !isB2CStep1Complete ? 0.6 : 1,
+                        cursor: !isB2CStep1Complete ? 'not-allowed' : 'pointer',
+                      }}
+                    >
                       Next: Configure Print <span className="material-symbols-outlined">arrow_forward</span>
                     </button>
                   </div>
@@ -2080,7 +2155,28 @@ async function detectFilePages(file) {
                     <button className="btn btn-outline" onClick={() => setStep(1)}>
                       <span className="material-symbols-outlined">arrow_back</span> Back
                     </button>
-                    <button className="btn btn-primary" onClick={() => setStep(3)}>
+                    <button
+                      className="btn btn-primary"
+                      disabled={!isB2CStep2Complete}
+                      onClick={() => {
+                        if (!isB2CStep2Complete) {
+                          if (!isB2CStep1Complete) {
+                            setError('Please upload and complete file processing first.');
+                          } else if (isB2CBindOverLimit) {
+                            setError('Spiral Binding is not available for documents over 500 pages.');
+                          } else {
+                            setError('Please complete your print specifications before continuing to WhatsApp.');
+                          }
+                          return;
+                        }
+                        setError('');
+                        setStep(3);
+                      }}
+                      style={{
+                        opacity: !isB2CStep2Complete ? 0.6 : 1,
+                        cursor: !isB2CStep2Complete ? 'not-allowed' : 'pointer',
+                      }}
+                    >
                       Next: Delivery <span className="material-symbols-outlined">arrow_forward</span>
                     </button>
                   </div>

@@ -2336,5 +2336,54 @@ img {
   }
 }
 
+/* ============================================================
+   RESPONSIVE PAYMENT METHOD TOGGLE (STACK ON MOBILE)
+   ============================================================ */
+.payment-method-toggle-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  width: 100%;
+}
 
+.payment-toggle-btn {
+  flex: 1;
+}
 
+@media (max-width: 600px) {
+  .payment-method-toggle-group {
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .payment-method-toggle-group .payment-toggle-btn {
+    width: 100% !important;
+    flex: none !important;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE B2B CUSTOMER DASHBOARD FILTER
+   ============================================================ */
+.dashboard-filter-bar {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .dashboard-filter-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 12px 14px !important;
+  }
+  .dashboard-filter-bar > div {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .dashboard-filter-bar button {
+    font-size: 12px !important;
+  }
+}

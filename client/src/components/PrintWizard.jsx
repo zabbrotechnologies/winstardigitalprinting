@@ -2723,12 +2723,11 @@ async function detectFilePages(file) {
                 </p>
 
                 {/* Toggles */}
-                <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+                <div className="payment-method-toggle-group">
                   <button
                     onClick={() => setPaymentMethod('online')}
-                    className="btn"
+                    className="btn payment-toggle-btn"
                     style={{
-                      flex: 1,
                       border: paymentMethod === 'online' ? '2.5px solid var(--primary)' : '1px solid var(--outline-variant)',
                       background: paymentMethod === 'online' ? 'var(--primary-container)' : 'transparent',
                       color: paymentMethod === 'online' ? 'var(--on-primary-container)' : 'var(--on-surface)',
@@ -2739,9 +2738,8 @@ async function detectFilePages(file) {
                   </button>
                   <button
                     onClick={() => setPaymentMethod('cod')}
-                    className="btn"
+                    className="btn payment-toggle-btn"
                     style={{
-                      flex: 1,
                       border: paymentMethod === 'cod' ? '2.5px solid var(--primary)' : '1px solid var(--outline-variant)',
                       background: paymentMethod === 'cod' ? 'var(--primary-container)' : 'transparent',
                       color: paymentMethod === 'cod' ? 'var(--on-primary-container)' : 'var(--on-surface)',

@@ -204,30 +204,63 @@ export default function Dashboard() {
 
           {/* Orders View */}
           {view === 'orders' && (
-            <div className="animate-fade-in">
-              <div style={{ marginBottom: 32 }}>
-                <h1 className="headline-md" style={{ marginBottom: 8 }}>All Orders</h1>
+            <div className="animate-fade-in" style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+              <div style={{ marginBottom: 24 }}>
+                <h1 className="headline-md" style={{ marginBottom: 6 }}>All Orders</h1>
                 <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
                   {orders.length} total order{orders.length !== 1 ? 's' : ''}
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: 12, marginBottom: 24 }}>
-                {['All', 'Pending', 'Processing', 'Printed', 'Delivered'].map(status => (
-                  <button 
-                    key={status} 
-                    className={`btn btn-sm btn-pill ${orderFilter === status ? 'btn-primary' : 'btn-outline'}`}
-                    onClick={() => setOrderFilter(status)}
-                  >
-                    {status}
-                  </button>
-                ))}
-                <div style={{ flex: 1 }} />
-                <button className="btn btn-primary btn-sm" onClick={() => setView('new_order')}>
+              <div className="card dashboard-filter-bar" style={{
+                padding: '14px 16px',
+                marginBottom: 20,
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 12,
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderRadius: 'var(--radius-lg)',
+                maxWidth: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                  {['All', 'Pending', 'Processing', 'Printed', 'Delivered'].map(status => (
+                    <button 
+                      key={status} 
+                      className={`btn btn-sm btn-pill ${orderFilter === status ? 'btn-primary' : 'btn-outline'}`}
+                      onClick={() => setOrderFilter(status)}
+                      style={{
+                        padding: '6px 14px',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => setView('new_order')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 16px',
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    whiteSpace: 'nowrap'
+                  }}
+                >
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add</span>
                   New Order
                 </button>
               </div>
-              <OrderTable orders={orderFilter === 'All' ? orders : orders.filter(o => o.status === orderFilter)} loading={ordersLoading} />
+              <div style={{ width: '100%', maxWidth: '100%', overflowX: 'auto' }}>
+                <OrderTable orders={orderFilter === 'All' ? orders : orders.filter(o => o.status === orderFilter)} loading={ordersLoading} />
+              </div>
             </div>
           )}
 

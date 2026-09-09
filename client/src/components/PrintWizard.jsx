@@ -82,6 +82,8 @@ export default function PrintWizard({ isWholesale = false }) {
   const [b2bCopies, setB2bCopies] = useState(1);
   const [b2bInstructions, setB2bInstructions] = useState('');
   const [b2bPages, setB2bPages] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState('IDLE'); // 'IDLE' | 'SELECTED' | 'UPLOADING' | 'PROCESSING' | 'COMPLETED' | 'ERROR'
+  const [uploadError, setUploadError] = useState('');
 
   const [config, setConfig] = useState({
     service: 'bw_print',
@@ -421,8 +423,34 @@ async function detectFilePages(file) {
     deliveryType: deliveryType,
     copies: b2bCopies,
     pages: b2bPages,
-    fileUploaded: Boolean(file || uploadedFile),
+    fileUploaded: Boolean(uploadedFile && uploadStatus === 'COMPLETED' && b2bPages && Number(b2bPages) > 0),
   });
+
+  // Strict Sequential Validation for B2B Flow
+  const isB2BStep1Valid = Boolean(
+    b2bMediaType &&
+    b2bMediaCategory &&
+    b2bSize &&
+    b2bGsm &&
+    b2bCopies &&
+    parseInt(b2bCopies, 10) >= 1 &&
+    (!b2bThermalLamination || b2bThermalLaminationType) &&
+    (!b2bCutting || b2bCuttingType) &&
+    (!b2bSticker || b2bStickerType) &&
+    b2bPriceResult.isPriceAvailable
+  );
+
+  const isB2BStep3Allowed = Boolean(
+    isB2BStep1Valid &&
+    file &&
+    uploadedFile &&
+    uploadStatus === 'COMPLETED' &&
+    b2bPages !== null &&
+    b2bPages !== undefined &&
+    Number(b2bPages) > 0 &&
+    !uploading &&
+    !uploadError
+  );
 
   function getCalculatedPrice() {
     let subtotal = 0;
@@ -536,6 +564,7 @@ async function detectFilePages(file) {
   async function handleFileSelect(selectedFile) {
     if (!selectedFile) return;
     setError('');
+    setUploadError('');
 
     const fileName = (selectedFile.name || '').toLowerCase();
     const fileType = (selectedFile.type || '').toLowerCase();
@@ -548,29 +577,49 @@ async function detectFilePages(file) {
       setFile(null);
       setUploadedFile(null);
       setB2bPages(null);
-      setError('Audio and Video files are not supported. Please upload printable documents or images (PDF, CorelDRAW .CDR, DOCX, PSD, AI, JPG, PNG).');
+      setUploadStatus('ERROR');
+      const errText = 'Audio and Video files are not supported. Please upload printable documents or images (PDF, CorelDRAW .CDR, DOCX, PSD, AI, JPG, PNG).';
+      setUploadError(errText);
+      setError(errText);
       return;
     }
 
     setFile(selectedFile);
+    setUploadedFile(null);
+    setB2bPages(null);
+    setUploadStatus('UPLOADING');
     setUploading(true);
 
     try {
       // 1. Analyze and extract page count from uploaded document
+      setUploadStatus('PROCESSING');
       const detectedPages = await detectFilePages(selectedFile);
       const safePages = (detectedPages && detectedPages > 0) ? detectedPages : 1;
+
+      // 2. Upload file to backend
+      const uploaded = await uploadPrintFile(selectedFile);
+      if (!uploaded) {
+        throw new Error('Upload failed. Please try again.');
+      }
+
       setB2bPages(safePages);
       setConfig(c => ({ 
         ...c, 
         pages: safePages,
         letterhead_sheets: safePages
       }));
-
-      // 2. Upload file to backend
-      const uploaded = await uploadPrintFile(selectedFile);
       setUploadedFile(uploaded);
+      setUploadStatus('COMPLETED');
+      setError('');
+      setUploadError('');
     } catch (err) {
       console.warn('Upload / analysis error:', err);
+      setUploadStatus('ERROR');
+      const msg = err.message || 'Unable to analyze the file. Please upload another file.';
+      setUploadError(msg);
+      setError(msg);
+      setUploadedFile(null);
+      setB2bPages(null);
     } finally {
       setUploading(false);
     }
@@ -594,6 +643,14 @@ async function detectFilePages(file) {
     }
 
     if (isWholesaleActive) {
+      if (!isB2BStep1Valid) {
+        setError('Please complete all required Print Specification fields.');
+        return;
+      }
+      if (!isB2BStep3Allowed || !uploadedFile || !b2bPages || uploadStatus !== 'COMPLETED') {
+        setError('Please complete the file upload before submitting the order.');
+        return;
+      }
       if (!b2bPriceResult.isPriceAvailable || (!b2bPriceResult.waitingForFile && b2bPriceResult.totalAmount <= 0)) {
         setError(b2bPriceResult.errorMessage || 'Price unavailable for this specification. Please check your inputs or contact support.');
         return;
@@ -843,53 +900,64 @@ async function detectFilePages(file) {
           { stepNum: 1, label: '1. Upload File', icon: 'cloud_upload' },
           { stepNum: 2, label: '2. Print Specs', icon: 'tune' },
           { stepNum: 3, label: '3. Customer & WhatsApp', icon: 'chat' },
-        ]).map(s => (
-          <button
-            key={s.stepNum}
-            className="wizard-tab-btn"
-            onClick={() => {
-              if (isWholesaleActive && s.stepNum > 1) {
-                if (!b2bMediaType) {
-                  setError('Please select a Media Type.');
-                  return;
+        ]).map(s => {
+          let isLocked = false;
+          if (isWholesaleActive) {
+            if (s.stepNum === 2 && !isB2BStep1Valid) isLocked = true;
+            if (s.stepNum === 3 && !isB2BStep3Allowed) isLocked = true;
+          }
+
+          return (
+            <button
+              key={s.stepNum}
+              className={`wizard-tab-btn ${isLocked ? 'is-locked' : ''}`}
+              disabled={isLocked}
+              onClick={() => {
+                if (isWholesaleActive) {
+                  if (s.stepNum === 2 && !isB2BStep1Valid) {
+                    if (!b2bMediaType) setError('Please select a Media Type.');
+                    else if (!b2bMediaCategory) setError('Please select a Media Category.');
+                    else if (!b2bSize) setError('Please select a Size.');
+                    else if (!b2bGsm) setError('Please select a GSM.');
+                    else if (b2bThermalLamination && !b2bThermalLaminationType) setError('Please select a lamination type.');
+                    else if (b2bCutting && !b2bCuttingType) setError('Please select a cutting option.');
+                    else if (b2bSticker && !b2bStickerType) setError('Please select a sticker finishing option.');
+                    else if (!b2bPriceResult.isPriceAvailable) setError('Price unavailable for this selection.');
+                    return;
+                  }
+                  if (s.stepNum === 3 && !isB2BStep3Allowed) {
+                    if (!isB2BStep1Valid) {
+                      setError('Please complete the Print Specification before proceeding to WhatsApp.');
+                    } else if (uploading || uploadStatus === 'UPLOADING' || uploadStatus === 'PROCESSING') {
+                      setError('Please wait for document upload and analysis to complete.');
+                    } else if (!uploadedFile || !b2bPages || uploadStatus !== 'COMPLETED') {
+                      setError('Please complete the file upload before continuing to WhatsApp.');
+                    }
+                    return;
+                  }
                 }
-                if (!b2bMediaCategory) {
-                  setError('Please select a Media Category.');
-                  return;
-                }
-                if (!b2bSize) {
-                  setError('Please select a Size.');
-                  return;
-                }
-                if (!b2bGsm) {
-                  setError('Please select a GSM.');
-                  return;
-                }
-                if (b2bThermalLamination && !b2bThermalLaminationType) {
-                  setError('Please select a lamination type.');
-                  return;
-                }
-                if (b2bCutting && !b2bCuttingType) {
-                  setError('Please select a cutting option.');
-                  return;
-                }
-                if (b2bSticker && !b2bStickerType) {
-                  setError('Please select a sticker finishing option.');
-                  return;
-                }
-              }
-              setStep(s.stepNum);
-              setError('');
-            }}
-            style={{
-              color: step === s.stepNum ? 'var(--primary-container)' : 'var(--on-surface-variant)',
-              borderBottom: step === s.stepNum ? '2.5px solid var(--primary-container)' : '2.5px solid transparent',
-            }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{s.icon}</span>
-            {s.label}
-          </button>
-        ))}
+                setStep(s.stepNum);
+                setError('');
+              }}
+              style={{
+                color: step === s.stepNum ? 'var(--primary-container)' : isLocked ? 'var(--outline)' : 'var(--on-surface-variant)',
+                borderBottom: step === s.stepNum ? '2.5px solid var(--primary-container)' : '2.5px solid transparent',
+                cursor: isLocked ? 'not-allowed' : 'pointer',
+                opacity: isLocked ? 0.55 : 1,
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                {isLocked && s.stepNum === 3 ? 'lock' : s.icon}
+              </span>
+              <span>{s.label}</span>
+              {isLocked && (
+                <span className="material-symbols-outlined" style={{ fontSize: 14, marginLeft: 2, verticalAlign: 'middle' }}>
+                  lock
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {error && (
@@ -1243,6 +1311,7 @@ async function detectFilePages(file) {
                     <button
                       type="button"
                       className="btn btn-primary"
+                      disabled={!isB2BStep1Valid}
                       onClick={() => {
                         if (!b2bMediaType) {
                           setError('Please select a Media Type.');
@@ -1276,10 +1345,18 @@ async function detectFilePages(file) {
                           setError('Please select a sticker finishing option.');
                           return;
                         }
+                        if (!b2bPriceResult.isPriceAvailable) {
+                          setError('Price unavailable for this selection.');
+                          return;
+                        }
                         setError('');
                         setStep(2);
                       }}
-                      style={{ padding: '12px 24px', fontSize: 15, fontWeight: 700 }}
+                      style={{
+                        padding: '12px 24px', fontSize: 15, fontWeight: 700,
+                        opacity: !isB2BStep1Valid ? 0.6 : 1,
+                        cursor: !isB2BStep1Valid ? 'not-allowed' : 'pointer'
+                      }}
                     >
                       Next: Upload <span className="material-symbols-outlined">arrow_forward</span>
                     </button>
@@ -1325,9 +1402,17 @@ async function detectFilePages(file) {
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
                     <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      {uploading ? 'Analyzing document pages & uploading...' : file ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • Click to replace` : 'Instant automatic file upload & page count analysis (PDF, Word, PPT, Images)'}
+                      {uploading || uploadStatus === 'PROCESSING' || uploadStatus === 'UPLOADING'
+                        ? 'Analyzing document pages & uploading...'
+                        : (uploadStatus === 'COMPLETED' && file && uploadedFile && b2bPages)
+                          ? `${(file.size / (1024 * 1024)).toFixed(2)} MB • ${b2bPages} Page${b2bPages > 1 ? 's' : ''} detected • Upload complete • Click to replace`
+                          : (uploadStatus === 'ERROR')
+                            ? 'Upload failed. Please click to try again.'
+                            : 'Instant automatic file upload & page count analysis (PDF, Word, PPT, Images)'}
                     </div>
-                    {uploading && <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />}
+                    {(uploading || uploadStatus === 'UPLOADING' || uploadStatus === 'PROCESSING') && (
+                      <div className="spinner" style={{ width: 24, height: 24, margin: '16px auto 0' }} />
+                    )}
                   </div>
 
                   {error && (
@@ -1345,7 +1430,26 @@ async function detectFilePages(file) {
                     <button className="btn btn-outline" onClick={() => setStep(1)}>
                       <span className="material-symbols-outlined">arrow_back</span> Back to Print Spec
                     </button>
-                    <button className="btn btn-primary" onClick={() => setStep(3)}>
+                    <button
+                      className="btn btn-primary"
+                      disabled={!isB2BStep3Allowed}
+                      onClick={() => {
+                        if (!isB2BStep3Allowed) {
+                          if (uploading || uploadStatus === 'UPLOADING' || uploadStatus === 'PROCESSING') {
+                            setError('Please wait for document upload and analysis to complete.');
+                          } else {
+                            setError('Please complete the file upload before continuing to WhatsApp.');
+                          }
+                          return;
+                        }
+                        setError('');
+                        setStep(3);
+                      }}
+                      style={{
+                        opacity: !isB2BStep3Allowed ? 0.6 : 1,
+                        cursor: !isB2BStep3Allowed ? 'not-allowed' : 'pointer'
+                      }}
+                    >
                       Next: WhatsApp <span className="material-symbols-outlined">arrow_forward</span>
                     </button>
                   </div>
@@ -2110,7 +2214,11 @@ async function detectFilePages(file) {
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                     <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>Pages:</span>
-                    <span style={{ fontWeight: 700, textAlign: 'right' }}>{(file || uploadedFile) && b2bPages ? b2bPages : '—'}</span>
+                    <span style={{ fontWeight: 700, textAlign: 'right' }}>
+                      {uploading || uploadStatus === 'PROCESSING' || uploadStatus === 'UPLOADING'
+                        ? 'Analyzing...'
+                        : (uploadedFile && uploadStatus === 'COMPLETED' && b2bPages ? b2bPages : '—')}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                     <span style={{ color: 'var(--on-surface-variant)', flexShrink: 0 }}>Copies:</span>

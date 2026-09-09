@@ -338,7 +338,7 @@ export default function Admin() {
                           </div>
                           {ord.binding && ord.binding !== 'None' && ord.binding !== 'none' && (
                             <div style={{ fontSize: 11, color: 'var(--primary-container)', fontWeight: 600, marginTop: 2 }}>
-                              ✨ {ord.binding}
+                              Binding: {ord.binding}
                             </div>
                           )}
                           {ord.message_text && (
@@ -562,7 +562,7 @@ export default function Admin() {
                   <div style={{ fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{selectedOrder.service_name} • {selectedOrder.copies} copies • {selectedOrder.paper_size} {selectedOrder.paper_gsm ? `(${selectedOrder.paper_gsm})` : ''}</div>
                   {selectedOrder.binding && selectedOrder.binding !== 'None' && selectedOrder.binding !== 'none' && (
                     <div style={{ fontSize: 12, color: 'var(--primary-container)', fontWeight: 700, marginTop: 4 }}>
-                      ✨ {selectedOrder.binding}
+                      Binding: {selectedOrder.binding}
                     </div>
                   )}
                 </div>

@@ -822,82 +822,82 @@ async function detectFilePages(file) {
       const sPrice = order.sticker_price ?? b2bPriceResult.stickerPrice;
       const tPrice = order.total_price ?? b2bPriceResult.totalAmount;
 
-      textStr = `🖨️ *WINSTAR B2B PRINT ORDER* - *${reqId}*\n\n` +
-        `🏢 *Agency / Client:* ${agencyName}\n` +
-        `📧 *Registered Email:* ${registeredEmail}\n` +
-        `📱 *Registered Phone:* ${registeredPhone}\n` +
-        `📦 *Media Type:* ${order.media_type || b2bMediaType}\n` +
-        `📄 *Media Category:* ${order.media_category || b2bMediaCategory}\n` +
-        `📐 *Size:* ${order.paper_size || b2bSize}\n` +
-        `⚖️ *GSM:* ${order.paper_gsm || b2bGsm} GSM\n` +
-        `🔄 *Print Side:* ${(order.double_sided ?? b2bBothSides) ? 'Front & Back' : 'Single Side'}\n` +
-        `📑 *Pages:* ${orderPages}\n` +
-        `🔢 *Copies:* ${orderCopies}\n` +
-        (thermLamType ? `✨ *Lamination:* ${thermLamType} (${formatINR(lPrice)})\n` : '') +
-        (cuttingType ? `✂️ *Cutting:* ${cuttingType} (${formatINR(cPrice)})\n` : '') +
-        (stickerType ? `🏷️ *Sticker Finishing:* ${stickerType} (${formatINR(sPrice)})\n` : '') +
-        `🚚 *Delivery Method:* ${isCourier ? 'Courier Delivery' : 'Store Pickup'}\n` +
-        (order.file_name ? `📂 *File Attached:* ${order.file_name}\n` : '') +
-        ((order.message_text || b2bInstructions) ? `📝 *Customer Instructions:* ${order.message_text || b2bInstructions}\n` : '') +
-        `\n💰 *PRICE ESTIMATION BREAKDOWN*\n` +
+      textStr = `*WINSTAR B2B PRINT ORDER* - *${reqId}*\n\n` +
+        `*Agency / Client:* ${agencyName}\n` +
+        `*Registered Email:* ${registeredEmail}\n` +
+        `*Registered Phone:* ${registeredPhone}\n` +
+        `*Media Type:* ${order.media_type || b2bMediaType}\n` +
+        `*Media Category:* ${order.media_category || b2bMediaCategory}\n` +
+        `*Size:* ${order.paper_size || b2bSize}\n` +
+        `*GSM:* ${order.paper_gsm || b2bGsm} GSM\n` +
+        `*Print Side:* ${(order.double_sided ?? b2bBothSides) ? 'Front & Back' : 'Single Side'}\n` +
+        `*Pages:* ${orderPages}\n` +
+        `*Copies:* ${orderCopies}\n` +
+        (thermLamType ? `*Lamination:* ${thermLamType} (${formatINR(lPrice)})\n` : '') +
+        (cuttingType ? `*Cutting:* ${cuttingType} (${formatINR(cPrice)})\n` : '') +
+        (stickerType ? `*Sticker Finishing:* ${stickerType} (${formatINR(sPrice)})\n` : '') +
+        `*Delivery Method:* ${isCourier ? 'Courier Delivery' : 'Store Pickup'}\n` +
+        (order.file_name ? `*File Attached:* ${order.file_name}\n` : '') +
+        ((order.message_text || b2bInstructions) ? `*Customer Instructions:* ${order.message_text || b2bInstructions}\n` : '') +
+        `\n*PRICE ESTIMATION BREAKDOWN*\n` +
         `• Printing: ${formatINR(pPrice)}\n` +
         `• Lamination: ${formatINR(lPrice)}\n` +
         `• Cutting: ${formatINR(cPrice)}\n` +
         `• Sticker: ${formatINR(sPrice)}\n` +
         `• Courier: ${formatINR(courierCharge)}\n` +
-        `\n💵 *TOTAL AMOUNT:* ${formatINR(tPrice)}\n\n` +
-        `Please confirm my print job! Request ID: ${reqId}`;
+        `\n*TOTAL AMOUNT:* ${formatINR(tPrice)}\n\n` +
+        `Please confirm my print job. Request ID: ${reqId}`;
     } else {
-      textStr = `🖨️ *WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
-        `👤 *Customer:* ${order.customer_name} (${order.customer_phone})\n` +
-        `📄 *Service:* ${order.service_name || TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}\n`;
+      textStr = `*WINSTAR PRINT ORDER* - *${reqId}*\n\n` +
+        `*Customer:* ${order.customer_name} (${order.customer_phone})\n` +
+        `*Service:* ${order.service_name || TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}\n`;
     }
 
     if (!isWholesaleActive) {
       if (order.service === 'bw_print' || config.service === 'bw_print') {
-        textStr += `📂 *File:* ${order.file_name || file?.name || 'document.pdf'}\n` +
-                   `📐 *Size:* ${config.bw_size}\n` +
-                   `📄 *Paper:* ${config.bw_paper} (${config.bw_gsm})\n` +
-                   `🔄 *Side:* ${config.bw_side}\n` +
-                   `🔢 *Pages:* ${config.pages} | *Copies:* ${config.copies}\n` +
-                   (config.binding && config.binding !== 'No Binding' ? `🔗 *Binding:* ${config.binding}\n` : '');
+        textStr += `*File:* ${order.file_name || file?.name || 'document.pdf'}\n` +
+                   `*Size:* ${config.bw_size}\n` +
+                   `*Paper:* ${config.bw_paper} (${config.bw_gsm})\n` +
+                   `*Side:* ${config.bw_side}\n` +
+                   `*Pages:* ${config.pages} | *Copies:* ${config.copies}\n` +
+                   (config.binding && config.binding !== 'No Binding' ? `*Binding:* ${config.binding}\n` : '');
       } else if (order.service === 'color_print' || config.service === 'color_print') {
-        textStr += `📂 *File:* ${order.file_name || file?.name || 'document.pdf'}\n` +
-                   `📐 *Size:* ${config.color_size}\n` +
-                   `📄 *Paper:* ${config.color_paper} (${config.color_gsm})\n` +
-                   `🔄 *Side:* ${config.color_side}\n` +
-                   `🔢 *Pages:* ${config.pages} | *Copies:* ${config.copies}\n` +
-                   (config.binding && config.binding !== 'No Binding' ? `🔗 *Binding:* ${config.binding}\n` : '');
+        textStr += `*File:* ${order.file_name || file?.name || 'document.pdf'}\n` +
+                   `*Size:* ${config.color_size}\n` +
+                   `*Paper:* ${config.color_paper} (${config.color_gsm})\n` +
+                   `*Side:* ${config.color_side}\n` +
+                   `*Pages:* ${config.pages} | *Copies:* ${config.copies}\n` +
+                   (config.binding && config.binding !== 'No Binding' ? `*Binding:* ${config.binding}\n` : '');
       } else if (order.service === 'visiting_cards' || config.service === 'visiting_cards') {
-        textStr += `🪪 *Card Type:* ${config.card_type}\n` +
-                   `📐 *Side:* ${config.card_side}\n` +
-                   `🔢 *Quantity:* ${config.card_copies} cards\n` +
-                   `✂️ *Cutting Charge:* ₹${prices.cuttingTotal}\n`;
+        textStr += `*Card Type:* ${config.card_type}\n` +
+                   `*Side:* ${config.card_side}\n` +
+                   `*Quantity:* ${config.card_copies} cards\n` +
+                   `*Cutting Charge:* ₹${prices.cuttingTotal}\n`;
       } else if (order.service === 'brochures_flyers' || config.service === 'brochures_flyers') {
-        textStr += `📦 *Product:* ${config.bf_product}\n`;
+        textStr += `*Product:* ${config.bf_product}\n`;
         if (config.bf_product === 'Flyers') {
-          textStr += `🔢 *Quantity:* ${config.flyer_qty} pieces (x${config.copies} sets)\n`;
+          textStr += `*Quantity:* ${config.flyer_qty} pieces (x${config.copies} sets)\n`;
         } else if (config.bf_product === 'Letter Head') {
-          textStr += `📄 *Paper:* ${config.letterhead_paper}\n` +
-                     `🔢 *Quantity:* ${config.letterhead_paper === '100gsm' ? `${config.letterhead_sheets} sheets` : `${config.letterhead_pads} pads (100 sheets/pad)`}\n`;
+          textStr += `*Paper:* ${config.letterhead_paper}\n` +
+                     `*Quantity:* ${config.letterhead_paper === '100gsm' ? `${config.letterhead_sheets} sheets` : `${config.letterhead_pads} pads (100 sheets/pad)`}\n`;
         } else if (config.bf_product === 'Bill Book') {
-          textStr += `📄 *Paper:* Executive Bond 100gsm\n` +
-                     `🔢 *Quantity:* ${config.billbook_pads} pads (100 sheets/pad)\n`;
+          textStr += `*Paper:* Executive Bond 100gsm\n` +
+                     `*Quantity:* ${config.billbook_pads} pads (100 sheets/pad)\n`;
         }
-        if (order.file_name || file?.name) textStr += `📂 *File:* ${order.file_name || file?.name}\n`;
+        if (order.file_name || file?.name) textStr += `*File:* ${order.file_name || file?.name}\n`;
       }
 
       if (order.message_text || config.message_text) {
-        textStr += `📝 *Instructions:* ${order.message_text || config.message_text}\n`;
+        textStr += `*Instructions:* ${order.message_text || config.message_text}\n`;
       }
     }
 
-    textStr += `🚚 *Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + (order.delivery_address || deliveryAddress) : 'Store Pickup'}\n`;
+    textStr += `*Delivery:* ${order.delivery_type === 'courier' ? 'Courier: ' + (order.delivery_address || deliveryAddress) : 'Store Pickup'}\n`;
     textStr += (order.order_type === 'wholesale' || isWholesaleActive)
-      ? `💰 *Total Amount:* ${formatINR(order.total_price || b2bPriceResult.totalAmount)}\n\n`
-      : `💰 *Total Amount:* ₹${order.total_price}\n\n`;
+      ? `*Total Amount:* ${formatINR(order.total_price || b2bPriceResult.totalAmount)}\n\n`
+      : `*Total Amount:* ₹${order.total_price}\n\n`;
     
-    textStr += `Please confirm my print job! Request ID: ${reqId}`;
+    textStr += `Please confirm my print job. Request ID: ${reqId}`;
 
     const text = encodeURIComponent(textStr);
     window.open(`https://wa.me/${WINSTAR_PHONE}?text=${text}`, '_blank');
@@ -2704,7 +2704,7 @@ async function detectFilePages(file) {
                     onClick={() => setSuccessModalStep('payment')}
                     style={{ height: 48, fontWeight: 700, fontSize: 15, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   >
-                    <span>Proceed to Payment 💳</span>
+                    <span>Proceed to Payment</span>
                     <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
                   </button>
                   <button
@@ -2794,9 +2794,11 @@ async function detectFilePages(file) {
                 <div style={{
                   background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#334155',
                   padding: '10px 14px', borderRadius: 'var(--radius-md)', fontSize: 12.5,
-                  marginBottom: 20, textAlign: 'left', lineHeight: 1.4
+                  marginBottom: 20, textAlign: 'left', lineHeight: 1.4,
+                  display: 'flex', alignItems: 'center', gap: 8
                 }}>
-                  ℹ️ <strong>Instruction:</strong> Please send the <strong>payment screenshot</strong> along with your <strong>Request ID</strong> on WhatsApp to initiate your printing job.
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--primary-container)', flexShrink: 0 }}>info</span>
+                  <div><strong>Instruction:</strong> Please send the <strong>payment screenshot</strong> along with your <strong>Request ID</strong> on WhatsApp to initiate your printing job.</div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2805,7 +2807,7 @@ async function detectFilePages(file) {
                     onClick={() => openWhatsApp(createdOrder)}
                     style={{ height: 48, background: '#25D366', color: '#fff', fontWeight: 700, fontSize: 15, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                   >
-                    <span className="material-symbols-outlined" style={{ color: '#fff' }}>chat</span> CONTINUE TO WHATSAPP 📲
+                    <span className="material-symbols-outlined" style={{ color: '#fff' }}>chat</span> CONTINUE TO WHATSAPP
                   </button>
                   <button
                     className="btn btn-outline btn-full"

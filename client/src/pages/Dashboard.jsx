@@ -144,7 +144,7 @@ export default function Dashboard() {
               <div style={{ marginBottom: 40, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
                 <div>
                   <h1 className="display-lg-mobile" style={{ marginBottom: 6 }}>
-                    Welcome back, {profile?.full_name?.split(' ')[0] || 'there'} 👋
+                    Welcome back, {profile?.full_name?.split(' ')[0] || 'there'}
                   </h1>
                   <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
                     Here is a summary of your recent printing activity.

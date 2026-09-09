@@ -11,6 +11,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Login form state (Simple Email & Password with Remember Me)
   const [loginData, setLoginData] = useState({ email: '', password: '', remember: false });
@@ -148,19 +149,32 @@ export default function Auth() {
                 </div>
                 <div className="form-group">
                   <label className="label" htmlFor="login-password">Password</label>
-                  <input
-                    id="login-password"
-                    name="w_client_secret_input_field"
-                    type="password"
-                    className="input"
-                    placeholder="••••••••••••"
-                    autoComplete="new-password"
-                    data-lpignore="true"
-                    data-form-type="other"
-                    required
-                    value={loginData.password}
-                    onChange={e => setLoginData(d => ({ ...d, password: e.target.value }))}
-                  />
+                  <div className="password-input-wrapper">
+                    <input
+                      id="login-password"
+                      name="w_client_secret_input_field"
+                      type={showPassword ? 'text' : 'password'}
+                      className="input"
+                      placeholder="••••••••••••"
+                      autoComplete="new-password"
+                      data-lpignore="true"
+                      data-form-type="other"
+                      required
+                      value={loginData.password}
+                      onChange={e => setLoginData(d => ({ ...d, password: e.target.value }))}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle-btn"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      title={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                        {showPassword ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

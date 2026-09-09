@@ -12,6 +12,7 @@ export default function RegisterWholesale() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -218,18 +219,31 @@ export default function RegisterWholesale() {
                   </div>
                   <div className="form-group">
                     <label className="label">Password *</label>
-                    <input
-                      type="password"
-                      className="input"
-                      placeholder="Create a secure password"
-                      required
-                      name="w_agency_usr_sec_key"
-                      autoComplete="new-password"
-                      data-lpignore="true"
-                      data-form-type="other"
-                      value={formData.password}
-                      onChange={e => setFormData(d => ({ ...d, password: e.target.value }))}
-                    />
+                    <div className="password-input-wrapper">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        className="input"
+                        placeholder="Create a secure password"
+                        required
+                        name="w_agency_usr_sec_key"
+                        autoComplete="new-password"
+                        data-lpignore="true"
+                        data-form-type="other"
+                        value={formData.password}
+                        onChange={e => setFormData(d => ({ ...d, password: e.target.value }))}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle-btn"
+                        onClick={() => setShowPassword(prev => !prev)}
+                        aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        title={showPassword ? 'Hide password' : 'Show password'}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                          {showPassword ? 'visibility_off' : 'visibility'}
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

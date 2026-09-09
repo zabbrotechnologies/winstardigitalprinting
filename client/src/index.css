@@ -2367,6 +2367,201 @@ img {
    ============================================================ */
 .dashboard-filter-bar {
   max-width: 100%;
+  font-size: 14.5px;
+  color: #64748b;
+  margin: 0 auto;
+  line-height: 1.6;
+  max-width: 680px;
+}
+
+.carousel-indicators {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  left: 0;
+  z-index: 12;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  list-style: none;
+  gap: 8px;
+}
+
+.carousel-indicators [data-bs-target],
+.carousel-indicators button {
+  box-sizing: content-box;
+  flex: 0 1 auto;
+  width: 28px;
+  height: 4px;
+  padding: 0;
+  margin: 0;
+  text-indent: -999px;
+  cursor: pointer;
+  background-color: #cbd5e1;
+  border: 0;
+  opacity: 0.7;
+  border-radius: var(--radius-full);
+  transition: opacity 0.3s ease, width 0.3s ease, background-color 0.3s ease;
+}
+
+.carousel-indicators .active {
+  opacity: 1;
+  width: 44px;
+  background-color: var(--primary, #b70011);
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  position: absolute;
+  top: 135px;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  color: #0F172A;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.carousel-control-prev {
+  left: 20px;
+}
+
+.carousel-control-next {
+  right: 20px;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+  transition: all 0.2s ease;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 18px 18px;
+}
+
+.carousel-control-prev:hover .carousel-control-prev-icon,
+.carousel-control-next:hover .carousel-control-next-icon {
+  background-color: var(--primary, #b70011);
+  border-color: var(--primary, #b70011);
+  transform: scale(1.08);
+}
+
+.carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230F172A'%3e%3cpath fill-rule='evenodd' d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
+}
+
+.carousel-control-prev:hover .carousel-control-prev-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
+}
+
+.carousel-control-next-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230F172A'%3e%3cpath fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+.carousel-control-next:hover .carousel-control-next-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .carousel-inner {
+    min-height: 380px;
+  }
+  .carousel-media-box {
+    height: 260px;
+    padding: 20px 20px;
+  }
+  .carousel-machine-img {
+    max-height: 210px;
+  }
+  .carousel-unit-badge {
+    top: 12px;
+    left: 14px;
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+  .carousel-caption {
+    padding: 16px 20px 30px;
+  }
+  .carousel-caption h5 {
+    font-size: 17px;
+  }
+  .carousel-caption p {
+    font-size: 13px;
+  }
+  .carousel-control-prev,
+  .carousel-control-next {
+    top: 105px;
+  }
+  .carousel-control-prev {
+    left: 10px;
+  }
+  .carousel-control-next {
+    right: 10px;
+  }
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE PAYMENT METHOD TOGGLE (STACK ON MOBILE)
+   ============================================================ */
+.payment-method-toggle-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.payment-toggle-btn {
+  flex: 1;
+}
+
+@media (max-width: 600px) {
+  .payment-method-toggle-group {
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .payment-method-toggle-group .payment-toggle-btn {
+    width: 100% !important;
+    flex: none !important;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE B2B CUSTOMER DASHBOARD FILTER
+   ============================================================ */
+.dashboard-filter-bar {
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -2386,4 +2581,45 @@ img {
   .dashboard-filter-bar button {
     font-size: 12px !important;
   }
+}
+
+/* ============================================================
+   PASSWORD INPUT WITH EYE VISIBILITY TOGGLE
+   ============================================================ */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper .input {
+  padding-right: 46px !important;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color 0.2s ease, transform 0.1s ease;
+  line-height: 1;
+}
+
+.password-toggle-btn:hover {
+  color: var(--primary-container);
+}
+
+.password-toggle-btn:focus-visible {
+  outline: 2px solid var(--primary-container);
+  outline-offset: 2px;
 }

@@ -1433,6 +1433,9 @@ async function detectFilePages(file) {
                       borderRadius: 'var(--radius-lg)', padding: '48px 24px', textAlign: 'center',
                       background: dragOver ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
                       cursor: 'pointer', transition: 'all 0.2s',
+                      maxWidth: '100%',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden',
                     }}
                   >
                     <input
@@ -1445,10 +1448,27 @@ async function detectFilePages(file) {
                     <span className="material-symbols-outlined icon-fill" style={{ fontSize: 54, color: 'var(--primary-container)', marginBottom: 12 }}>
                       cloud_upload
                     </span>
-                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                    <div style={{
+                      fontWeight: 700,
+                      fontSize: 16,
+                      marginBottom: 4,
+                      wordBreak: 'break-word',
+                      overflowWrap: 'anywhere',
+                      whiteSpace: 'normal',
+                      maxWidth: '100%',
+                      lineHeight: 1.4,
+                    }}>
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
-                    <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                    <div style={{
+                      fontSize: 13,
+                      color: 'var(--on-surface-variant)',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'anywhere',
+                      whiteSpace: 'normal',
+                      maxWidth: '100%',
+                      lineHeight: 1.4,
+                    }}>
                       {uploading || uploadStatus === 'PROCESSING' || uploadStatus === 'UPLOADING'
                         ? 'Analyzing document pages & uploading...'
                         : (uploadStatus === 'COMPLETED' && file && uploadedFile && b2bPages)
@@ -1613,6 +1633,9 @@ async function detectFilePages(file) {
                       borderRadius: 'var(--radius-lg)', padding: '48px 24px', textAlign: 'center',
                       background: dragOver ? 'var(--primary-fixed)' : 'var(--surface-container-lowest)',
                       cursor: 'pointer', transition: 'all 0.2s',
+                      maxWidth: '100%',
+                      boxSizing: 'border-box',
+                      overflow: 'hidden',
                     }}
                   >
                     <input
@@ -1625,10 +1648,27 @@ async function detectFilePages(file) {
                     <span className="material-symbols-outlined icon-fill" style={{ fontSize: 54, color: 'var(--primary-container)', marginBottom: 12 }}>
                       cloud_upload
                     </span>
-                    <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                    <div style={{
+                      fontWeight: 700,
+                      fontSize: 16,
+                      marginBottom: 4,
+                      wordBreak: 'break-word',
+                      overflowWrap: 'anywhere',
+                      whiteSpace: 'normal',
+                      maxWidth: '100%',
+                      lineHeight: 1.4,
+                    }}>
                       {file ? file.name : 'Click to Browse or Drag & Drop File'}
                     </div>
-                    <div style={{ fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                    <div style={{
+                      fontSize: 13,
+                      color: 'var(--on-surface-variant)',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'anywhere',
+                      whiteSpace: 'normal',
+                      maxWidth: '100%',
+                      lineHeight: 1.4,
+                    }}>
                       {uploading || uploadStatus === 'PROCESSING' || uploadStatus === 'UPLOADING'
                         ? 'Analyzing document pages & uploading...'
                         : (uploadStatus === 'COMPLETED' && file && uploadedFile)

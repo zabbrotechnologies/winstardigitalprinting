@@ -9,9 +9,30 @@ import { getLocalOrders } from '../lib/orderService';
 const ALL_SERVICES = [
   { title: "Certificates", icon: "military_tech", image: "/images/services/certificates.jpg", description: "High-quality award and certificate printing." },
   { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
-  { title: "Plan Printouts", icon: "print", image: "/images/services/plan-printouts.jpg", description: "High quality large format plan printouts." },
-  { title: "Visiting Cards", icon: "badge", image: "/images/services/visiting-cards.png", description: "Premium customized business cards." },
-  { title: "A4 Printouts", icon: "file_copy", image: "/images/services/a4-printouts.jpg", description: "Crisp and clear A4 document printing." },
+  { 
+    title: "Plan Printouts", 
+    icon: "print", 
+    image: "/images/services/plan-printouts.jpg", 
+    description: "High quality large format plan printouts.",
+    isExpandable: true,
+    detailsType: "plan_printouts"
+  },
+  { 
+    title: "Visiting Cards", 
+    icon: "badge", 
+    image: "/images/services/visiting-cards.png", 
+    description: "Premium customized business cards.",
+    isExpandable: true,
+    detailsType: "visiting_cards"
+  },
+  { 
+    title: "Printouts", 
+    icon: "file_copy", 
+    image: "/images/services/a4-printouts.jpg", 
+    description: "Crisp and clear document printing.",
+    isExpandable: true,
+    detailsType: "printouts"
+  },
   { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.jpg", description: "Book-like perfect binding for a premium finish." },
   { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.jpg", description: "Eye-catching tri-fold and bi-fold brochures." },
   { title: "Wiro Binding", icon: "library_books", image: "/images/services/wiro-binding.jpg", description: "Durable and flexible wiro binding." },
@@ -36,6 +57,7 @@ export default function Services() {
   const [trackResult, setTrackResult] = useState(null);
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackError, setTrackError] = useState('');
+  const [expandedCardTitle, setExpandedCardTitle] = useState(null);
 
   // Scroll to section if hash exists or on navigation
   useEffect(() => {
@@ -140,6 +162,12 @@ export default function Services() {
               <ServiceCard 
                 key={service.title} 
                 {...service} 
+                isExpandable={Boolean(service.isExpandable)}
+                isExpanded={expandedCardTitle === service.title}
+                detailsType={service.detailsType}
+                onToggleExpand={() => {
+                  setExpandedCardTitle(prev => prev === service.title ? null : service.title);
+                }}
               />
             ))}
           </div>

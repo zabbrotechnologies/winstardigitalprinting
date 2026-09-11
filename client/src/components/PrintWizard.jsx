@@ -485,7 +485,7 @@ export default function PrintWizard({ isWholesale = false }) {
             bindingRate = BINDING_PRICES['Chat Binding'][config.bw_size] || 0;
           } else if (config.binding === 'Spiral Binding') {
             const tiers = BINDING_PRICES['Spiral Binding'][config.bw_size] || [];
-            const tier = tiers.find(t => pages >= t.min && pages <= t.max);
+            const tier = tiers.find(t => pages <= t.max);
             bindingRate = tier ? tier.price : 0;
           }
         }
@@ -505,12 +505,12 @@ export default function PrintWizard({ isWholesale = false }) {
         }
 
         let bindingRate = 0;
-        if (config.color_size === 'A4') {
+        if (['A4', 'FS'].includes(config.color_size)) {
           if (config.binding === 'Chat Binding') {
-            bindingRate = BINDING_PRICES['Chat Binding']['A4'] || 8;
+            bindingRate = BINDING_PRICES['Chat Binding'][config.color_size] || 8;
           } else if (config.binding === 'Spiral Binding') {
-            const tiers = BINDING_PRICES['Spiral Binding']['A4'] || [];
-            const tier = tiers.find(t => pages >= t.min && pages <= t.max);
+            const tiers = BINDING_PRICES['Spiral Binding'][config.color_size] || BINDING_PRICES['Spiral Binding']['A4'] || [];
+            const tier = tiers.find(t => pages <= t.max);
             bindingRate = tier ? tier.price : 0;
           }
         }
@@ -2613,7 +2613,7 @@ export default function PrintWizard({ isWholesale = false }) {
                   )}
                   {Number(prices.bindingTotal) > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      <span>Binding Cost</span>
+                      <span>{config.binding === 'Spiral Binding' ? 'Spiral Binding Cost' : (config.binding === 'Chat Binding' ? 'Chat Binding Cost' : 'Binding Cost')}</span>
                       <span>₹{prices.bindingTotal}</span>
                     </div>
                   )}

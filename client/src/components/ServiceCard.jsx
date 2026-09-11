@@ -25,7 +25,7 @@ export default function ServiceCard({
       tabIndex={isExpandable || onClick ? 0 : undefined}
       style={{
         ...(image ? {
-          backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.88)), url(${image})`,
+          backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.90)), url(${image})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           color: '#ffffff',
@@ -34,15 +34,15 @@ export default function ServiceCard({
         cursor: isExpandable || onClick ? 'pointer' : 'default',
       }}
     >
-      {/* Top Bar: Icon + Expand Indicator */}
+      {/* Top Header Row (Icon + Expand Badge) */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', position: 'relative', zIndex: 2 }}>
-        <div className="service-icon" style={image ? { background: 'rgba(255,255,255,0.2)', color: '#ffffff', backdropFilter: 'blur(4px)', width: 'fit-content' } : {}}>
+        <div className="service-icon" style={image ? { background: 'rgba(255,255,255,0.2)', color: '#ffffff', backdropFilter: 'blur(6px)', width: 'fit-content' } : {}}>
           <span className="material-symbols-outlined">{icon}</span>
         </div>
 
         {isExpandable && (
-          <div className="expand-indicator-badge">
-            <span>{isExpanded ? 'Hide Details' : 'View Details'}</span>
+          <div className={`expand-indicator-badge ${isExpanded ? 'active' : ''}`}>
+            <span>{isExpanded ? 'Collapse' : 'Details'}</span>
             <span
               className="material-symbols-outlined"
               style={{
@@ -57,52 +57,79 @@ export default function ServiceCard({
         )}
       </div>
 
-      {/* Main Service Content (Upper Area) */}
+      {/* Main Service Content (Upper 1-Card Height Area) */}
       <div style={{ position: 'relative', zIndex: 2, marginTop: image ? 'auto' : 0 }}>
-        <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 6, color: image ? '#ffffff' : 'inherit' }}>{title}</h3>
-        <p className="body-md" style={{ color: image ? 'rgba(255,255,255,0.85)' : 'var(--on-surface-variant)', margin: 0 }}>{description}</p>
+        <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 6, color: image ? '#ffffff' : 'inherit', fontWeight: 700 }}>{title}</h3>
+        <p className="body-md" style={{ color: image ? 'rgba(255,255,255,0.85)' : 'var(--on-surface-variant)', margin: 0, fontSize: 13.5, lineHeight: 1.4 }}>{description}</p>
       </div>
 
-      {/* Additional Details (Lower 2nd Card-Height Area) */}
-      {isExpandable && (
-        <div className="service-card-expanded-body">
+      {/* Additional Details (Lower 2nd Card-Height Area — ONLY RENDERED WHEN EXPANDED) */}
+      {isExpandable && isExpanded && (
+        <div className="service-card-expanded-body animate-fade-in">
           {detailsType === 'visiting_cards' && (
             <div className="expanded-details-inner">
-              <div className="expanded-section-header">Available Materials</div>
-              <ul className="expanded-materials-list">
-                <li>Art Board</li>
-                <li>Art Board with Lamination</li>
-                <li>Metallic & Special Boards</li>
-                <li>Synthetic White 125 Micron</li>
-                <li>Syn. White 200 Mic / Syn. Gold & Silver 125 Mic</li>
-              </ul>
+              <div className="pro-section-header">
+                <span className="material-symbols-outlined header-icon">layers</span>
+                Available Substrates & Materials
+              </div>
+              <div className="pro-chips-grid">
+                <div className="pro-chip">
+                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span>Art Board (300 GSM)</span>
+                </div>
+                <div className="pro-chip">
+                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span>Art Board with Lamination</span>
+                </div>
+                <div className="pro-chip">
+                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span>Metallic & Special Boards</span>
+                </div>
+                <div className="pro-chip">
+                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span>Synthetic White 125 Micron</span>
+                </div>
+                <div className="pro-chip">
+                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span>Syn. White 200 Mic / Gold & Silver</span>
+                </div>
+              </div>
             </div>
           )}
 
           {detailsType === 'printouts' && (
             <div className="expanded-details-inner">
               <div className="printouts-categories-grid">
-                <div className="printouts-category">
-                  <div className="expanded-category-header">BLACK & WHITE / GRAYSCALE</div>
-                  <ul className="expanded-materials-list compact">
-                    <li>Copier — 70 GSM</li>
-                    <li>Copier — 80 GSM</li>
-                    <li>Copier — 100 GSM</li>
-                    <li>Bond — 100 GSM</li>
-                    <li>Ledger Green — 80 GSM</li>
-                  </ul>
+                {/* Category 1: B&W */}
+                <div className="pro-category-box">
+                  <div className="pro-category-header">
+                    <span className="material-symbols-outlined category-icon">contrast</span>
+                    BLACK & WHITE / GRAYSCALE
+                  </div>
+                  <div className="pro-chips-stack">
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Copier — 70 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Copier — 80 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Copier — 100 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Bond — 100 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Ledger Green — 80 GSM</div>
+                  </div>
                 </div>
-                <div className="printouts-category">
-                  <div className="expanded-category-header">COLOR</div>
-                  <ul className="expanded-materials-list compact">
-                    <li>Paper — 100 GSM</li>
-                    <li>Bond Paper — 100 GSM</li>
-                    <li>Ledger Green — 80 GSM</li>
-                    <li>Art Paper — 130 GSM</li>
-                    <li>Art Paper — 170 GSM</li>
-                    <li>Art Board — 250 GSM</li>
-                    <li>Art Board — 300 GSM</li>
-                  </ul>
+
+                {/* Category 2: Color */}
+                <div className="pro-category-box">
+                  <div className="pro-category-header">
+                    <span className="material-symbols-outlined category-icon" style={{ color: '#f43f5e' }}>palette</span>
+                    COLOR PRINTING
+                  </div>
+                  <div className="pro-chips-stack">
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Paper — 100 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Bond Paper — 100 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Ledger Green — 80 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Art Paper — 130 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Art Paper — 170 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Art Board — 250 GSM</div>
+                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Art Board — 300 GSM</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -110,19 +137,31 @@ export default function ServiceCard({
 
           {detailsType === 'plan_printouts' && (
             <div className="expanded-details-inner">
-              <div className="expanded-section-header">Available Plan Sizes</div>
-              <div className="plan-sizes-list">
-                <div className="plan-size-row">
-                  <span className="plan-size-code">A2</span>
-                  <span className="plan-size-gsm">90 GSM</span>
+              <div className="pro-section-header">
+                <span className="material-symbols-outlined header-icon">aspect_ratio</span>
+                Available Plan Sizes
+              </div>
+              <div className="pro-plan-rows">
+                <div className="pro-plan-card">
+                  <div className="pro-plan-badge">A2</div>
+                  <div className="pro-plan-info">
+                    <span className="pro-plan-gsm">90 GSM Plotter Paper</span>
+                    <span className="pro-plan-tag">Standard CAD / Engineering</span>
+                  </div>
                 </div>
-                <div className="plan-size-row">
-                  <span className="plan-size-code">A1</span>
-                  <span className="plan-size-gsm">91 GSM</span>
+                <div className="pro-plan-card">
+                  <div className="pro-plan-badge">A1</div>
+                  <div className="pro-plan-info">
+                    <span className="pro-plan-gsm">91 GSM Plotter Paper</span>
+                    <span className="pro-plan-tag">Architectural Blueprint</span>
+                  </div>
                 </div>
-                <div className="plan-size-row">
-                  <span className="plan-size-code">A0</span>
-                  <span className="plan-size-gsm">92 GSM</span>
+                <div className="pro-plan-card">
+                  <div className="pro-plan-badge">A0</div>
+                  <div className="pro-plan-info">
+                    <span className="pro-plan-gsm">92 GSM Plotter Paper</span>
+                    <span className="pro-plan-tag">Jumbo Poster / Master Plan</span>
+                  </div>
                 </div>
               </div>
             </div>

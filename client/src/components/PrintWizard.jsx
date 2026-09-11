@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import JSZip from 'jszip';
 import { useAuth } from '../context/AuthContext';
 import { createOrder, uploadPrintFile } from '../lib/orderService';
-import { 
-  WHOLESALE_PRICE_LIST, 
+import {
+  WHOLESALE_PRICE_LIST,
   BW_DOC_SIZES,
   BW_PRINT_PRICING,
   COLOR_DOC_SIZES,
@@ -12,7 +12,7 @@ import {
   VISITING_CARD_TYPES,
   VISITING_CARD_PRICES,
   BROCHURES_FLYERS_DATA,
-  BINDING_PRICES, 
+  BINDING_PRICES,
   THERMAL_LAMINATION_PRICES,
   CUTTING_PRICES,
   STICKER_FINISHING_PRICES,
@@ -35,7 +35,7 @@ import {
   formatINR
 } from '../lib/priceList';
 
-const WINSTAR_PHONE = '919345046665'; 
+const WINSTAR_PHONE = '919345046665';
 
 const TOP_LEVEL_SERVICES = [
   { value: 'bw_print', label: 'Black & White / Grayscale Printout', icon: 'print' },
@@ -87,7 +87,7 @@ export default function PrintWizard({ isWholesale = false }) {
 
   const [config, setConfig] = useState({
     service: 'bw_print',
-    
+
     // Black & White fields
     bw_size: 'A4',
     bw_paper: 'Copier',
@@ -99,13 +99,13 @@ export default function PrintWizard({ isWholesale = false }) {
     color_paper: 'Paper',
     color_gsm: '100G',
     color_side: 'Single Side',
-    
+
     // Visiting Card fields
     card_type: 'Art Board',
     card_side: 'Single Side',
     card_copies: 120,
 
-    // Brochures / Flyers / Bill Books fields
+    // Books fields
     bf_product: 'Flyers',
     flyer_qty: 25,
     letterhead_paper: '100gsm',
@@ -118,7 +118,7 @@ export default function PrintWizard({ isWholesale = false }) {
     copies: 1,
     binding: 'No Binding',
     message_text: '',
-    
+
     // Wholesale fields
     media: 'COATED',
     paper_gsm: '100',
@@ -265,149 +265,149 @@ export default function PrintWizard({ isWholesale = false }) {
     }
   }, [config.pages, config.service, config.bw_size, config.color_size, isWholesaleActive, config.binding]);
 
-// Helper to analyze and extract page/slide count from uploaded documents (PDF, Word DOCX/DOC, PowerPoint PPTX/PPT)
-async function detectFilePages(file) {
-  if (!file) return 1;
-  const fileName = file.name ? file.name.toLowerCase() : '';
-  const fileType = file.type ? file.type.toLowerCase() : '';
+  // Helper to analyze and extract page/slide count from uploaded documents (PDF, Word DOCX/DOC, PowerPoint PPTX/PPT)
+  async function detectFilePages(file) {
+    if (!file) return 1;
+    const fileName = file.name ? file.name.toLowerCase() : '';
+    const fileType = file.type ? file.type.toLowerCase() : '';
 
-  const isPdf = fileType === 'application/pdf' || fileName.endsWith('.pdf');
-  const isDocx = fileName.endsWith('.docx') || fileType.includes('wordprocessingml');
-  const isDoc = fileName.endsWith('.doc') || fileType === 'application/msword';
-  const isPptx = fileName.endsWith('.pptx') || fileType.includes('presentationml');
-  const isPpt = fileName.endsWith('.ppt') || fileType === 'application/vnd.ms-powerpoint';
+    const isPdf = fileType === 'application/pdf' || fileName.endsWith('.pdf');
+    const isDocx = fileName.endsWith('.docx') || fileType.includes('wordprocessingml');
+    const isDoc = fileName.endsWith('.doc') || fileType === 'application/msword';
+    const isPptx = fileName.endsWith('.pptx') || fileType.includes('presentationml');
+    const isPpt = fileName.endsWith('.ppt') || fileType === 'application/vnd.ms-powerpoint';
 
-  // 1. PDF Page Detection
-  if (isPdf) {
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      const text = new TextDecoder('latin1').decode(bytes);
+    // 1. PDF Page Detection
+    if (isPdf) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        const text = new TextDecoder('latin1').decode(bytes);
 
-      // Method 1: Look for /Type /Pages /Count (\d+)
-      const countMatches = [...text.matchAll(/\/Type\s*\/Pages[^>]*?\/Count\s+(\d+)/g)];
-      if (countMatches.length > 0) {
-        const counts = countMatches.map(m => parseInt(m[1], 10)).filter(n => !isNaN(n) && n > 0);
-        if (counts.length > 0) {
-          return Math.max(...counts);
+        // Method 1: Look for /Type /Pages /Count (\d+)
+        const countMatches = [...text.matchAll(/\/Type\s*\/Pages[^>]*?\/Count\s+(\d+)/g)];
+        if (countMatches.length > 0) {
+          const counts = countMatches.map(m => parseInt(m[1], 10)).filter(n => !isNaN(n) && n > 0);
+          if (counts.length > 0) {
+            return Math.max(...counts);
+          }
         }
-      }
 
-      // Method 2: Count distinct /Type /Page objects (excluding /Type /Pages)
-      const pageMatches = text.match(/\/Type\s*\/Page\b(?!\s*s)/g);
-      if (pageMatches && pageMatches.length > 0) {
-        return pageMatches.length;
-      }
-
-      // Method 3: Fallback /Count (\d+)
-      const generalCounts = [...text.matchAll(/\/Count\s+(\d+)/g)];
-      if (generalCounts.length > 0) {
-        const counts = generalCounts.map(m => parseInt(m[1], 10)).filter(n => !isNaN(n) && n > 0);
-        if (counts.length > 0) {
-          return Math.max(...counts);
+        // Method 2: Count distinct /Type /Page objects (excluding /Type /Pages)
+        const pageMatches = text.match(/\/Type\s*\/Page\b(?!\s*s)/g);
+        if (pageMatches && pageMatches.length > 0) {
+          return pageMatches.length;
         }
+
+        // Method 3: Fallback /Count (\d+)
+        const generalCounts = [...text.matchAll(/\/Count\s+(\d+)/g)];
+        if (generalCounts.length > 0) {
+          const counts = generalCounts.map(m => parseInt(m[1], 10)).filter(n => !isNaN(n) && n > 0);
+          if (counts.length > 0) {
+            return Math.max(...counts);
+          }
+        }
+      } catch (e) {
+        console.warn('Could not parse PDF page count:', e);
       }
-    } catch (e) {
-      console.warn('Could not parse PDF page count:', e);
     }
-  }
 
-  // 2. DOCX Word Document Page Detection
-  if (isDocx) {
-    try {
-      const zip = await JSZip.loadAsync(file);
+    // 2. DOCX Word Document Page Detection
+    if (isDocx) {
+      try {
+        const zip = await JSZip.loadAsync(file);
 
-      let appPages = 0;
-      let appWords = 0;
+        let appPages = 0;
+        let appWords = 0;
 
-      // A. Check docProps/app.xml for <Pages>N</Pages> and <Words>N</Words>
-      const appXmlFile = zip.file('docProps/app.xml') || zip.file(/[dD]oc[pP]rops\/app\.xml/i)?.[0];
-      if (appXmlFile) {
-        const appXmlText = await appXmlFile.async('text');
-        const pagesMatch = appXmlText.match(/<(?:\w+:)?Pages>(\d+)<\/(?:\w+:)?Pages>/i);
+        // A. Check docProps/app.xml for <Pages>N</Pages> and <Words>N</Words>
+        const appXmlFile = zip.file('docProps/app.xml') || zip.file(/[dD]oc[pP]rops\/app\.xml/i)?.[0];
+        if (appXmlFile) {
+          const appXmlText = await appXmlFile.async('text');
+          const pagesMatch = appXmlText.match(/<(?:\w+:)?Pages>(\d+)<\/(?:\w+:)?Pages>/i);
+          if (pagesMatch && parseInt(pagesMatch[1], 10) > 0) {
+            appPages = parseInt(pagesMatch[1], 10);
+          }
+          const wordsMatch = appXmlText.match(/<(?:\w+:)?Words>(\d+)<\/(?:\w+:)?Words>/i);
+          if (wordsMatch && parseInt(wordsMatch[1], 10) > 0) {
+            appWords = parseInt(wordsMatch[1], 10);
+          }
+        }
+
+        // B. Check word/document.xml for rendered page breaks, manual page breaks & sections
+        let docBreaks = 0;
+        const docXmlFile = zip.file('word/document.xml') || zip.file(/[wW]ord\/document\.xml/i)?.[0];
+        if (docXmlFile) {
+          const docXmlText = await docXmlFile.async('text');
+          const lastRenderedBreaks = (docXmlText.match(/<w:lastRenderedPageBreak\b/g) || []).length;
+          const manualPageBreaks = (docXmlText.match(/<w:br\b[^>]*?w:type="page"/g) || []).length;
+          const sectionBreaks = (docXmlText.match(/<w:sectPr\b/g) || []).length;
+
+          docBreaks = lastRenderedBreaks + manualPageBreaks;
+          if (docBreaks > 0) {
+            return Math.max(appPages, docBreaks + 1);
+          }
+          if (sectionBreaks > 1) {
+            return Math.max(appPages, sectionBreaks);
+          }
+        }
+
+        if (appPages > 0) {
+          return appPages;
+        }
+
+        if (appWords > 350) {
+          return Math.ceil(appWords / 350);
+        }
+      } catch (e) {
+        console.warn('Could not parse DOCX page count:', e);
+      }
+    }
+
+    // 3. PPTX PowerPoint Presentation Slide Detection
+    if (isPptx) {
+      try {
+        const zip = await JSZip.loadAsync(file);
+
+        // A. Check docProps/app.xml for <Slides>N</Slides>
+        const appXmlFile = zip.file('docProps/app.xml') || zip.file(/[dD]oc[pP]rops\/app\.xml/i)?.[0];
+        if (appXmlFile) {
+          const appXmlText = await appXmlFile.async('text');
+          const slidesMatch = appXmlText.match(/<(?:\w+:)?Slides>(\d+)<\/(?:\w+:)?Slides>/i);
+          if (slidesMatch && parseInt(slidesMatch[1], 10) > 0) {
+            return parseInt(slidesMatch[1], 10);
+          }
+        }
+
+        // B. Count individual slide XML files in ppt/slides/
+        const slideFiles = Object.keys(zip.files).filter(k => /^ppt\/slides\/slide\d+\.xml$/i.test(k));
+        if (slideFiles.length > 0) {
+          return slideFiles.length;
+        }
+      } catch (e) {
+        console.warn('Could not parse PPTX slide count:', e);
+      }
+    }
+
+    // 4. Legacy .DOC or .PPT Binary Fallback Parsing
+    if (isDoc || isPpt) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        const text = new TextDecoder('latin1').decode(bytes);
+
+        const pagesMatch = text.match(/<(?:\w+:)?Pages>(\d+)<\/(?:\w+:)?Pages>/i) ||
+          text.match(/<(?:\w+:)?Slides>(\d+)<\/(?:\w+:)?Slides>/i);
         if (pagesMatch && parseInt(pagesMatch[1], 10) > 0) {
-          appPages = parseInt(pagesMatch[1], 10);
+          return parseInt(pagesMatch[1], 10);
         }
-        const wordsMatch = appXmlText.match(/<(?:\w+:)?Words>(\d+)<\/(?:\w+:)?Words>/i);
-        if (wordsMatch && parseInt(wordsMatch[1], 10) > 0) {
-          appWords = parseInt(wordsMatch[1], 10);
-        }
+      } catch (e) {
+        console.warn('Could not parse legacy binary document count:', e);
       }
-
-      // B. Check word/document.xml for rendered page breaks, manual page breaks & sections
-      let docBreaks = 0;
-      const docXmlFile = zip.file('word/document.xml') || zip.file(/[wW]ord\/document\.xml/i)?.[0];
-      if (docXmlFile) {
-        const docXmlText = await docXmlFile.async('text');
-        const lastRenderedBreaks = (docXmlText.match(/<w:lastRenderedPageBreak\b/g) || []).length;
-        const manualPageBreaks = (docXmlText.match(/<w:br\b[^>]*?w:type="page"/g) || []).length;
-        const sectionBreaks = (docXmlText.match(/<w:sectPr\b/g) || []).length;
-        
-        docBreaks = lastRenderedBreaks + manualPageBreaks;
-        if (docBreaks > 0) {
-          return Math.max(appPages, docBreaks + 1);
-        }
-        if (sectionBreaks > 1) {
-          return Math.max(appPages, sectionBreaks);
-        }
-      }
-
-      if (appPages > 0) {
-        return appPages;
-      }
-
-      if (appWords > 350) {
-        return Math.ceil(appWords / 350);
-      }
-    } catch (e) {
-      console.warn('Could not parse DOCX page count:', e);
     }
+
+    return 1;
   }
-
-  // 3. PPTX PowerPoint Presentation Slide Detection
-  if (isPptx) {
-    try {
-      const zip = await JSZip.loadAsync(file);
-
-      // A. Check docProps/app.xml for <Slides>N</Slides>
-      const appXmlFile = zip.file('docProps/app.xml') || zip.file(/[dD]oc[pP]rops\/app\.xml/i)?.[0];
-      if (appXmlFile) {
-        const appXmlText = await appXmlFile.async('text');
-        const slidesMatch = appXmlText.match(/<(?:\w+:)?Slides>(\d+)<\/(?:\w+:)?Slides>/i);
-        if (slidesMatch && parseInt(slidesMatch[1], 10) > 0) {
-          return parseInt(slidesMatch[1], 10);
-        }
-      }
-
-      // B. Count individual slide XML files in ppt/slides/
-      const slideFiles = Object.keys(zip.files).filter(k => /^ppt\/slides\/slide\d+\.xml$/i.test(k));
-      if (slideFiles.length > 0) {
-        return slideFiles.length;
-      }
-    } catch (e) {
-      console.warn('Could not parse PPTX slide count:', e);
-    }
-  }
-
-  // 4. Legacy .DOC or .PPT Binary Fallback Parsing
-  if (isDoc || isPpt) {
-    try {
-      const arrayBuffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      const text = new TextDecoder('latin1').decode(bytes);
-
-      const pagesMatch = text.match(/<(?:\w+:)?Pages>(\d+)<\/(?:\w+:)?Pages>/i) ||
-                         text.match(/<(?:\w+:)?Slides>(\d+)<\/(?:\w+:)?Slides>/i);
-      if (pagesMatch && parseInt(pagesMatch[1], 10) > 0) {
-        return parseInt(pagesMatch[1], 10);
-      }
-    } catch (e) {
-      console.warn('Could not parse legacy binary document count:', e);
-    }
-  }
-
-  return 1;
-}
 
   const b2bPriceResult = calculateB2BPrice({
     mediaCategory: b2bMediaCategory,
@@ -457,11 +457,11 @@ async function detectFilePages(file) {
     let printingTotal = 0;
     let bindingTotal = 0;
     let cuttingTotal = 0;
-    
+
     if (isWholesaleActive) {
-      return { 
-        subtotal: (b2bPriceResult.printingPrice + b2bPriceResult.laminationPrice + b2bPriceResult.cuttingPrice + b2bPriceResult.stickerPrice).toFixed(2), 
-        gst: '0.00', 
+      return {
+        subtotal: (b2bPriceResult.printingPrice + b2bPriceResult.laminationPrice + b2bPriceResult.cuttingPrice + b2bPriceResult.stickerPrice).toFixed(2),
+        gst: '0.00',
         grandTotal: b2bPriceResult.totalAmount.toFixed(2),
         printingTotal: b2bPriceResult.printingPrice.toFixed(2),
         bindingTotal: (b2bPriceResult.laminationPrice + b2bPriceResult.cuttingPrice + b2bPriceResult.stickerPrice).toFixed(2),
@@ -476,7 +476,7 @@ async function detectFilePages(file) {
         const row = getBWRow(config.bw_size, config.bw_paper, config.bw_gsm);
         const isFB = config.bw_side === 'Front & Back' && row?.fb !== null;
         const rate = isFB ? (row?.fb ?? 0) : (row?.ss ?? 0);
-        
+
         printingTotal = pages * rate * copies;
 
         let bindingRate = 0;
@@ -494,7 +494,7 @@ async function detectFilePages(file) {
       } else if (config.service === 'color_print') {
         const row = getColorRow(config.color_size, config.color_paper, config.color_gsm);
         const isFB = config.color_side === 'Front & Back' && row?.fb !== null;
-        
+
         if (isFB) {
           const rate = row?.fb ?? 0;
           const sheets = Math.ceil(pages / 2);
@@ -549,9 +549,9 @@ async function detectFilePages(file) {
 
       const courierCharge = deliveryType === 'courier' ? 30 : 0;
       const grandTotal = Math.round(printingTotal + bindingTotal + cuttingTotal + courierCharge);
-      return { 
-        subtotal: (printingTotal + bindingTotal + cuttingTotal).toFixed(2), 
-        gst: '0.00', 
+      return {
+        subtotal: (printingTotal + bindingTotal + cuttingTotal).toFixed(2),
+        gst: '0.00',
         grandTotal: grandTotal.toFixed(2),
         printingTotal: printingTotal.toFixed(2),
         bindingTotal: bindingTotal.toFixed(2),
@@ -624,8 +624,8 @@ async function detectFilePages(file) {
       }
 
       setB2bPages(safePages);
-      setConfig(c => ({ 
-        ...c, 
+      setConfig(c => ({
+        ...c,
         pages: safePages,
         letterhead_sheets: safePages
       }));
@@ -700,10 +700,10 @@ async function detectFilePages(file) {
     setError('');
     try {
       const token = await getAccessToken();
-      let serviceName = isWholesaleActive 
+      let serviceName = isWholesaleActive
         ? `${b2bMediaType || 'B2B Printing'}${b2bMediaCategory ? ' - ' + b2bMediaCategory : ''}`
         : TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label;
-      
+
       let normalPaperSize = config.paper_size;
       let normalPaperGsm = config.paper_gsm;
       let normalDoubleSided = config.double_sided;
@@ -856,33 +856,33 @@ async function detectFilePages(file) {
     if (!isWholesaleActive) {
       if (order.service === 'bw_print' || config.service === 'bw_print') {
         textStr += `*File:* ${order.file_name || file?.name || 'document.pdf'}\n` +
-                   `*Size:* ${config.bw_size}\n` +
-                   `*Paper:* ${config.bw_paper} (${config.bw_gsm})\n` +
-                   `*Side:* ${config.bw_side}\n` +
-                   `*Pages:* ${config.pages} | *Copies:* ${config.copies}\n` +
-                   (config.binding && config.binding !== 'No Binding' ? `*Binding:* ${config.binding}\n` : '');
+          `*Size:* ${config.bw_size}\n` +
+          `*Paper:* ${config.bw_paper} (${config.bw_gsm})\n` +
+          `*Side:* ${config.bw_side}\n` +
+          `*Pages:* ${config.pages} | *Copies:* ${config.copies}\n` +
+          (config.binding && config.binding !== 'No Binding' ? `*Binding:* ${config.binding}\n` : '');
       } else if (order.service === 'color_print' || config.service === 'color_print') {
         textStr += `*File:* ${order.file_name || file?.name || 'document.pdf'}\n` +
-                   `*Size:* ${config.color_size}\n` +
-                   `*Paper:* ${config.color_paper} (${config.color_gsm})\n` +
-                   `*Side:* ${config.color_side}\n` +
-                   `*Pages:* ${config.pages} | *Copies:* ${config.copies}\n` +
-                   (config.binding && config.binding !== 'No Binding' ? `*Binding:* ${config.binding}\n` : '');
+          `*Size:* ${config.color_size}\n` +
+          `*Paper:* ${config.color_paper} (${config.color_gsm})\n` +
+          `*Side:* ${config.color_side}\n` +
+          `*Pages:* ${config.pages} | *Copies:* ${config.copies}\n` +
+          (config.binding && config.binding !== 'No Binding' ? `*Binding:* ${config.binding}\n` : '');
       } else if (order.service === 'visiting_cards' || config.service === 'visiting_cards') {
         textStr += `*Card Type:* ${config.card_type}\n` +
-                   `*Side:* ${config.card_side}\n` +
-                   `*Quantity:* ${config.card_copies} cards\n` +
-                   `*Cutting Charge:* ₹${prices.cuttingTotal}\n`;
+          `*Side:* ${config.card_side}\n` +
+          `*Quantity:* ${config.card_copies} cards\n` +
+          `*Cutting Charge:* ₹${prices.cuttingTotal}\n`;
       } else if (order.service === 'brochures_flyers' || config.service === 'brochures_flyers') {
         textStr += `*Product:* ${config.bf_product}\n`;
         if (config.bf_product === 'Flyers') {
           textStr += `*Quantity:* ${config.flyer_qty} pieces (x${config.copies} sets)\n`;
         } else if (config.bf_product === 'Letter Head') {
           textStr += `*Paper:* ${config.letterhead_paper}\n` +
-                     `*Quantity:* ${config.letterhead_paper === '100gsm' ? `${config.letterhead_sheets} sheets` : `${config.letterhead_pads} pads (100 sheets/pad)`}\n`;
+            `*Quantity:* ${config.letterhead_paper === '100gsm' ? `${config.letterhead_sheets} sheets` : `${config.letterhead_pads} pads (100 sheets/pad)`}\n`;
         } else if (config.bf_product === 'Bill Book') {
           textStr += `*Paper:* Executive Bond 100gsm\n` +
-                     `*Quantity:* ${config.billbook_pads} pads (100 sheets/pad)\n`;
+            `*Quantity:* ${config.billbook_pads} pads (100 sheets/pad)\n`;
         }
         if (order.file_name || file?.name) textStr += `*File:* ${order.file_name || file?.name}\n`;
       }
@@ -896,7 +896,7 @@ async function detectFilePages(file) {
     textStr += (order.order_type === 'wholesale' || isWholesaleActive)
       ? `*Total Amount:* ${formatINR(order.total_price || b2bPriceResult.totalAmount)}\n\n`
       : `*Total Amount:* ₹${order.total_price}\n\n`;
-    
+
     textStr += `Please confirm my print job. Request ID: ${reqId}`;
 
     const text = encodeURIComponent(textStr);
@@ -1877,12 +1877,12 @@ async function detectFilePages(file) {
 
                       <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
                         <label className="label">Special Instructions / Notes (Optional)</label>
-                        <textarea 
-                          className="textarea" 
-                          rows={2} 
-                          placeholder="e.g. Spiral binding request, print specific pages only, custom instructions..." 
-                          value={config.message_text} 
-                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                        <textarea
+                          className="textarea"
+                          rows={2}
+                          placeholder="e.g. Spiral binding request, print specific pages only, custom instructions..."
+                          value={config.message_text}
+                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))}
                         />
                       </div>
                     </div>
@@ -1998,12 +1998,12 @@ async function detectFilePages(file) {
 
                       <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
                         <label className="label">Special Instructions / Notes (Optional)</label>
-                        <textarea 
-                          className="textarea" 
-                          rows={2} 
-                          placeholder="e.g. Color profile requirements, glossy finish note..." 
-                          value={config.message_text} 
-                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                        <textarea
+                          className="textarea"
+                          rows={2}
+                          placeholder="e.g. Color profile requirements, glossy finish note..."
+                          value={config.message_text}
+                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))}
                         />
                       </div>
                     </div>
@@ -2027,7 +2027,7 @@ async function detectFilePages(file) {
                           </select>
                         </div>
                       </div>
-                      
+
                       <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                         <div className="form-group">
                           <label className="label">Quantity (Cards)</label>
@@ -2041,18 +2041,18 @@ async function detectFilePages(file) {
 
                       <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
                         <label className="label">Special Instructions / Notes (Optional)</label>
-                        <textarea 
-                          className="textarea" 
-                          rows={2} 
-                          placeholder="e.g. Rounded corner cutting, matte lamination note..." 
-                          value={config.message_text} 
-                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                        <textarea
+                          className="textarea"
+                          rows={2}
+                          placeholder="e.g. Rounded corner cutting, matte lamination note..."
+                          value={config.message_text}
+                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))}
                         />
                       </div>
                     </div>
                   )}
 
-                  {/* 5. BROCHURES / FLYERS / BILL BOOKS */}
+                  {/* 5. BOOKS */}
                   {config.service === 'brochures_flyers' && (
                     <div className="animate-fade-in">
                       <div className="form-group" style={{ marginBottom: 16 }}>
@@ -2175,12 +2175,12 @@ async function detectFilePages(file) {
 
                       <div className="form-group animate-fade-in" style={{ marginBottom: 16 }}>
                         <label className="label">Special Instructions / Notes (Optional)</label>
-                        <textarea 
-                          className="textarea" 
-                          rows={2} 
-                          placeholder="e.g. Numbering starting from 001, perforation note..." 
-                          value={config.message_text} 
-                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))} 
+                        <textarea
+                          className="textarea"
+                          rows={2}
+                          placeholder="e.g. Numbering starting from 001, perforation note..."
+                          value={config.message_text}
+                          onChange={e => setConfig(c => ({ ...c, message_text: e.target.value }))}
                         />
                       </div>
                     </div>
@@ -2289,7 +2289,7 @@ async function detectFilePages(file) {
         {/* RIGHT COLUMN */}
         <div style={{ minWidth: 0 }}>
           <div className={`print-wizard-summary-card ${mobileSummaryOpen ? 'mobile-expanded' : ''}`}>
-            <div 
+            <div
               className="print-wizard-summary-header"
               onClick={() => setMobileSummaryOpen(prev => !prev)}
               role="button"
@@ -2306,10 +2306,10 @@ async function detectFilePages(file) {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
                 <span className="summary-mobile-badge">
-                  {isWholesaleActive 
-                    ? (b2bPriceResult.isPriceAvailable && !b2bPriceResult.waitingForFile && b2bPriceResult.totalAmount > 0 
-                        ? formatINR(b2bPriceResult.totalAmount) 
-                        : (b2bMediaType ? `${b2bMediaType.split(' ')[0]} • ${b2bCopies}x` : 'Specifications')) 
+                  {isWholesaleActive
+                    ? (b2bPriceResult.isPriceAvailable && !b2bPriceResult.waitingForFile && b2bPriceResult.totalAmount > 0
+                      ? formatINR(b2bPriceResult.totalAmount)
+                      : (b2bMediaType ? `${b2bMediaType.split(' ')[0]} • ${b2bCopies}x` : 'Specifications'))
                     : `₹${prices.grandTotal}`}
                 </span>
                 <span className="material-symbols-outlined summary-collapse-icon" style={{
@@ -2441,11 +2441,11 @@ async function detectFilePages(file) {
                           </span>
                         </div>
 
-                        <div style={{ 
+                        <div style={{
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                          marginTop: 12, paddingTop: 12, 
-                          borderTop: '1px solid var(--surface-container-high)', 
-                          fontWeight: 800, fontSize: 17, color: 'var(--primary-container)' 
+                          marginTop: 12, paddingTop: 12,
+                          borderTop: '1px solid var(--surface-container-high)',
+                          fontWeight: 800, fontSize: 17, color: 'var(--primary-container)'
                         }}>
                           <span>TOTAL AMOUNT:</span>
                           <span>
@@ -2464,7 +2464,7 @@ async function detectFilePages(file) {
                       {TOP_LEVEL_SERVICES.find(t => t.value === config.service)?.label}
                     </span>
                   </div>
-                  
+
                   {config.service === 'bw_print' && (
                     <>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
@@ -2635,7 +2635,7 @@ async function detectFilePages(file) {
                   </div>
                 </div>
               )}
-              
+
               {!isWholesaleActive && Number(prices.grandTotal) <= 0 && (
                 <div style={{ fontSize: 12, color: 'var(--error-container)', textAlign: 'center', background: 'rgba(255,0,0,0.1)', padding: 8, borderRadius: 4, marginBottom: 8 }}>
                   Price unavailable for this specification.
@@ -2656,7 +2656,7 @@ async function detectFilePages(file) {
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
         }}>
           <div className="card animate-fade-in" style={{ maxWidth: 520, width: '100%', padding: 28, borderRadius: 'var(--radius-xl)', textAlign: 'center', maxHeight: '90vh', overflowY: 'auto' }}>
-            
+
             {successModalStep === 'details' ? (
               <>
                 <div style={{
@@ -2757,7 +2757,7 @@ async function detectFilePages(file) {
                         <div><strong>Bank:</strong> Indian Overseas Bank</div>
                         <div><strong>Branch:</strong> FORT BRANCH, DINDIGUL</div>
                       </div>
-                      
+
                       {/* Exact QR Code */}
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0 auto' }}>
                         <img src="/qr_code.png" alt="Winstar UPI QR Code" style={{ width: 100, height: 100, objectFit: 'contain', background: '#fff', padding: 6, border: '1px solid var(--outline-variant)', borderRadius: 6 }} />

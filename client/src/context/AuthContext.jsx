@@ -14,18 +14,6 @@ export function AuthProvider({ children }) {
         setUser(session.user);
         fetchProfile(session.user.id, session.user);
       } else {
-        const fallback = localStorage.getItem('winstar_fallback_session');
-        if (fallback) {
-          try {
-            const localUser = JSON.parse(fallback);
-            setUser(localUser);
-            fetchProfile(localUser.id, localUser);
-            return;
-          } catch (e) {
-            localStorage.removeItem('winstar_fallback_session');
-          }
-        }
-        
         setUser(null);
         setProfile(null);
         setLoading(false);
@@ -224,33 +212,15 @@ export function AuthProvider({ children }) {
 
     // 2. Perform Supabase Sign In
     let authUser = null;
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: cleanEmail,
-        password,
-      });
+    const { data, error: authError } = await supabase.auth.signInWithPassword({
+      email: cleanEmail,
+      password,
+    });
 
-      if (error) throw error;
-      authUser = data.user;
-    } catch (authErr) {
-      // If agency is approved in database/local, ensure user session
-      if (agencyStatus === 'approved' || cleanEmail.includes('gowshigan') || cleanEmail.includes('agency')) {
-        const localUser = {
-          id: `agency_${cleanEmail.replace(/[^a-zA-Z0-9]/g, '_')}`,
-          email: cleanEmail,
-          user_metadata: {
-            full_name: agencyData?.full_name || agencyData?.company_name || 'B2B Client',
-            company_name: agencyData?.company_name || '',
-            mobile: agencyData?.mobile || '',
-          }
-        };
-        localStorage.setItem('winstar_fallback_session', JSON.stringify(localUser));
-        setUser(localUser);
-        await fetchProfile(localUser.id, localUser);
-        return localUser;
-      }
-      throw authErr;
+    if (authError) {
+      throw new Error('Invalid email or password. Please check your credentials and try again.');
     }
+    authUser = data.user;
 
     // 3. Post-authentication check
     const { data: userProfile } = await supabase

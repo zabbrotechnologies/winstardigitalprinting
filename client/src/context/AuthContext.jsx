@@ -9,33 +9,53 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    function handleSessionCheck(session, isAuthEvent = false) {
-      if (session?.user) {
-        setUser(session.user);
-        fetchProfile(session.user.id, session.user);
-      } else {
-        setUser(null);
-        setProfile(null);
+    async function initSession() {
+      try {
+        // 1. Initial Supabase Session Check
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setUser(session.user);
+          await fetchProfile(session.user.id, session.user);
+          return;
+        }
+
+        // 2. Fallback to persisted backend session
+        const savedUserStr = localStorage.getItem('winstar_auth_user');
+        if (savedUserStr) {
+          try {
+            const savedUser = JSON.parse(savedUserStr);
+            if (savedUser && savedUser.id) {
+              setUser(savedUser);
+              await fetchProfile(savedUser.id, savedUser);
+              return;
+            }
+          } catch (e) {
+            localStorage.removeItem('winstar_auth_user');
+          }
+        }
+      } catch (err) {
+        console.warn('Session init error:', err);
+      } finally {
         setLoading(false);
       }
     }
 
-    // 1. Initial Session Check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      handleSessionCheck(session);
-    });
+    initSession();
 
-    // 2. Listen to Auth State Changes
+    // Listen to Supabase Auth State Changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') return;
       
       if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('winstar_auth_token');
+        localStorage.removeItem('winstar_auth_user');
         localStorage.removeItem('winstar_fallback_session');
         setUser(null);
         setProfile(null);
         setLoading(false);
-      } else {
-        handleSessionCheck(session, true);
+      } else if (session?.user) {
+        setUser(session.user);
+        fetchProfile(session.user.id, session.user);
       }
     });
 
@@ -165,106 +185,64 @@ export function AuthProvider({ children }) {
   }
 
   async function signIn(email, password) {
+    if (!email || !email.trim()) {
+      throw new Error('Email address is required');
+    }
+    if (!password) {
+      throw new Error('Password is required');
+    }
+
     const cleanEmail = email.trim().toLowerCase();
 
-    // 1. Check Wholesale Application Status from Supabase & Local Sync
-    let agencyStatus = null;
-    let agencyData = null;
-    try {
-      const { data: profileCheck } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('email', cleanEmail)
-        .maybeSingle();
-
-      if (profileCheck && (profileCheck.account_type === 'wholesale' || profileCheck.role === 'wholesale' || profileCheck.company_name)) {
-        agencyStatus = profileCheck.status;
-        agencyData = profileCheck;
-      }
-    } catch {}
-
-    try {
-      const { data: waCheck } = await supabase
-        .from('wholesale_applications')
-        .select('*')
-        .eq('email', cleanEmail)
-        .maybeSingle();
-      if (waCheck) {
-        agencyStatus = waCheck.status;
-        agencyData = { ...agencyData, ...waCheck };
-      }
-    } catch {}
-
-    if (!agencyStatus) {
-      const localAgencies = JSON.parse(localStorage.getItem('winstar_local_agencies') || '[]');
-      const localMatch = localAgencies.find(a => a.email && a.email.toLowerCase() === cleanEmail);
-      if (localMatch) {
-        agencyStatus = localMatch.status;
-        agencyData = { ...agencyData, ...localMatch };
-      }
-    }
-
-    if (agencyStatus === 'pending') {
-      throw new Error('Your Wholesale Agency application is waiting for Admin Approval. You can only log in after admin approves your application.');
-    } else if (agencyStatus === 'rejected') {
-      throw new Error('Your Wholesale Agency application was Rejected by Admin. You cannot access wholesale ordering.');
-    }
-
-    // 2. Perform Supabase Sign In
-    let authUser = null;
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email: cleanEmail,
-      password,
+    // Call Backend Login API
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: cleanEmail, password }),
     });
 
-    if (authError) {
-      throw new Error('Invalid email or password. Please check your credentials and try again.');
-    }
-    authUser = data.user;
+    const data = await res.json();
 
-    // 3. Post-authentication check
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', authUser.id)
-      .maybeSingle();
-
-    if (userProfile && (userProfile.account_type === 'wholesale' || userProfile.role === 'wholesale')) {
-      if (userProfile.status === 'pending') {
-        await supabase.auth.signOut();
-        throw new Error('Your Wholesale Agency application is waiting for Admin Approval. You can only log in after admin approves your application.');
-      } else if (userProfile.status === 'rejected') {
-        await supabase.auth.signOut();
-        throw new Error('Your Wholesale Agency application was Rejected by Admin. You cannot access wholesale ordering.');
-      }
+    if (!res.ok) {
+      throw new Error(data.error || 'Invalid email or password. Please check your credentials and try again.');
     }
 
-    setUser(authUser);
-    await fetchProfile(authUser.id, authUser);
-    return authUser;
+    if (!data.user) {
+      throw new Error('Login failed. Please verify your credentials.');
+    }
+
+    // Persist session
+    if (data.token) {
+      localStorage.setItem('winstar_auth_token', data.token);
+    }
+    localStorage.setItem('winstar_auth_user', JSON.stringify(data.user));
+
+    setUser(data.user);
+    if (data.profile) {
+      setProfile(data.profile);
+    } else {
+      await fetchProfile(data.user.id, data.user);
+    }
+
+    return data.user;
   }
 
   async function signUp(email, password, metadata = {}) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: metadata.full_name || 'User',
-          mobile: metadata.mobile || '',
-        },
-      },
-    });
+    if (!email || !email.trim()) {
+      throw new Error('Email address is required');
+    }
+    if (!password || password.length < 6) {
+      throw new Error('Password is required and must be at least 6 characters long');
+    }
 
-    if (error) throw error;
-    const signedUser = data.user;
+    const cleanEmail = email.trim().toLowerCase();
 
-    // Create / Upsert Profile in profiles table
-    if (signedUser) {
-      const isWholesale = metadata.account_type === 'wholesale';
-      const profilePayload = {
-        id: signedUser.id,
-        email,
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: cleanEmail,
+        password,
         full_name: metadata.full_name || 'User',
         company_name: metadata.company_name || null,
         gst_number: metadata.gst_number || null,
@@ -273,27 +251,28 @@ export function AuthProvider({ children }) {
         business_details: metadata.business_details || null,
         visiting_card_url: metadata.visiting_card_url || null,
         business_proof_url: metadata.business_proof_url || null,
-        role: metadata.role || (isWholesale ? 'wholesale' : 'client'),
         account_type: metadata.account_type || 'client',
-        status: isWholesale ? 'pending' : 'approved',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      }),
+    });
 
-      try {
-        await supabase.from('profiles').upsert([profilePayload]);
-      } catch (err) {
-        console.warn('Profile save notice:', err);
-      }
-
-      setUser(signedUser);
-      setProfile({ id: signedUser.id, ...profilePayload });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Registration failed. Please check your details.');
     }
 
-    return signedUser;
+    if (data.profile) {
+      const userObj = { id: data.userId, email: cleanEmail, ...data.profile };
+      setUser(userObj);
+      setProfile(data.profile);
+      localStorage.setItem('winstar_auth_user', JSON.stringify(userObj));
+    }
+
+    return { id: data.userId, email: cleanEmail, ...(data.profile || {}) };
   }
 
   async function signOut() {
+    localStorage.removeItem('winstar_auth_token');
+    localStorage.removeItem('winstar_auth_user');
     localStorage.removeItem('winstar_fallback_session');
     await supabase.auth.signOut().catch(() => {});
     setUser(null);
@@ -302,7 +281,7 @@ export function AuthProvider({ children }) {
 
   async function getAccessToken() {
     const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token || null;
+    return session?.access_token || localStorage.getItem('winstar_auth_token') || null;
   }
 
   return (

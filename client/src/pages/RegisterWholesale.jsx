@@ -31,6 +31,12 @@ export default function RegisterWholesale() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+
+    if (!formData.password || formData.password.length < 6) {
+      setError('Password must be at least 6 characters long.');
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -47,7 +53,7 @@ export default function RegisterWholesale() {
         businessProofUrl = up2?.publicUrl || null;
       }
 
-      // 2. Register via server API (uses admin.createUser with email_confirm: true)
+      // 2. Register via server API (uses bcrypt hashing + Supabase profiles)
       let authUserId = null;
       try {
         const registerRes = await fetch('/api/auth/register', {
@@ -67,44 +73,13 @@ export default function RegisterWholesale() {
           }),
         });
         const registerData = await registerRes.json();
-        if (registerRes.ok && registerData.userId) {
-          authUserId = registerData.userId;
-        } else {
-          // Fallback: try client-side signUp if server API fails
-          const { data: authData, error: authError } = await supabase.auth.signUp({
-            email: formData.email.trim().toLowerCase(),
-            password: formData.password,
-            options: {
-              data: {
-                full_name: formData.full_name,
-                mobile: formData.mobile,
-              },
-            },
-          });
-          if (!authError && authData?.user) {
-            authUserId = authData.user.id;
-          }
+        if (registerRes.ok && (registerData.userId || registerData.profile?.id)) {
+          authUserId = registerData.userId || registerData.profile?.id;
+        } else if (!registerRes.ok) {
+          throw new Error(registerData.error || 'Registration failed');
         }
       } catch (authErr) {
-        console.warn('Auth registration notice:', authErr);
-        // Fallback: try client-side signUp
-        try {
-          const { data: authData, error: authError } = await supabase.auth.signUp({
-            email: formData.email.trim().toLowerCase(),
-            password: formData.password,
-            options: {
-              data: {
-                full_name: formData.full_name,
-                mobile: formData.mobile,
-              },
-            },
-          });
-          if (!authError && authData?.user) {
-            authUserId = authData.user.id;
-          }
-        } catch (e) {
-          console.warn('Fallback signUp notice:', e);
-        }
+        console.warn('Auth registration notice:', authErr.message);
       }
 
       const recordId = authUserId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`);

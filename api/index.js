@@ -16,13 +16,16 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Routes
+// Routes (support both /api/* and /* paths for Vercel serverless functions)
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/upload', uploadRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health', '/api', '/'], (req, res) => {
   res.json({ status: 'ok', message: 'Winstar / Xerox Digital Pro API running on Vercel Serverless' });
 });
 

@@ -898,6 +898,11 @@ img {
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.32) !important;
 }
 
+.service-card.is-expanded.is-expanded-printouts {
+  grid-row: span 3;
+  height: 750px;
+}
+
 @media (max-width: 768px) {
   .service-card.is-expanded {
     grid-row: auto;

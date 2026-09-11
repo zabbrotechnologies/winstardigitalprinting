@@ -19,7 +19,7 @@ export default function ServiceCard({
 
   return (
     <div
-      className={`service-card ${isExpanded ? 'is-expanded' : ''} ${isExpandable ? 'is-expandable' : ''}`}
+      className={`service-card ${isExpanded ? 'is-expanded' : ''} ${isExpanded && detailsType === 'printouts' ? 'is-expanded-printouts' : ''} ${isExpandable ? 'is-expandable' : ''}`}
       onClick={handleClick}
       role={isExpandable || onClick ? 'button' : undefined}
       tabIndex={isExpandable || onClick ? 0 : undefined}
@@ -63,7 +63,7 @@ export default function ServiceCard({
         <p className="body-md" style={{ color: image ? 'rgba(255,255,255,0.85)' : 'var(--on-surface-variant)', margin: 0, fontSize: 13.5, lineHeight: 1.4 }}>{description}</p>
       </div>
 
-      {/* Additional Details (Lower 2nd Card-Height Area — SMOOTH TRANSITION) */}
+      {/* Additional Details (Lower Card-Height Area — SMOOTH TRANSITION) */}
       {isExpandable && (
         <div className={`service-card-expanded-body ${isExpanded ? 'is-visible' : ''}`}>
           {detailsType === 'visiting_cards' && (
@@ -99,36 +99,36 @@ export default function ServiceCard({
 
           {detailsType === 'printouts' && (
             <div className="expanded-details-inner">
-              <div className="printouts-categories-grid">
+              <div className="printouts-vertical-stack">
                 {/* Category 1: B&W */}
                 <div className="pro-category-box">
                   <div className="pro-category-header">
                     <span className="material-symbols-outlined category-icon">contrast</span>
                     BLACK & WHITE / GRAYSCALE
                   </div>
-                  <div className="pro-chips-stack">
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 70 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 80 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 100 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond — 100 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
+                  <div className="pro-chips-grid">
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 70 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 80 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 100 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond — 100 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
                   </div>
                 </div>
 
                 {/* Category 2: Color */}
                 <div className="pro-category-box">
                   <div className="pro-category-header">
-                    <span className="material-symbols-outlined category-icon" style={{ color: '#f43f5e' }}>palette</span>
+                    <span className="material-symbols-outlined category-icon" style={{ color: '#ef4444' }}>palette</span>
                     COLOR PRINTING
                   </div>
-                  <div className="pro-chips-stack">
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Paper — 100 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond Paper — 100 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 130 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 170 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 250 GSM</div>
-                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 300 GSM</div>
+                  <div className="pro-chips-grid">
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Paper — 100 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond Paper — 100 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 130 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 170 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 250 GSM</div>
+                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 300 GSM</div>
                   </div>
                 </div>
               </div>

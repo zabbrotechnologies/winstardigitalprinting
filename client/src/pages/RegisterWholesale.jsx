@@ -47,24 +47,64 @@ export default function RegisterWholesale() {
         businessProofUrl = up2?.publicUrl || null;
       }
 
-      // 2. Submit application into Supabase Auth & Profiles
+      // 2. Register via server API (uses admin.createUser with email_confirm: true)
       let authUserId = null;
       try {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formData.email.trim().toLowerCase(),
-          password: formData.password,
-          options: {
-            data: {
-              full_name: formData.full_name,
-              mobile: formData.mobile,
-            },
-          },
+        const registerRes = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: formData.email.trim().toLowerCase(),
+            password: formData.password,
+            full_name: formData.full_name,
+            company_name: formData.company_name,
+            gst_number: formData.gst_number || null,
+            business_address: formData.business_address,
+            mobile: formData.mobile,
+            visiting_card_url: visitingCardUrl,
+            business_proof_url: businessProofUrl,
+            account_type: 'wholesale',
+          }),
         });
-        if (!authError && authData?.user) {
-          authUserId = authData.user.id;
+        const registerData = await registerRes.json();
+        if (registerRes.ok && registerData.userId) {
+          authUserId = registerData.userId;
+        } else {
+          // Fallback: try client-side signUp if server API fails
+          const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: formData.email.trim().toLowerCase(),
+            password: formData.password,
+            options: {
+              data: {
+                full_name: formData.full_name,
+                mobile: formData.mobile,
+              },
+            },
+          });
+          if (!authError && authData?.user) {
+            authUserId = authData.user.id;
+          }
         }
       } catch (authErr) {
-        console.warn('Auth sign up notice:', authErr);
+        console.warn('Auth registration notice:', authErr);
+        // Fallback: try client-side signUp
+        try {
+          const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: formData.email.trim().toLowerCase(),
+            password: formData.password,
+            options: {
+              data: {
+                full_name: formData.full_name,
+                mobile: formData.mobile,
+              },
+            },
+          });
+          if (!authError && authData?.user) {
+            authUserId = authData.user.id;
+          }
+        } catch (e) {
+          console.warn('Fallback signUp notice:', e);
+        }
       }
 
       const recordId = authUserId || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `00000000-0000-4000-8000-${Date.now().toString(16).padStart(12, '0')}`);

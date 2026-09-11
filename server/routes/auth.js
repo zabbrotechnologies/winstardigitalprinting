@@ -137,6 +137,17 @@ router.patch('/agencies/:id/verify', requireAuth, requireAdmin, async (req, res)
     await supabaseAdmin.from(PROFILES_TABLE).update(updatePayload).eq('id', id);
     await supabaseAdmin.from(WHOLESALE_TABLE).update(updatePayload).eq('id', id).catch(() => {});
 
+    // When approving, confirm the user's email in Supabase Auth so they can log in
+    if (status === 'approved') {
+      try {
+        await supabaseAdmin.auth.admin.updateUserById(id, {
+          email_confirm: true,
+        });
+      } catch (confirmErr) {
+        console.warn('Email confirm notice (may be non-auth ID):', confirmErr.message);
+      }
+    }
+
     res.json({ id, status, updated_at: updatePayload.updated_at });
   } catch (err) {
     res.status(500).json({ error: err.message });

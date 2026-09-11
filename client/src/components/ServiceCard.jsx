@@ -47,7 +47,7 @@ export default function ServiceCard({
               className="material-symbols-outlined"
               style={{
                 fontSize: 16,
-                transition: 'transform 0.3s ease',
+                transition: 'transform 0.35s ease',
                 transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
               }}
             >
@@ -63,9 +63,9 @@ export default function ServiceCard({
         <p className="body-md" style={{ color: image ? 'rgba(255,255,255,0.85)' : 'var(--on-surface-variant)', margin: 0, fontSize: 13.5, lineHeight: 1.4 }}>{description}</p>
       </div>
 
-      {/* Additional Details (Lower 2nd Card-Height Area — ONLY RENDERED WHEN EXPANDED) */}
-      {isExpandable && isExpanded && (
-        <div className="service-card-expanded-body animate-fade-in">
+      {/* Additional Details (Lower 2nd Card-Height Area — SMOOTH TRANSITION) */}
+      {isExpandable && (
+        <div className={`service-card-expanded-body ${isExpanded ? 'is-visible' : ''}`}>
           {detailsType === 'visiting_cards' && (
             <div className="expanded-details-inner">
               <div className="pro-section-header">
@@ -74,23 +74,23 @@ export default function ServiceCard({
               </div>
               <div className="pro-chips-grid">
                 <div className="pro-chip">
-                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Art Board (300 GSM)</span>
                 </div>
                 <div className="pro-chip">
-                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Art Board with Lamination</span>
                 </div>
                 <div className="pro-chip">
-                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Metallic & Special Boards</span>
                 </div>
                 <div className="pro-chip">
-                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Synthetic White 125 Micron</span>
                 </div>
                 <div className="pro-chip">
-                  <span className="material-symbols-outlined chip-icon">check_circle</span>
+                  <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Syn. White 200 Mic / Gold & Silver</span>
                 </div>
               </div>
@@ -107,11 +107,11 @@ export default function ServiceCard({
                     BLACK & WHITE / GRAYSCALE
                   </div>
                   <div className="pro-chips-stack">
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Copier — 70 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Copier — 80 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Copier — 100 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Bond — 100 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Ledger Green — 80 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 70 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 80 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 100 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond — 100 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
                   </div>
                 </div>
 
@@ -122,13 +122,13 @@ export default function ServiceCard({
                     COLOR PRINTING
                   </div>
                   <div className="pro-chips-stack">
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Paper — 100 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Bond Paper — 100 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Ledger Green — 80 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Art Paper — 130 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Art Paper — 170 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Art Board — 250 GSM</div>
-                    <div className="pro-chip-sm"><span className="chip-notation">◆</span>Art Board — 300 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Paper — 100 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond Paper — 100 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 130 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 170 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 250 GSM</div>
+                    <div className="pro-chip-sm"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 300 GSM</div>
                   </div>
                 </div>
               </div>

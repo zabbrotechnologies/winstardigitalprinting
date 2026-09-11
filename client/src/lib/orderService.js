@@ -116,7 +116,7 @@ export function saveLocalAgency(agency) {
   }
 }
 
-export function updateAgencyStatus(agencyId, newStatus) {
+export async function updateAgencyStatus(agencyId, newStatus) {
   try {
     const agencies = getLocalAgencies();
     const index = agencies.findIndex(a => a.id === agencyId || a.email === agencyId);
@@ -129,16 +129,40 @@ export function updateAgencyStatus(agencyId, newStatus) {
     console.warn('Local agency status update notice:', err);
   }
 
-  // Attempt Supabase update on both tables
-  return Promise.all([
-    supabase.from('wholesale_applications').update({ status: newStatus }).or(`id.eq.${agencyId},email.eq.${agencyId}`),
-    supabase.from('profiles').update({ status: newStatus }).or(`id.eq.${agencyId},email.eq.${agencyId}`)
-  ])
-  .then(() => true)
-  .catch(err => {
-    console.warn('Supabase agency update fallback:', err);
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    
+    if (!token) {
+      throw new Error('Authentication required');
+    }
+
+    const res = await fetch(`/api/auth/agencies/${agencyId}/verify`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ status: newStatus })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to update agency status');
+    }
+    
+    return true;
+  } catch (err) {
+    console.warn('Agency update fallback error:', err);
+    
+    // Ultimate fallback if backend is unreachable: client-side Supabase update (won't confirm email though)
+    await Promise.all([
+      supabase.from('wholesale_applications').update({ status: newStatus }).or(`id.eq.${agencyId},email.eq.${agencyId}`),
+      supabase.from('profiles').update({ status: newStatus }).or(`id.eq.${agencyId},email.eq.${agencyId}`)
+    ]).catch(e => console.warn('Supabase agency update fallback:', e));
+    
     return false;
-  });
+  }
 }
 
 /**

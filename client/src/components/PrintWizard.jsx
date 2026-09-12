@@ -1284,7 +1284,7 @@ export default function PrintWizard({ isWholesale = false }) {
                           <option value="">Select Sticker</option>
                           {STICKER_OPTIONS.map(opt => (
                             <option key={opt} value={opt}>
-                              {opt} (₹{STICKER_FINISHING_PRICES[opt]})
+                              {opt} (₹{STICKER_FINISHING_PRICES[opt]}){opt === 'Shape Cut' ? ' Below 40 ups' : ''}
                             </option>
                           ))}
                         </select>

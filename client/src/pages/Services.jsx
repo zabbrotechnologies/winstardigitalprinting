@@ -166,7 +166,7 @@ export default function Services() {
                 isExpandable={Boolean(service.isExpandable)}
                 isExpanded={expandedCardTitle === service.title}
                 detailsType={service.detailsType}
-                onClick={() => navigate('/order')}
+                onClick={() => navigate('/#quick-print')}
                 onToggleExpand={() => {
                   setExpandedCardTitle(prev => prev === service.title ? null : service.title);
                 }}

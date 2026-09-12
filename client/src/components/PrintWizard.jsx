@@ -2414,7 +2414,11 @@ export default function PrintWizard({ isWholesale = false }) {
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13.5, color: 'var(--on-surface)' }}>
-                          <span style={{ color: 'var(--on-surface-variant)' }}>Lamination:</span>
+                          <span style={{ color: 'var(--on-surface-variant)' }}>
+                            {(!b2bThermalLamination || !b2bThermalLaminationType)
+                              ? 'Lamination:'
+                              : `Lamination: ${b2bThermalLaminationType} (${b2bBothSides ? 'Front & Back' : 'Single Side'})`}
+                          </span>
                           <span style={{ fontWeight: 700 }}>
                             {!b2bThermalLamination ? '₹0' : (b2bPriceResult.waitingForFile ? 'Waiting for file' : formatINR(b2bPriceResult.laminationPrice))}
                           </span>

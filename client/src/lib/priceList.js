@@ -672,12 +672,15 @@ export function calculateB2BPrice(orderState = {}) {
     printingPrice = physicalSheets * copyRate;
   }
 
-  // Lamination Total = Price Per Side * Pages * Copies
+  // Lamination Total
   let laminationPrice = 0;
   if (lamination && laminationType) {
     const lamPerSide = THERMAL_LAMINATION_PRICES[laminationType] || 0;
     if (isPagesAvailable) {
-      laminationPrice = lamPerSide * numPages * numCopies;
+      const sideMultiplier = isDouble ? 2 : 1;
+      const actualSides = numPages * numCopies * sideMultiplier;
+      const minimumCharge = 10 * lamPerSide;
+      laminationPrice = Math.max(minimumCharge, actualSides * lamPerSide);
     }
   }
 

@@ -58,7 +58,7 @@ export default function ServiceCard({
       </div>
 
       {/* Main Service Content (Upper 1-Card Height Area) */}
-      <div style={{ position: 'relative', zIndex: 2, marginTop: image ? 'auto' : 0 }}>
+      <div style={{ position: 'relative', zIndex: 2, marginTop: (image && !isExpanded) ? 'auto' : 0, paddingTop: isExpanded ? 24 : 0, transition: 'padding-top 0.4s ease, margin-top 0.4s ease' }}>
         <h3 className="headline-sm" style={{ fontSize: 20, marginBottom: 6, color: image ? '#ffffff' : 'inherit', fontWeight: 700 }}>{title}</h3>
         <p className="body-md" style={{ color: image ? 'rgba(255,255,255,0.85)' : 'var(--on-surface-variant)', margin: 0, fontSize: 13.5, lineHeight: 1.4 }}>{description}</p>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ServiceCard from '../components/ServiceCard';
@@ -7,8 +7,14 @@ import { supabase } from '../lib/supabase';
 import { getLocalOrders } from '../lib/orderService';
 
 const ALL_SERVICES = [
-  { title: "Certificates", icon: "military_tech", image: "/images/services/certificates.jpg", description: "High-quality award and certificate printing." },
-  { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
+  { 
+    title: "Printouts", 
+    icon: "file_copy", 
+    image: "/images/services/a4-printouts.jpg", 
+    description: "Crisp and clear document printing.",
+    isExpandable: true,
+    detailsType: "printouts"
+  },
   { 
     title: "Plan Printouts", 
     icon: "print", 
@@ -25,14 +31,8 @@ const ALL_SERVICES = [
     isExpandable: true,
     detailsType: "visiting_cards"
   },
-  { 
-    title: "Printouts", 
-    icon: "file_copy", 
-    image: "/images/services/a4-printouts.jpg", 
-    description: "Crisp and clear document printing.",
-    isExpandable: true,
-    detailsType: "printouts"
-  },
+  { title: "Certificates", icon: "military_tech", image: "/images/services/certificates.jpg", description: "High-quality award and certificate printing." },
+  { title: "Spiral Binding", icon: "auto_stories", image: "/images/services/spiral-binding.jpg", description: "Professional spiral binding for documents and reports." },
   { title: "Perfect Binding", icon: "menu_book", image: "/images/services/perfect-binding.jpg", description: "Book-like perfect binding for a premium finish." },
   { title: "Brochures", icon: "import_contacts", image: "/images/services/brochures.jpg", description: "Eye-catching tri-fold and bi-fold brochures." },
   { title: "Wiro Binding", icon: "library_books", image: "/images/services/wiro-binding.jpg", description: "Durable and flexible wiro binding." },
@@ -52,6 +52,7 @@ const STATUS_TIMELINE = [
 
 export default function Services() {
   const location = useLocation();
+  const navigate = useNavigate();
   const trackingRef = useRef(null);
   const [orderId, setOrderId] = useState('');
   const [trackResult, setTrackResult] = useState(null);
@@ -165,6 +166,7 @@ export default function Services() {
                 isExpandable={Boolean(service.isExpandable)}
                 isExpanded={expandedCardTitle === service.title}
                 detailsType={service.detailsType}
+                onClick={() => navigate('/order')}
                 onToggleExpand={() => {
                   setExpandedCardTitle(prev => prev === service.title ? null : service.title);
                 }}

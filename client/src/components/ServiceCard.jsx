@@ -17,6 +17,11 @@ export default function ServiceCard({
     }
   };
 
+  const handleDetailClick = (e) => {
+    e.stopPropagation();
+    if (onClick) onClick(e);
+  };
+
   return (
     <div
       className={`service-card ${isExpanded ? 'is-expanded' : ''} ${isExpanded && detailsType === 'printouts' ? 'is-expanded-printouts' : ''} ${isExpandable ? 'is-expandable' : ''}`}
@@ -73,23 +78,23 @@ export default function ServiceCard({
                 Available Substrates & Materials
               </div>
               <div className="pro-chips-grid">
-                <div className="pro-chip">
+                <div className="pro-chip" onClick={handleDetailClick}>
                   <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Art Board (300 GSM)</span>
                 </div>
-                <div className="pro-chip">
+                <div className="pro-chip" onClick={handleDetailClick}>
                   <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Art Board with Lamination</span>
                 </div>
-                <div className="pro-chip">
+                <div className="pro-chip" onClick={handleDetailClick}>
                   <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Metallic & Special Boards</span>
                 </div>
-                <div className="pro-chip">
+                <div className="pro-chip" onClick={handleDetailClick}>
                   <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Synthetic White 125 Micron</span>
                 </div>
-                <div className="pro-chip">
+                <div className="pro-chip" onClick={handleDetailClick}>
                   <span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>
                   <span>Syn. White 200 Mic / Gold & Silver</span>
                 </div>
@@ -107,11 +112,11 @@ export default function ServiceCard({
                     BLACK & WHITE / GRAYSCALE
                   </div>
                   <div className="pro-chips-grid">
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 70 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 80 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 100 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond — 100 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 70 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 80 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Copier — 100 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond — 100 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
                   </div>
                 </div>
 
@@ -122,13 +127,13 @@ export default function ServiceCard({
                     COLOR PRINTING
                   </div>
                   <div className="pro-chips-grid">
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Paper — 100 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond Paper — 100 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 130 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 170 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 250 GSM</div>
-                    <div className="pro-chip"><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 300 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Paper — 100 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Bond Paper — 100 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Ledger Green — 80 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 130 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Paper — 170 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 250 GSM</div>
+                    <div className="pro-chip" onClick={handleDetailClick}><span className="material-symbols-outlined pro-bullet-icon">chevron_right</span>Art Board — 300 GSM</div>
                   </div>
                 </div>
               </div>
@@ -142,21 +147,21 @@ export default function ServiceCard({
                 Available Plan Sizes
               </div>
               <div className="pro-plan-rows">
-                <div className="pro-plan-card">
+                <div className="pro-plan-card" onClick={handleDetailClick}>
                   <div className="pro-plan-badge">A2</div>
                   <div className="pro-plan-info">
                     <span className="pro-plan-gsm">90 GSM Plotter Paper</span>
                     <span className="pro-plan-tag">Standard CAD / Engineering</span>
                   </div>
                 </div>
-                <div className="pro-plan-card">
+                <div className="pro-plan-card" onClick={handleDetailClick}>
                   <div className="pro-plan-badge">A1</div>
                   <div className="pro-plan-info">
                     <span className="pro-plan-gsm">91 GSM Plotter Paper</span>
                     <span className="pro-plan-tag">Architectural Blueprint</span>
                   </div>
                 </div>
-                <div className="pro-plan-card">
+                <div className="pro-plan-card" onClick={handleDetailClick}>
                   <div className="pro-plan-badge">A0</div>
                   <div className="pro-plan-info">
                     <span className="pro-plan-gsm">92 GSM Plotter Paper</span>

@@ -122,7 +122,7 @@ export default function Home() {
                 Upload your files, configure your options, and get commercial-grade prints, binding, visiting cards, and plans ready on time.
               </p>
 
-              {/* Action Buttons (WhatsApp Us + Start Print + View Our Services) */}
+              {/* Action Buttons (WhatsApp Us + Quick Print + View Our Services) */}
               <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
                 <a
                   href="https://wa.me/919345046665"
@@ -151,7 +151,7 @@ export default function Home() {
                   }}
                 >
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }}>print</span>
-                  Start Print
+                  Quick Print
                 </a>
 
                 <Link

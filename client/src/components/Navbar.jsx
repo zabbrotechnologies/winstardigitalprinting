@@ -222,7 +222,7 @@ export default function Navbar() {
                 style={{ padding: '8px 18px', fontSize: 13 }}
                 onClick={(e) => handleNavClick(e, '/#quick-print')}
               >
-                Start Print
+                Quick Print
               </Link>
             </div>
           )}
@@ -285,7 +285,7 @@ export default function Navbar() {
                 onClick={(e) => handleNavClick(e, '/#quick-print')}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                Start Print
+                Quick Print
               </Link>
             </div>
           )}

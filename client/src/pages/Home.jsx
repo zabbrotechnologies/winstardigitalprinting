@@ -114,7 +114,7 @@ export default function Home() {
                 <span>High Quality Printing</span>
                 <span style={{ color: '#0284c7', fontSize: 18 }}>•</span>
                 <span>Fast Service</span>
-                <span style={{ color: '#ec4899', fontSize: 18 }}>•</span>
+                <span style={{ color: '#ef4444', fontSize: 18 }}>•</span>
                 <span>Best Price</span>
               </div>
 

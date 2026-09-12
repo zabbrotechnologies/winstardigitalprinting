@@ -928,9 +928,9 @@ img {
 }
 
 .expand-indicator-badge.active {
-  background: rgba(244, 114, 182, 0.25);
-  border-color: rgba(244, 114, 182, 0.5);
-  color: #f472b6;
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
 }
 
 .service-card-expanded-body {
@@ -963,6 +963,16 @@ img {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition-delay: 0s;
+}
+
+.service-card-expanded-body.is-visible .expanded-details-inner {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.15s;
 }
 
 .pro-section-header {
@@ -978,7 +988,7 @@ img {
 
 .pro-section-header .header-icon {
   font-size: 14px;
-  color: #f472b6;
+  color: #ef4444;
 }
 
 .pro-chips-grid {
@@ -1001,7 +1011,7 @@ img {
 
 .pro-bullet-icon {
   font-size: 13px !important;
-  color: #f472b6;
+  color: #ef4444;
   flex-shrink: 0;
 }
 
@@ -1069,9 +1079,9 @@ img {
 .pro-plan-badge {
   font-size: 12px;
   font-weight: 800;
-  color: #f472b6;
-  background: rgba(244, 114, 182, 0.15);
-  border: 1px solid rgba(244, 114, 182, 0.3);
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
   width: 28px;
   height: 28px;
   border-radius: 6px;

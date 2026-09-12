@@ -2425,7 +2425,9 @@ export default function PrintWizard({ isWholesale = false }) {
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13.5, color: 'var(--on-surface)' }}>
-                          <span style={{ color: 'var(--on-surface-variant)' }}>Cutting:</span>
+                          <span style={{ color: 'var(--on-surface-variant)' }}>
+                            {(!b2bCutting || !b2bCuttingType) ? 'Cutting:' : `Cutting: ${b2bCuttingType}`}
+                          </span>
                           <span style={{ fontWeight: 700 }}>
                             {!b2bCutting ? '₹0' : formatINR(b2bPriceResult.cuttingPrice)}
                           </span>

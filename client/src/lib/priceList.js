@@ -333,7 +333,7 @@ export const THERMAL_LAMINATION_PRICES = {
 export const CUTTING_PRICES = {
   'Edge Cutting': 40,
   'A4 Cutting': 30,
-  'A3 Cutting': 40,
+  'A5 Cutting': 30,
   'Visiting Card Cutting': 60,
 };
 
@@ -344,7 +344,7 @@ export const STICKER_FINISHING_PRICES = {
 };
 
 export const THERMAL_LAMINATION_OPTIONS = ['Glossy', 'Matt', 'Velvet', '3D'];
-export const CUTTING_OPTIONS = ['Edge Cutting', 'A4 Cutting', 'A3 Cutting', 'Visiting Card Cutting'];
+export const CUTTING_OPTIONS = ['Edge Cutting', 'A4 Cutting', 'A5 Cutting', 'Visiting Card Cutting'];
 export const STICKER_OPTIONS = ['Creasing', 'Scoring', 'Shape Cut'];
 
 // ==========================================
@@ -684,11 +684,10 @@ export function calculateB2BPrice(orderState = {}) {
     }
   }
 
-  // Cutting Total = Selected Cutting Price * Copies
+  // Cutting Total = Static Fixed Charge
   let cuttingPrice = 0;
   if (cutting && cuttingType) {
-    const cutRate = CUTTING_PRICES[cuttingType] || 0;
-    cuttingPrice = cutRate * numCopies;
+    cuttingPrice = CUTTING_PRICES[cuttingType] || 0;
   }
 
   // Sticker Finishing Total = Selected Sticker Finishing Price * Copies

@@ -2613,8 +2613,8 @@ export default function PrintWizard({ isWholesale = false }) {
                 <div style={{ borderTop: '1px dashed var(--surface-container-high)', paddingTop: 14, marginBottom: 16 }}>
                   {Number(prices.printingTotal) > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      <span>Printing Cost</span>
-                      <span>₹{prices.printingTotal}</span>
+                      <span>{config.service === 'visiting_cards' ? 'Print Cost' : 'Printing Cost'}</span>
+                      <span>₹{config.service === 'visiting_cards' ? (Number(prices.printingTotal) + Number(prices.cuttingTotal)).toFixed(2) : prices.printingTotal}</span>
                     </div>
                   )}
                   {Number(prices.bindingTotal) > 0 && (
@@ -2623,7 +2623,7 @@ export default function PrintWizard({ isWholesale = false }) {
                       <span>₹{prices.bindingTotal}</span>
                     </div>
                   )}
-                  {Number(prices.cuttingTotal) > 0 && (
+                  {Number(prices.cuttingTotal) > 0 && config.service !== 'visiting_cards' && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
                       <span>Cutting Charge</span>
                       <span>₹{prices.cuttingTotal}</span>

@@ -457,6 +457,7 @@ export default function PrintWizard({ isWholesale = false }) {
     let printingTotal = 0;
     let bindingTotal = 0;
     let cuttingTotal = 0;
+    let offerPrice = null;
 
     if (isWholesaleActive) {
       return {
@@ -526,6 +527,10 @@ export default function PrintWizard({ isWholesale = false }) {
         printingTotal = baseRate;
         cuttingTotal = cutoff;
 
+        if (config.card_type === 'Art Board' && cardQty === 120) {
+          offerPrice = config.card_side === 'Front & Back' ? 200 : 150;
+        }
+
       } else if (config.service === 'brochures_flyers') {
         if (config.bf_product === 'Flyers') {
           const flyerQty = parseInt(config.flyer_qty) || 25;
@@ -548,15 +553,17 @@ export default function PrintWizard({ isWholesale = false }) {
       }
 
       const courierCharge = deliveryType === 'courier' ? 30 : 0;
-      const grandTotal = Math.round(printingTotal + bindingTotal + cuttingTotal + courierCharge);
+      const baseGrandTotal = printingTotal + bindingTotal + cuttingTotal;
+      const grandTotal = Math.round((offerPrice !== null ? offerPrice : baseGrandTotal) + courierCharge);
       return {
-        subtotal: (printingTotal + bindingTotal + cuttingTotal).toFixed(2),
+        subtotal: (offerPrice !== null ? offerPrice : baseGrandTotal).toFixed(2),
         gst: '0.00',
         grandTotal: grandTotal.toFixed(2),
         printingTotal: printingTotal.toFixed(2),
         bindingTotal: bindingTotal.toFixed(2),
         cuttingTotal: cuttingTotal.toFixed(2),
-        courierCharge: courierCharge.toFixed(2)
+        courierCharge: courierCharge.toFixed(2),
+        offerPrice: offerPrice !== null ? offerPrice.toFixed(2) : null
       };
     }
   }
@@ -2612,10 +2619,24 @@ export default function PrintWizard({ isWholesale = false }) {
               {!isWholesaleActive && (
                 <div style={{ borderTop: '1px dashed var(--surface-container-high)', paddingTop: 14, marginBottom: 16 }}>
                   {Number(prices.printingTotal) > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
-                      <span>{config.service === 'visiting_cards' ? 'Print Cost' : 'Printing Cost'}</span>
-                      <span>₹{config.service === 'visiting_cards' ? (Number(prices.printingTotal) + Number(prices.cuttingTotal)).toFixed(2) : prices.printingTotal}</span>
-                    </div>
+                    <>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                        <span>{config.service === 'visiting_cards' ? 'Print Cost' : 'Printing Cost'}</span>
+                        <span>
+                          {prices.offerPrice && config.service === 'visiting_cards' ? (
+                            <del>₹{(Number(prices.printingTotal) + Number(prices.cuttingTotal)).toFixed(2)}</del>
+                          ) : (
+                            `₹${config.service === 'visiting_cards' ? (Number(prices.printingTotal) + Number(prices.cuttingTotal)).toFixed(2) : prices.printingTotal}`
+                          )}
+                        </span>
+                      </div>
+                      {prices.offerPrice && config.service === 'visiting_cards' && (
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>
+                          <span>Offer Price</span>
+                          <span>₹{prices.offerPrice}</span>
+                        </div>
+                      )}
+                    </>
                   )}
                   {Number(prices.bindingTotal) > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13, color: 'var(--on-surface-variant)' }}>

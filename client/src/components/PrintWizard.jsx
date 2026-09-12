@@ -173,7 +173,10 @@ export default function PrintWizard({ isWholesale = false }) {
     const newGsm = gsms.includes(config.bw_gsm) ? config.bw_gsm : gsms[0] || '';
     const row = getBWRow(newSize, newPaper, newGsm);
     const newSide = (row?.fb === null) ? 'Single Side' : config.bw_side;
-    const newBinding = ['A4', 'FS'].includes(newSize) ? config.binding : 'No Binding';
+    
+    let newBinding = config.binding;
+    if (config.binding === 'Chat Binding' && !['A4', 'FS'].includes(newSize)) newBinding = 'No Binding';
+    if (config.binding === 'Spiral Binding' && !['A4', 'FS', 'A3'].includes(newSize)) newBinding = 'No Binding';
 
     setConfig(c => ({
       ...c,
@@ -218,7 +221,10 @@ export default function PrintWizard({ isWholesale = false }) {
     const newGsm = gsms.includes(config.color_gsm) ? config.color_gsm : gsms[0] || '';
     const row = getColorRow(newSize, newPaper, newGsm);
     const newSide = (row?.fb === null) ? 'Single Side' : config.color_side;
-    const newBinding = newSize === 'A4' ? config.binding : 'No Binding';
+    
+    let newBinding = config.binding;
+    if (config.binding === 'Chat Binding' && !['A4', 'FS'].includes(newSize)) newBinding = 'No Binding';
+    if (config.binding === 'Spiral Binding' && !['A4', 'FS', 'A3'].includes(newSize)) newBinding = 'No Binding';
 
     setConfig(c => ({
       ...c,
@@ -481,12 +487,12 @@ export default function PrintWizard({ isWholesale = false }) {
         printingTotal = pages * rate * copies;
 
         let bindingRate = 0;
-        if (['A4', 'FS'].includes(config.bw_size)) {
-          if (config.binding === 'Chat Binding') {
+        if (['A4', 'FS', 'A3'].includes(config.bw_size)) {
+          if (config.binding === 'Chat Binding' && ['A4', 'FS'].includes(config.bw_size)) {
             bindingRate = BINDING_PRICES['Chat Binding'][config.bw_size] || 0;
           } else if (config.binding === 'Spiral Binding') {
             const tiers = BINDING_PRICES['Spiral Binding'][config.bw_size] || [];
-            const tier = tiers.find(t => pages <= t.max);
+            const tier = tiers.find(t => pages >= t.min && pages <= t.max);
             bindingRate = tier ? tier.price : 0;
           }
         }
@@ -506,12 +512,12 @@ export default function PrintWizard({ isWholesale = false }) {
         }
 
         let bindingRate = 0;
-        if (['A4', 'FS'].includes(config.color_size)) {
-          if (config.binding === 'Chat Binding') {
-            bindingRate = BINDING_PRICES['Chat Binding'][config.color_size] || 8;
+        if (['A4', 'FS', 'A3'].includes(config.color_size)) {
+          if (config.binding === 'Chat Binding' && ['A4', 'FS'].includes(config.color_size)) {
+            bindingRate = BINDING_PRICES['Chat Binding'][config.color_size] || 0;
           } else if (config.binding === 'Spiral Binding') {
-            const tiers = BINDING_PRICES['Spiral Binding'][config.color_size] || BINDING_PRICES['Spiral Binding']['A4'] || [];
-            const tier = tiers.find(t => pages <= t.max);
+            const tiers = BINDING_PRICES['Spiral Binding'][config.color_size] || [];
+            const tier = tiers.find(t => pages >= t.min && pages <= t.max);
             bindingRate = tier ? tier.price : 0;
           }
         }
@@ -581,7 +587,7 @@ export default function PrintWizard({ isWholesale = false }) {
   );
 
   const b2cCurrentSize = config.service === 'bw_print' ? config.bw_size : (config.service === 'color_print' ? config.color_size : '');
-  const isB2CBindOverLimit = b2cCurrentSize === 'A4' && config.binding === 'Spiral Binding' && config.pages > 500;
+  const isB2CBindOverLimit = config.binding === 'Spiral Binding' && config.pages > 500;
 
   const isB2CStep2Complete = Boolean(
     isB2CStep1Complete &&
@@ -1866,15 +1872,18 @@ export default function PrintWizard({ isWholesale = false }) {
                         </div>
                       </div>
 
-                      {['A4', 'FS'].includes(config.bw_size) && (
+                      {['A4', 'FS', 'A3'].includes(config.bw_size) && (
                         <div className="form-group" style={{ marginBottom: 16 }}>
                           <label className="label">Binding Add-on</label>
                           <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
                             {BINDING_OPTIONS.map(b => {
-                              const disabled = b === 'Spiral Binding' && config.bw_size === 'A4' && config.pages > 500;
+                              const disabledSpiral = b === 'Spiral Binding' && config.pages > 500;
+                              const disabledChat = b === 'Chat Binding' && !['A4', 'FS'].includes(config.bw_size);
+                              const disabled = disabledSpiral || disabledChat;
+                              const reason = disabledSpiral ? ' (> 500 pages)' : disabledChat ? ' (A4/FS only)' : '';
                               return (
                                 <option key={b} value={b} disabled={disabled}>
-                                  {b} {disabled ? ' (Unavailable > 500 pages)' : ''}
+                                  {b} {disabled ? ` (Unavailable${reason})` : ''}
                                 </option>
                               );
                             })}
@@ -1987,15 +1996,18 @@ export default function PrintWizard({ isWholesale = false }) {
                         </div>
                       </div>
 
-                      {config.color_size === 'A4' && (
+                      {['A4', 'FS', 'A3'].includes(config.color_size) && (
                         <div className="form-group" style={{ marginBottom: 16 }}>
                           <label className="label">Binding Add-on</label>
                           <select className="select" value={config.binding} onChange={e => setConfig(c => ({ ...c, binding: e.target.value }))}>
                             {BINDING_OPTIONS.map(b => {
-                              const disabled = b === 'Spiral Binding' && config.pages > 500;
+                              const disabledSpiral = b === 'Spiral Binding' && config.pages > 500;
+                              const disabledChat = b === 'Chat Binding' && !['A4', 'FS'].includes(config.color_size);
+                              const disabled = disabledSpiral || disabledChat;
+                              const reason = disabledSpiral ? ' (> 500 pages)' : disabledChat ? ' (A4/FS only)' : '';
                               return (
                                 <option key={b} value={b} disabled={disabled}>
-                                  {b} {disabled ? ' (Unavailable > 500 pages)' : ''}
+                                  {b} {disabled ? ` (Unavailable${reason})` : ''}
                                 </option>
                               );
                             })}

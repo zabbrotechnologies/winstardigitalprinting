@@ -459,12 +459,10 @@ export async function fetchAllAgencies() {
     console.warn('profiles fetch notice:', err);
   }
 
-  // 3. Merge with local storage agencies
-  const localAgencies = getLocalAgencies();
   const seen = new Set();
   const merged = [];
 
-  [...remoteAgencies, ...localAgencies].forEach(ag => {
+  remoteAgencies.forEach(ag => {
     const key = ag.email || ag.id;
     if (key && !seen.has(key)) {
       seen.add(key);

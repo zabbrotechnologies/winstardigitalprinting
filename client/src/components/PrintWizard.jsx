@@ -250,24 +250,6 @@ export default function PrintWizard({ isWholesale = false }) {
     }));
   };
 
-  const handleNumberInput = (field, value) => {
-    if (value === '') {
-      setConfig(c => ({ ...c, [field]: '' }));
-    } else {
-      const num = parseInt(value, 10);
-      if (!isNaN(num)) {
-        setConfig(c => ({ ...c, [field]: num }));
-      }
-    }
-  };
-
-  const handleNumberBlur = (field) => {
-    setConfig(c => ({
-      ...c,
-      [field]: Math.max(1, parseInt(c[field], 10) || 1)
-    }));
-  };
-
   const handleColorGsmChange = (newGsm) => {
     const row = getColorRow(config.color_size, config.color_paper, newGsm);
     const newSide = (row?.fb === null) ? 'Single Side' : config.color_side;
@@ -1875,8 +1857,7 @@ export default function PrintWizard({ isWholesale = false }) {
                             min="1"
                             className="input"
                             value={config.pages}
-                            onChange={e => handleNumberInput('pages', e.target.value)}
-                            onBlur={() => handleNumberBlur('pages')}
+                            onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))}
                           />
                         </div>
                         <div className="form-group">
@@ -1886,8 +1867,7 @@ export default function PrintWizard({ isWholesale = false }) {
                             min="1"
                             className="input"
                             value={config.copies}
-                            onChange={e => handleNumberInput('copies', e.target.value)}
-                            onBlur={() => handleNumberBlur('copies')}
+                            onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))}
                           />
                         </div>
                       </div>
@@ -2001,8 +1981,7 @@ export default function PrintWizard({ isWholesale = false }) {
                             min="1"
                             className="input"
                             value={config.pages}
-                            onChange={e => handleNumberInput('pages', e.target.value)}
-                            onBlur={() => handleNumberBlur('pages')}
+                            onChange={e => setConfig(c => ({ ...c, pages: Math.max(1, parseInt(e.target.value) || 1) }))}
                           />
                         </div>
                         <div className="form-group">
@@ -2012,8 +1991,7 @@ export default function PrintWizard({ isWholesale = false }) {
                             min="1"
                             className="input"
                             value={config.copies}
-                            onChange={e => handleNumberInput('copies', e.target.value)}
-                            onBlur={() => handleNumberBlur('copies')}
+                            onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))}
                           />
                         </div>
                       </div>
@@ -2134,8 +2112,7 @@ export default function PrintWizard({ isWholesale = false }) {
                               min="1"
                               className="input"
                               value={config.copies}
-                              onChange={e => handleNumberInput('copies', e.target.value)}
-                              onBlur={() => handleNumberBlur('copies')}
+                              onChange={e => setConfig(c => ({ ...c, copies: Math.max(1, parseInt(e.target.value) || 1) }))}
                             />
                           </div>
                         </div>
@@ -2160,8 +2137,7 @@ export default function PrintWizard({ isWholesale = false }) {
                                     min="1"
                                     className="input"
                                     value={config.letterhead_sheets}
-                                    onChange={e => handleNumberInput('letterhead_sheets', e.target.value)}
-                                    onBlur={() => handleNumberBlur('letterhead_sheets')}
+                                    onChange={e => setConfig(c => ({ ...c, letterhead_sheets: Math.max(1, parseInt(e.target.value) || 1) }))}
                                   />
                                   <span style={{ fontSize: 11, color: 'var(--on-surface-variant)', display: 'block', marginTop: 4 }}>
                                     1–10: ₹10/ea • 11–50: ₹8/ea • 51+: ₹7/ea
@@ -2175,8 +2151,7 @@ export default function PrintWizard({ isWholesale = false }) {
                                     min="1"
                                     className="input"
                                     value={config.letterhead_pads}
-                                    onChange={e => handleNumberInput('letterhead_pads', e.target.value)}
-                                    onBlur={() => handleNumberBlur('letterhead_pads')}
+                                    onChange={e => setConfig(c => ({ ...c, letterhead_pads: Math.max(1, parseInt(e.target.value) || 1) }))}
                                   />
                                   <span style={{ fontSize: 11, color: 'var(--on-surface-variant)', display: 'block', marginTop: 4 }}>
                                     ₹700 per 100-sheet pad
@@ -2208,8 +2183,7 @@ export default function PrintWizard({ isWholesale = false }) {
                               min="1"
                               className="input"
                               value={config.billbook_pads}
-                              onChange={e => handleNumberInput('billbook_pads', e.target.value)}
-                              onBlur={() => handleNumberBlur('billbook_pads')}
+                              onChange={e => setConfig(c => ({ ...c, billbook_pads: Math.max(1, parseInt(e.target.value) || 1) }))}
                             />
                             <span style={{ fontSize: 11, color: 'var(--on-surface-variant)', display: 'block', marginTop: 4 }}>
                               ₹700 per 100-sheet pad
